@@ -1,0 +1,3 @@
+# Local environment mappings (keep out of git)
+references/env-config.local.yaml
+references/env-config.local.json

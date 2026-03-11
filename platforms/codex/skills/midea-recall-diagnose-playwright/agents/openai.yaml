@@ -1,0 +1,4 @@
+interface:
+  display_name: "Midea Recall 召回排障"
+  short_description: "通过 trace、ELK、ES 排查 keyword 漏召回"
+  default_prompt: "使用 $midea-recall-diagnose-playwright 排查这次 keyword 检索为什么没有召回期望的 doc 或 FAQ。"

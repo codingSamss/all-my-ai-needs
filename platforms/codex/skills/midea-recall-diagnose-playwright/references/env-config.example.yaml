@@ -1,0 +1,69 @@
+version: 1
+notes:
+  - "Copy this file to env-config.local.yaml before filling real URLs."
+  - "Keep credentials, cookies, and tokens out of this file."
+  - "Use browser login state instead of putting auth headers here."
+
+environments:
+  sit:
+    label: "SIT"
+    search:
+      base_url: "https://<sit-search-origin>"
+      keyword_path: "/rag-recall/api/search/keyword"
+      trace_record_info_path: "/rag-recall/api/search/trace/recordInfo"
+      default_headers:
+        appId: "<required>"
+        appChannel: "<optional>"
+    elk:
+      discover_base_url: "https://<sit-elk-origin>/app/discover"
+      index_pattern: "logstash"
+      default_time_range: "now-3d"
+      target_search_hint: "\"<targetId>\" and \"TRACE_TARGET_ES\""
+    es_console:
+      page_url: "https://<sit-console-origin>/elasticsearch/instance/instance-menu/indexSearch?...&tab=DevelopmentTool"
+      request_proxy_url: "https://<sit-console-api>/Elasticsearch/2024-01-11/dataRetrievales/requestEs"
+      instance_id: "<instanceId>"
+      region_id: "<regionId>"
+      zone: "<zone>"
+
+  uat:
+    label: "UAT"
+    search:
+      base_url: "https://<uat-search-origin>"
+      keyword_path: "/rag-recall/api/search/keyword"
+      trace_record_info_path: "/rag-recall/api/search/trace/recordInfo"
+      default_headers:
+        appId: "<required>"
+        appChannel: "<optional>"
+    elk:
+      discover_base_url: "https://<uat-elk-origin>/app/discover"
+      index_pattern: "logstash"
+      default_time_range: "now-3d"
+      target_search_hint: "\"<targetId>\" and \"TRACE_TARGET_ES\""
+    es_console:
+      page_url: "https://<uat-console-origin>/elasticsearch/instance/instance-menu/indexSearch?...&tab=DevelopmentTool"
+      request_proxy_url: "https://<uat-console-api>/Elasticsearch/2024-01-11/dataRetrievales/requestEs"
+      instance_id: "<instanceId>"
+      region_id: "<regionId>"
+      zone: "<zone>"
+
+  prod:
+    label: "PROD"
+    search:
+      base_url: "https://<prod-search-origin>"
+      keyword_path: "/rag-recall/api/search/keyword"
+      trace_record_info_path: "/rag-recall/api/search/trace/recordInfo"
+      default_headers:
+        appId: "<required>"
+        appChannel: "<optional>"
+    elk:
+      discover_base_url: "https://<prod-elk-origin>/app/discover"
+      index_pattern: "logstash"
+      default_time_range: "now-3d"
+      target_search_hint: "\"<targetId>\" and \"TRACE_TARGET_ES\""
+    es_console:
+      page_url: "https://<prod-console-origin>/elasticsearch/instance/instance-menu/indexSearch?...&tab=DevelopmentTool"
+      request_proxy_url: "https://<prod-console-api>/Elasticsearch/2024-01-11/dataRetrievales/requestEs"
+      instance_id: "<instanceId>"
+      region_id: "<regionId>"
+      zone: "<zone>"
