@@ -24,6 +24,7 @@
 | `orbit-session-diary` | 基于本地会话日志生成 Obsidian 日记 | Claude / Codex |
 | `peekaboo` | macOS 截图与视觉分析 | Claude / Codex |
 | `pinchtab` | PinchTab 优先的浏览器自动化，失败时回退 `playwright-ext` | Claude / Codex |
+| `playwright` | MCP-only 真实浏览器自动化 | Claude / Codex |
 | `reddit` | 只读访问 Reddit 内容 | Claude / Codex |
 | `scrapling` | Scrapling 优先的网页抓取与结构化提取 | Claude / Codex |
 | `ui-ux-pro-max` | UI/UX 设计知识检索与落地辅助 | Claude / Codex |
@@ -43,7 +44,6 @@
 | Skill | 能力 |
 | --- | --- |
 | `openai-docs` | OpenAI 官方文档与 API 实现指引 |
-| `playwright` | MCP-only 真实浏览器自动化 |
 | `screenshot` | 系统级截图与区域捕获 |
 
 ## 平台能力摘要
@@ -60,7 +60,7 @@
 - `./scripts/sync_to_codex.sh` 同步 `platforms/codex` 到 `~/.codex`
 - 受管 root 仅包含 `AGENTS.md`、`agents/`、`bin/`、`hooks/`、`scripts/`、`rules/`；`config.toml` 默认不覆盖本机
 - `~/.codex/skills` 保留 `.system` 与本地未托管内容
-- 平台特有能力集中在 `openai-docs`、`playwright`、`screenshot`
+- 平台特有能力集中在 `openai-docs`、`screenshot`
 - skill 级 `runtime.yaml` 仅同步到对应 skill 目录；平台级 `platforms/codex/runtime.yaml` 仅供仓库内 AI 理解迁移规则
 
 ## 快速入口

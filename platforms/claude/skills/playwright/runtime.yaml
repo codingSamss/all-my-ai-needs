@@ -1,0 +1,25 @@
+runtime_version: 1
+skill: playwright
+platform: claude
+
+sync_paths:
+  - SKILL.md
+  - runtime.yaml
+
+dependencies:
+  commands:
+    - node
+    - npm
+    - npx
+  mcp_servers:
+    - playwright-ext
+
+manual_steps:
+  - 执行 ./setup.sh core，同步 playwright-ext MCP 模板到 ~/.claude.json
+  - 将 PLAYWRIGHT_MCP_EXTENSION_TOKEN 占位符替换为有效值
+
+verify:
+  - node --version
+  - npm --version
+  - npx --version
+  - claude mcp list | rg "playwright-ext"

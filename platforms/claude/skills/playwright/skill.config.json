@@ -1,0 +1,5 @@
+{
+  "name": "playwright",
+  "targets": ["claude", "codex"],
+  "entry": "SKILL.md"
+}

@@ -32,6 +32,7 @@
 | `orbit-session-diary` | 基于本地会话日志生成 Obsidian 日记 | 依赖本地 jsonl 与目标 Vault |
 | `peekaboo` | macOS 截图与视觉分析 | 依赖 Peekaboo |
 | `pinchtab` | PinchTab 优先的浏览器自动化 | PinchTab + `playwright-ext` fallback |
+| `playwright` | MCP-only 真实浏览器自动化 | 依赖 `playwright-ext` 浏览器扩展会话 |
 | `plugin-manager` | Claude Code 插件管理 | 面向 `.claude-plugin` 体系 |
 | `reddit` | 只读访问 Reddit 内容 | 依赖 Composio MCP |
 | `scrapling` | Scrapling 优先的网页抓取与结构化提取 | `scrapling[fetchers]` + `playwright-ext` |
