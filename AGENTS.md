@@ -60,12 +60,15 @@
 每次提交信息必须包含更新摘要标签与中文分点总结：
 - 提交信息正文必须包含 `[更新摘要]` 标签。
 - `[更新摘要]` 下必须使用中文分点列出本次改动（建议 2-5 条，每条一句）。
+- 每次 `git commit` 后必须创建并推送一个 Git annotated tag；tag 注释中也必须包含 `[更新摘要]` 与中文分点总结。
+- 推荐 tag 命名：`sync-YYYYMMDD-<short-topic>` 或 `feat-YYYYMMDD-<short-topic>`（短主题使用小写短横线）。
 - 示例：
   - `docs(sync): 同步浏览器 MCP 配置`
   - `[更新摘要]`
   - `- 新增 Codex 侧 chrome-devtools MCP 模板配置。`
   - `- 新增 Claude 侧 chrome-devtools MCP 模板配置。`
   - `- 更新 README 的同步说明与注意事项。`
+  - `git tag -a sync-20260314-mcp-template -m "[更新摘要]" -m "- 新增 ..." -m "- 调整 ..."`
 
 一次提交尽量只覆盖一个平台或一个技能。合并请求需说明改动路径、执行过的验证命令、行为变化与手工步骤。
 

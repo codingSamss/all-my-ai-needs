@@ -126,8 +126,11 @@ description: "包含触发关键词的描述"
 - `scripts/` 下脚本应保持可执行、可重复运行、无副作用残留。
 - 提交信息遵循 Conventional Commits（如 `feat:`、`fix:`、`chore:`）。
 - 每次提交信息正文必须包含 `[更新摘要]` 标签，并在其下使用中文分点列出本次改动（建议 2-5 条，每条一句）。
+- 每次 `git commit` 后必须创建并推送一个 Git annotated tag，且 tag 注释中也必须包含 `[更新摘要]` 与中文分点总结。
+- 推荐 tag 命名：`sync-YYYYMMDD-<short-topic>` 或 `feat-YYYYMMDD-<short-topic>`（短主题使用小写短横线）。
 - 提交摘要格式示例：
   - `[更新摘要]`
   - `- 新增 ...`
   - `- 调整 ...`
   - `- 修复 ...`
+  - `git tag -a sync-20260314-mcp-template -m "[更新摘要]" -m "- 新增 ..." -m "- 调整 ..."`
