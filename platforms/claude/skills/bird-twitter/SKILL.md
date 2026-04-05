@@ -79,6 +79,19 @@ HTTP_PROXY=http://127.0.0.1:7897 HTTPS_PROXY=http://127.0.0.1:7897 bird --cookie
 HTTP_PROXY=http://127.0.0.1:7897 HTTPS_PROXY=http://127.0.0.1:7897 bird --cookie-source chrome --timeout 15000 read <tweet-id-or-url>
 ```
 Options: `--plain` for stable output without emoji/color
+Notes:
+- `--plain` 仅用于临时阅读/命令行快速查看，不得用于“收录/归档/完整保存”任务。
+- 归档任务必须使用 `--json-full`，并从 `article.article_results.result.content_state`（正文结构）+ `media_entities`（图片资源）恢复图文顺序。
+
+### 2b. Archive Tweet/Article (Text + Media)
+**Use when:** 用户要求“收录/归档/完整保存/原文保留（含图）”
+```bash
+HTTP_PROXY=http://127.0.0.1:7897 HTTPS_PROXY=http://127.0.0.1:7897 bird --cookie-source chrome --timeout 15000 read --json-full <tweet-id-or-url>
+```
+Requirements:
+- 保留原文结构（标题、列表、引用、代码块）
+- 图片按原文顺序本地化并在文内原位引用
+- 必做三数一致校验：预期图片数 = 下载成功数 = 文内引用数
 
 ### 3. Read Thread
 **Triggers:** "read thread [id]", "show thread [url]"
@@ -200,6 +213,7 @@ HTTP_PROXY=http://127.0.0.1:7897 HTTPS_PROXY=http://127.0.0.1:7897 bird --cookie
 
 Global output flag:
 - `--plain` - Stable output without emoji or color (good for parsing)
+- `--plain` 不可作为归档源（会丢失图文结构/媒体信息）
 
 Count flags (supported by many but not all commands):
 - `-n <number>` or `--count <number>` - Limit number of results
