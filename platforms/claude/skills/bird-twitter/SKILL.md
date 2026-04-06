@@ -92,6 +92,13 @@ Requirements:
 - 保留原文结构（标题、列表、引用、代码块）
 - 图片按原文顺序本地化并在文内原位引用
 - 必做三数一致校验：预期图片数 = 下载成功数 = 文内引用数
+- 结构重建必须以 `content_state.blocks` 为唯一顺序源，禁止用 `--plain` 文本推断结构
+- `atomic` 块类型必须从 `entityMap.value.type` 判定（`MEDIA` / `MARKDOWN` / `DIVIDER`），禁止猜测
+- `MEDIA` 必须通过 `mediaItems[].mediaId -> media_entities[].media_info.original_img_url` 映射原图
+- 下载前先清理目标目录中“同编号不同扩展名”的旧文件，避免 `img-N.jpg/png` 并存
+- 收尾必须做块级一致性校验：`MEDIA=标准图片引用数`、`MARKDOWN=代码块数`、`DIVIDER=分隔线数`
+- 若存在人工补充图，必须显式标注“补充内容，非 X 原文正文”
+- 最后执行一次未引用资产扫描，删除 `assets/hitw93-*/` 下未被任何 `.md` 引用的冗余文件
 
 ### 3. Read Thread
 **Triggers:** "read thread [id]", "show thread [url]"
