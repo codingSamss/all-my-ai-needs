@@ -72,6 +72,8 @@
 - 处理 Obsidian iCloud Vault（`~/Library/Mobile Documents/iCloud~md~obsidian/Documents/...`）中的 Markdown 文件时：若通过终端或脚本外部修改 `.md`，修改后必须对目标文件执行 `touch <file>` 强制刷新时间戳，确保 Obsidian 尽快感知变更（减少必须重启应用的情况）。
 - 更新知识库文档时，若目标文档已有存量内容，必须先基于原文进行整合式修订（结构调整、段落重写、冲突消解）再补充增量信息，禁止仅在文末简单追加。
 - 提到“知识库/日记/笔记”时：优先走当前项目已定义的 skill；若未给出目标路径，先问清再写入。
+- 处理 `all-my-ai-needs` 的共享 skill 同步时，默认采用“人工 diff + 最小落盘”，不要把 `runtime.yaml` 下发到任何 agent 运行目录；`agents/openai.yaml` 仅在 Codex 运行目录确有必要时保留。
+- 处理 `all-my-ai-needs` 同步任务时，无论是把本地目录内容同步到仓库，还是把仓库内容同步到本地运行目录，完成后都必须向用户明确汇报同步内容清单；至少包含新增、更新、删除、跳过/未同步项。
 
 ## 网络代理约定
 - 访问 GitHub 相关资源统一走本地 `7897` 端口代理。

@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CLAUDE_ROOT="$SCRIPT_DIR/platforms/claude"
 SKILLS_ROOT="$CLAUDE_ROOT/skills"
+SHARED_SKILLS_ROOT="$SCRIPT_DIR/shared/skills"
 CORE_SETUP="$CLAUDE_ROOT/setup/core.sh"
 DEFAULT_PROXY="http://127.0.0.1:7897"
 
@@ -27,6 +28,10 @@ print_usage() {
   ./setup.sh core            # 仅执行公共配置
   ./setup.sh <skill...>      # 仅执行指定 skill，例如 ./setup.sh reddit peekaboo
 
+说明:
+  日常共享 skill 同步默认由 AI 手工 diff 后做最小落盘。
+  本脚本主要用于 Claude 侧 bootstrap / 灾备 fallback。
+
 退出码:
   0: 全部自动完成
   1: 存在失败项
@@ -35,7 +40,26 @@ USAGE
 }
 
 list_skills() {
-  find "$SKILLS_ROOT" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort
+  {
+    [ -d "$SHARED_SKILLS_ROOT" ] && find "$SHARED_SKILLS_ROOT" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;
+    [ -d "$SKILLS_ROOT" ] && find "$SKILLS_ROOT" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;
+  } | sort -u
+}
+
+resolve_skill_dir() {
+  local skill="$1"
+
+  if [ -d "$SKILLS_ROOT/$skill" ]; then
+    echo "$SKILLS_ROOT/$skill"
+    return 0
+  fi
+
+  if [ -d "$SHARED_SKILLS_ROOT/$skill" ]; then
+    echo "$SHARED_SKILLS_ROOT/$skill"
+    return 0
+  fi
+
+  return 1
 }
 
 record_result() {
@@ -131,11 +155,19 @@ run_core() {
 
 run_skill() {
   local skill="$1"
-  local script="$SKILLS_ROOT/$skill/setup.sh"
+  local skill_dir=""
+  local script=""
 
-  if [ ! -d "$SKILLS_ROOT/$skill" ]; then
+  if ! skill_dir="$(resolve_skill_dir "$skill")"; then
     echo "[错误] 未找到 skill: $skill"
     record_result fail "$skill (未找到)"
+    return 0
+  fi
+
+  script="$skill_dir/setup.sh"
+  if [ ! -f "$script" ]; then
+    echo "[信息] $skill 无额外 setup 脚本；core 已负责同步必要文件"
+    record_result success "$skill (core-only)"
     return 0
   fi
 
@@ -146,7 +178,7 @@ validate_skills_or_exit() {
   local missing=0
   local skill
   for skill in "$@"; do
-    if [ ! -d "$SKILLS_ROOT/$skill" ]; then
+    if ! resolve_skill_dir "$skill" >/dev/null; then
       echo "[错误] 未找到 skill: $skill"
       missing=1
     fi

@@ -4,12 +4,13 @@
 
 ## 项目概览
 
-这是一个多平台技能仓库，Claude 与 Codex 采用完全隔离的目录与实现。仓库包含技能、脚本、Hook 与 Agent 配置。
+这是一个多平台技能仓库，以平台隔离为主，并允许少量经批准的共享 skill 真源。仓库包含技能、脚本、Hook 与 Agent 配置。
 
 ## 仓库结构
 
 ```text
 all-my-ai-needs/
+├── shared/skills/                    # 经批准的共享 skill 真源（当前如 llm-wiki）
 ├── .claude-plugin/marketplace.json   # 插件注册信息
 ├── AGENTS.md                         # 仓库级协作约束
 ├── CLAUDE.md                         # 仓库级 Claude 协作约束
@@ -25,7 +26,7 @@ all-my-ai-needs/
     │   ├── skills/
     │   ├── hooks/
     │   └── agents/
-    └── codex/                        # Codex 唯一真源
+    └── codex/                        # Codex 平台专属真源
         ├── AGENTS.md
         ├── config.toml
         ├── runtime.yaml
@@ -78,16 +79,21 @@ description: "包含触发关键词的描述"
 
 ## 本地同步规则
 
-本项目按平台同步生效。GitHub 仓库、本地项目目录、本地 CLI 根目录（`~/.claude`、`~/.codex`）三者必须保持一致。
+本项目按平台同步生效。GitHub 仓库、本地项目目录、共享 skill 真源目录与本地 CLI 根目录（`~/.claude`、`~/.codex`）必须保持一致。
 
 同步入口：
-- Claude：`./setup.sh`（源目录 `platforms/claude`），可指定 skill：`./setup.sh <skill>`
-- Codex：`./scripts/sync_to_codex.sh`（同步 `platforms/codex/skills` 与 root 受管配置到 `~/.codex`）
+- Claude：日常共享 skill 同步默认由 AI 手工 diff 后最小落盘；`./setup.sh` 仅作 bootstrap / 灾备 fallback（可指定 skill：`./setup.sh <skill>`）
+- Codex：日常共享 skill 同步默认由 AI 手工 diff 后最小落盘；`./scripts/sync_to_codex.sh` 仅作 bootstrap / 灾备 fallback
 - Codex root 受管配置：`platforms/codex/{AGENTS.md,config.toml,agents,bin,hooks,scripts,rules}` 同步到 `~/.codex/...`
+
+共享 skill 运行目录规则：
+- `runtime.yaml` 只保留在 repo，不下发到任何运行目录
+- `agents/openai.yaml` 仅在 Codex / OpenAI 风格运行目录确有必要时才下发
+- Hermes 默认只保留 `SKILL.md` 与必要的 `metadata.hermes.config`
 
 ### 提交前必检清单
 
-当改动涉及 `platforms/` 下的文件时，**禁止直接 git commit**，必须按以下顺序操作：
+当改动涉及 `platforms/` 或 `shared/skills/` 下的文件时，**禁止直接 git commit**，必须按以下顺序操作：
 
 1. 涉及 `platforms/claude/` 的改动 -> 先执行 `./setup.sh <skill>` 或 `./setup.sh`，确认同步成功
 2. 涉及 `platforms/codex/` 的改动 -> 先执行 `./scripts/sync_to_codex.sh`，确认同步成功

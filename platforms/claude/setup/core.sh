@@ -3,6 +3,8 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+SHARED_SKILLS_DIR="$REPO_ROOT/shared/skills"
 
 echo "[core] 配置公共组件..."
 
@@ -141,29 +143,41 @@ with open(local_path, 'w', encoding='utf-8') as f:
   echo "[core] 已从模板初始化 ~/.claude.json（含占位符密钥需替换）"
 fi
 
-# skills（同步 SKILL.md 与 runtime.yaml 到 ~/.claude/skills/）
+# skills（同步运行所需最小文件到 ~/.claude/skills/；runtime.yaml 留在 repo）
 echo "[core] 同步 skills -> ~/.claude/skills/"
-for skill_dir in "$PLUGIN_DIR"/skills/*/; do
-  [ -d "$skill_dir" ] || continue
-  skill_name="$(basename "$skill_dir")"
-  target_dir="$HOME/.claude/skills/$skill_name"
-  # 清理后重建，确保已删除的文件不会残留
-  rm -rf "$target_dir"
-  mkdir -p "$target_dir"
-  # 同步 SKILL.md
-  if [ -f "$skill_dir/SKILL.md" ]; then
-    install -m 644 "$skill_dir/SKILL.md" "$target_dir/SKILL.md"
-  fi
-  # 同步 runtime.yaml（用于迁移与依赖说明）
-  if [ -f "$skill_dir/runtime.yaml" ]; then
-    install -m 644 "$skill_dir/runtime.yaml" "$target_dir/runtime.yaml"
-  fi
-  # 同步子目录（如 workflows/）
-  for sub in "$skill_dir"*/; do
-    [ -d "$sub" ] || continue
-    cp -r "${sub%/}" "$target_dir/"
+sync_skill_root() {
+  local source_root="$1"
+  local skill_dir=""
+  local skill_name=""
+  local target_dir=""
+  local sub=""
+
+  [ -d "$source_root" ] || return 0
+
+  for skill_dir in "$source_root"/*/; do
+    [ -d "$skill_dir" ] || continue
+    skill_name="$(basename "$skill_dir")"
+    target_dir="$HOME/.claude/skills/$skill_name"
+    # 清理后重建，确保已删除的文件不会残留
+    rm -rf "$target_dir"
+    mkdir -p "$target_dir"
+    # 同步 SKILL.md
+    if [ -f "$skill_dir/SKILL.md" ]; then
+      install -m 644 "$skill_dir/SKILL.md" "$target_dir/SKILL.md"
+    fi
+    # 同步子目录（如 scripts/、references/、assets/）；Claude 运行目录不带 agents/ 与 runtime.yaml
+    for sub in "$skill_dir"*/; do
+      [ -d "$sub" ] || continue
+      if [ "$(basename "${sub%/}")" = "agents" ]; then
+        continue
+      fi
+      cp -r "${sub%/}" "$target_dir/"
+    done
+    echo "  - $skill_name"
   done
-  echo "  - $skill_name"
-done
+}
+
+sync_skill_root "$SHARED_SKILLS_DIR"
+sync_skill_root "$PLUGIN_DIR/skills"
 
 echo "[core] 完成"

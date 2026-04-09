@@ -42,6 +42,7 @@
 | `google-workspace` | `~/.hermes/skills/productivity/google-workspace` |
 | `image-gen` | `~/.hermes/skills/creative/image-gen` |
 | `linuxdo` | `~/.hermes/skills/social-media/linuxdo` |
+| `llm-wiki` | `~/.hermes/skills/research/llm-wiki` |
 | `midea-recall-diagnose-playwright` | `~/.hermes/skills/software-development/midea-recall-diagnose-playwright` |
 | `openai-docs` | `~/.hermes/skills/research/openai-docs` |
 | `orbit-os` | `~/.hermes/skills/note-taking/orbit-os` |
@@ -59,16 +60,14 @@
 说明：
 
 - `bird-twitter-bookmarks` 当前仓库有，但 Hermes 本机尚未放置同名 skill。
+- `llm-wiki` 现已由仓库 `shared/skills/llm-wiki` 作为共享真源；Hermes 本机副本仅是下游运行态与最小 patch 容器。
 - `xitter` 是 Hermes 官方 bundled skill，本机保留在 `~/.hermes/skills/social-media/xitter`。
 
 ## 当前差异基线
 
 结论先说：仓库里的共享 skill 以回流后的版本为主，但不是当前 Hermes 的逐字镜像。Hermes 仍会因为官方 bundled skill 演进、手工调整或自优化再次漂移。
 
-当前与仓库同名的 18 个 Hermes skills 中：
-
-- `14` 个 `SKILL.md` 已与仓库对应 skill 对齐
-- `4` 个存在差异，其中真正需要持续关注的是 `bird-twitter` 与 `google-workspace`
+当前与仓库同名的 Hermes skills 中，大多数 `SKILL.md` 已与仓库对应版本对齐；仍需持续关注的差异主要集中在 `bird-twitter`、`google-workspace`、`orbit-os`、`midea-recall-diagnose-playwright`，以及新纳入仓库真源管理但仍保留本机 patch 的 `llm-wiki`。
 
 ### 已对齐的同名 skills
 
@@ -80,6 +79,7 @@
 | --- | --- | --- |
 | `bird-twitter` | Hermes 版比仓库多一层“本机默认路由 + 代理默认开启 + 归档必须走 `--json-full`”约束 | 下次回流时继续人工审核；暂不自动覆盖 |
 | `google-workspace` | Hermes 仍是官方 Python/OAuth 可写版；仓库是 `gogcli` 只读版 | 视为刻意保留的语义分叉，不自动回流到仓库 |
+| `llm-wiki` | Hermes 仅保留 `SKILL.md` 与 frontmatter 中的 `metadata.hermes.config`；不保留 `runtime.yaml`、`agents/openai.yaml` 等治理文件 | 作为下游副本处理；只允许人工 diff 后择优回流 |
 | `orbit-os` | Hermes 比仓库多一个版本号增量和一条 `08_llm-wiki` 旧目录名说明 | 可在下一次 Orbit 相关回流时一并审核 |
 | `midea-recall-diagnose-playwright` | 当前只看到空格/换行风格差异 | 视为非语义差异，可忽略 |
 

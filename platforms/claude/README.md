@@ -1,6 +1,6 @@
 # Claude 平台目录（claude）
 
-`platforms/claude` 是 Claude 平台唯一真源。这个 README 负责展示当前 Claude agent 的完整能力与同步方式。
+`platforms/claude` 是 Claude 平台专属真源。这个 README 负责展示当前 Claude agent 的完整能力与同步方式。经批准的共享 skill 真源放在 `shared/skills/`；日常默认由 AI 手工 diff 后做最小同步，`./setup.sh` 仅作 bootstrap / 灾备 fallback。
 
 ## 同步入口
 
@@ -29,6 +29,7 @@
 | `google-workspace` | 只读访问 Google Workspace 内容 | 依赖 gogcli 与 OAuth 登录态 |
 | `image-gen` | 图片生成与结构化图表生成 | 依赖图片 provider 配置 |
 | `linuxdo` | 只读访问 LINUX DO 论坛 | 依赖 Chrome Cookie |
+| `llm-wiki` | 用 analysis -> generation 维护 Karpathy 风格 markdown wiki | 共享源：`shared/skills/llm-wiki` |
 | `midea-recall-diagnose-playwright` | keyword 漏召回排查、回放与 trace/ELK/ES 取证 | 依赖 Playwright 会话与本地脚本 |
 | `orbit-os` | OrbitOS Obsidian Vault 共享配置与规范 | 供 orbit-* 系列 skill 引用 |
 | `orbit-session-diary` | 基于本地会话日志生成 Obsidian 日记 | 依赖本地 jsonl 与目标 Vault |
@@ -46,8 +47,9 @@
 ## 平台能力资产
 
 - 受管内容：`CLAUDE.md`、`skills/`、`agents/`、`hooks/`、`.mcp.json`、`.claude-plugin/`
-- `./setup.sh` 负责把 `platforms/claude` 应用到 `~/.claude`
+- 日常共享 skill 同步默认由 AI 手工 diff 后做最小落盘
+- `./setup.sh` 负责在 bootstrap / 灾备场景下把 `shared/skills/` 与 `platforms/claude` 应用到 `~/.claude`
 - `platforms/claude/.mcp.json` 已内置 MCP：`playwright-ext`、`chrome-devtools`、`playwright`、`context7`、`tavily`
-- skill 若需要依赖、手动步骤、验证命令，统一写入 skill 目录下的 `runtime.yaml`
+- skill 若需要依赖、手动步骤、验证命令，统一写入 repo 中对应 skill 目录下的 `runtime.yaml`
 - 平台级 `platforms/claude/runtime.yaml` 仅用于仓库内 AI 理解迁移规则，不会同步到 `~/.claude` 根目录
-- skill 级 `runtime.yaml` 仅会同步到 `~/.claude/skills/<skill>/runtime.yaml`
+- skill 级 `runtime.yaml` 仅保留在 repo，不同步到 `~/.claude/skills/<skill>/`

@@ -1,0 +1,4 @@
+interface:
+  display_name: "LLM Wiki"
+  short_description: "用 analysis -> generation 维护持久化 markdown wiki"
+  default_prompt: "使用 $llm-wiki 维护当前的 markdown LLM Wiki：先完成 SCHEMA / purpose / index / log orientation，再按 ingest、query、lint 工作流执行。若是 ingest，默认先 analysis 后 generation；若是 query，先基于现有 wiki 回答；若是 lint，输出结构问题与建议动作。"

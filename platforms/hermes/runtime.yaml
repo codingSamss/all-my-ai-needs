@@ -24,6 +24,8 @@ skill_runtime_contract:
     - services
   notes:
     - 如后续要把某个 Hermes skill 纳入仓库管理，可在对应目录补充 runtime.yaml
+    - 若某 skill 已由 shared/skills/<skill> 受管，Hermes 本机版本只记录落点与差异，不再反向视为真源
+    - shared skill 的 runtime.yaml 仅保留在 repo，不复制到 ~/.hermes/skills 运行目录
     - platform 必须固定为 hermes
     - 仅记录与仓库同名且值得长期保留的 Hermes skill，不追踪整份 ~/.hermes/skills
 

@@ -1,6 +1,6 @@
 # Codex 平台目录（codex）
 
-`platforms/codex` 是 Codex 平台唯一真源。这个 README 负责展示当前 Codex agent 的完整能力与同步方式。
+`platforms/codex` 是 Codex 平台专属真源。这个 README 负责展示当前 Codex agent 的完整能力与同步方式。经批准的共享 skill 真源放在 `shared/skills/`；日常默认由 AI 手工 diff 后做最小同步，`./scripts/sync_to_codex.sh` 仅作 bootstrap / 灾备 fallback。
 
 ## 同步入口
 
@@ -16,6 +16,7 @@
 - `config.toml` 默认不覆盖本机，仅在显式 `--sync-config` 时同步
 - `--sync-config` 覆盖 `config.toml` 时会保留本地 MCP 敏感配置（鉴权字段、env token/key）
 - `~/.codex/skills` 保留 `.system` 与本地未托管技能
+- 日常共享 skill 同步优先由 AI 做最小差异落盘，不直接跑脚本镜像
 
 ## 当前 Skills
 
@@ -29,6 +30,7 @@
 | `google-workspace` | 只读访问 Google Workspace 内容 | 依赖 gogcli 与 OAuth 登录态 |
 | `image-gen` | 图片生成与结构化图表生成 | 依赖图片 provider 配置 |
 | `linuxdo` | 只读访问 LINUX DO 论坛 | 依赖 Chrome Cookie |
+| `llm-wiki` | 用 analysis -> generation 维护 Karpathy 风格 markdown wiki | 共享源：`shared/skills/llm-wiki` |
 | `midea-recall-diagnose-playwright` | keyword 漏召回排查、回放与 trace/ELK/ES 取证 | 依赖 Playwright 会话与本地脚本 |
 | `openai-docs` | OpenAI 官方文档与 API 实现指引 | 依赖官方 docs MCP |
 | `orbit-os` | OrbitOS Obsidian Vault 共享配置与规范 | 供 orbit-* 系列 skill 引用 |
@@ -46,9 +48,10 @@
 ## 平台能力资产
 
 - 受管 root 配置：`AGENTS.md`、`agents/`、`bin/`、`hooks/`、`scripts/`、`rules/`
-- `./scripts/sync_to_codex.sh` 负责把 `platforms/codex` 应用到 `~/.codex`
+- 日常共享 skill 同步默认由 AI 手工 diff 后做最小落盘
+- `./scripts/sync_to_codex.sh` 负责在 bootstrap / 灾备场景下先同步 `shared/skills/`，再把 `platforms/codex` 应用到 `~/.codex`
 - `platforms/codex/config.toml` 默认不自动覆盖本机 `~/.codex/config.toml`
 - `platforms/codex/config.toml` 已内置浏览器 MCP：`playwright-ext` 与 `chrome-devtools`（需 `--sync-config` 才会写入本机）
-- skill 若需要依赖、手动步骤、验证命令，统一写入 skill 目录下的 `runtime.yaml`
+- skill 若需要依赖、手动步骤、验证命令，统一写入 repo 中对应 skill 目录下的 `runtime.yaml`
 - 平台级 `platforms/codex/runtime.yaml` 仅用于仓库内 AI 理解迁移规则，不会同步到 `~/.codex` 根目录
-- skill 级 `runtime.yaml` 仅会同步到 `~/.codex/skills/<skill>/runtime.yaml`
+- skill 级 `runtime.yaml` 仅保留在 repo，不同步到 `~/.codex/skills/<skill>/`

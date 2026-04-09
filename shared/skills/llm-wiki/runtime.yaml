@@ -1,0 +1,26 @@
+runtime_version: 1
+skill: llm-wiki
+platform: shared
+
+sync_paths:
+  - SKILL.md
+  - runtime.yaml
+  - agents/openai.yaml
+
+dependencies:
+  commands: []
+  notes:
+    - 共享 skill 只定义流程，不要求固定 CLI 依赖
+    - 若运行环境存在 orbit-os、bird-twitter 等相关 skill，可按需协作
+
+manual_steps:
+  - Claude/Codex 使用前，先通过各自入口脚本把 shared/skills 同步到本机运行目录
+  - 日常同步默认由 AI 手工 diff 后做最小落盘；脚本仅用于 bootstrap / 灾备 fallback
+  - `runtime.yaml` 仅保留在 repo，不下发到任何 agent 运行目录
+  - Hermes 仅作为下游运行态副本；更新本机 llm-wiki 前先人工 diff 仓库版与本机版
+  - 具体 wiki 路径、SCHEMA、purpose 与 taxonomy 继续留在项目现场规则中
+
+verify:
+  - test -f shared/skills/llm-wiki/SKILL.md
+  - test -f shared/skills/llm-wiki/runtime.yaml
+  - test -f shared/skills/llm-wiki/agents/openai.yaml

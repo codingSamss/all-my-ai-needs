@@ -5,6 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PLATFORM_ROOT="$REPO_ROOT/platforms/codex"
 SKILLS_SOURCE_ROOT="$PLATFORM_ROOT/skills"
+SHARED_SKILLS_SOURCE_ROOT="$REPO_ROOT/shared/skills"
 CODEX_HOME_DIR="${CODEX_HOME:-$HOME/.codex}"
 DRY_RUN="false"
 SYNC_SKILLS="true"
@@ -36,11 +37,12 @@ usage() {
 
 说明:
   默认同步到：
-  - ~/.codex/skills
+  - shared/skills + platforms/codex/skills -> ~/.codex/skills
   - ~/.codex/{AGENTS.md,agents,hooks,scripts,rules,bin}
   - 默认不覆盖 ~/.codex/config.toml（可用 --sync-config 显式启用）
 
   目录内每个 skill 必须包含 SKILL.md
+  skill 级 runtime.yaml 保留在 repo，不会下发到 ~/.codex/skills
   所有同步均为增量模式（保留目录外未托管内容）
   使用 --sync-config 同步 root/config.toml 时会保留本地 MCP 敏感配置（鉴权字段、env token/key）
   避免覆盖本机 secret
@@ -94,24 +96,22 @@ if [ "$SYNC_SKILLS" != "true" ] && [ "$SYNC_ROOT" != "true" ]; then
 fi
 
 if [ "$SYNC_SKILLS" = "true" ]; then
-  if [ ! -d "$SKILLS_SOURCE_ROOT" ]; then
-    echo "[错误] Codex skills 目录不存在: $SKILLS_SOURCE_ROOT"
-    exit 1
-  fi
-
   # 严格校验：每个 skill 必须有 SKILL.md（Codex 官方要求）
   has_skill="false"
-  for skill_dir in "$SKILLS_SOURCE_ROOT"/*; do
-    [ -d "$skill_dir" ] || continue
-    has_skill="true"
-    if [ ! -f "$skill_dir/SKILL.md" ]; then
-      echo "[错误] 缺少 SKILL.md: $skill_dir"
-      exit 1
-    fi
+  for source_root in "$SHARED_SKILLS_SOURCE_ROOT" "$SKILLS_SOURCE_ROOT"; do
+    [ -d "$source_root" ] || continue
+    for skill_dir in "$source_root"/*; do
+      [ -d "$skill_dir" ] || continue
+      has_skill="true"
+      if [ ! -f "$skill_dir/SKILL.md" ]; then
+        echo "[错误] 缺少 SKILL.md: $skill_dir"
+        exit 1
+      fi
+    done
   done
 
   if [ "$has_skill" != "true" ]; then
-    echo "[错误] 未发现任何可同步 skill: $SKILLS_SOURCE_ROOT"
+    echo "[错误] 未发现任何可同步 skill: $SHARED_SKILLS_SOURCE_ROOT 或 $SKILLS_SOURCE_ROOT"
     exit 1
   fi
 fi
@@ -129,6 +129,7 @@ skill_runtime_noise_files=(
   "README.md"
   "setup.sh"
   "skill.config.json"
+  "runtime.yaml"
 )
 if [ "$DRY_RUN" = "true" ]; then
   base_rsync_args+=("--dry-run" "--itemize-changes")
@@ -136,6 +137,7 @@ fi
 
 echo "=== Codex 平台同步 ==="
 echo "源目录(Codex 平台): $PLATFORM_ROOT"
+echo "源目录(共享 skills): $SHARED_SKILLS_SOURCE_ROOT"
 echo "目标目录(CODEX_HOME): $CODEX_HOME_DIR"
 
 sync_dir_incremental() {
@@ -394,8 +396,12 @@ sync_file_incremental() {
 }
 
 if [ "$SYNC_SKILLS" = "true" ]; then
+  sync_skills_incremental "$SHARED_SKILLS_SOURCE_ROOT" "$CODEX_HOME_DIR/skills"
   sync_skills_incremental "$SKILLS_SOURCE_ROOT" "$CODEX_HOME_DIR/skills"
-  skill_count="$(find "$SKILLS_SOURCE_ROOT" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')"
+  skill_count="$({
+    [ -d "$SHARED_SKILLS_SOURCE_ROOT" ] && find "$SHARED_SKILLS_SOURCE_ROOT" -mindepth 1 -maxdepth 1 -type d
+    [ -d "$SKILLS_SOURCE_ROOT" ] && find "$SKILLS_SOURCE_ROOT" -mindepth 1 -maxdepth 1 -type d
+  } | sed 's#.*/##' | sort -u | wc -l | tr -d ' ')"
   echo "技能数: $skill_count"
 fi
 

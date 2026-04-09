@@ -5,9 +5,9 @@ official_layout:
   skills_root: platforms/codex/skills
   runtime_root: ~/.codex
   notes:
-    - 新增 skill 只需放到 platforms/codex/skills/<skill-name> 并包含 SKILL.md
-    - 如补充 runtime.yaml，AI 迁移时优先读取；现有同步脚本无需额外改造
-    - skill 运行态遵循 Codex 官方 skills 目录结构，不额外引入平台外层包装
+    - 平台专属 skill 放到 platforms/codex/skills/<skill-name> 并包含 SKILL.md
+    - 经批准的共享 skill 放到 shared/skills/<skill-name>，由 ./scripts/sync_to_codex.sh 一并同步
+    - repo 中可保留 runtime.yaml 供 AI 迁移时读取，但运行目录不下发
     - 平台级 runtime.yaml 仅供仓库内 AI 理解迁移规则，不同步到 ~/.codex 根目录
 
 skill_runtime_contract:
@@ -22,10 +22,10 @@ skill_runtime_contract:
   optional_fields:
     - services
   notes:
-    - 新增或更新 skill 时，只需在该 skill 目录补充 runtime.yaml，不需要修改通用同步脚本
+    - 平台专属 skill 以 platforms/codex/skills 为准；共享 skill 以 shared/skills 为准
     - sync_paths 仅声明真正需要进入 ~/.codex/skills/<skill> 的文件或目录，保持最小同步面
     - platform 必须固定为 codex，避免跨平台说明混入
-    - skill 级 runtime.yaml 只同步到 ~/.codex/skills/<skill>/runtime.yaml，不进入 ~/.codex 根目录
+    - skill 级 runtime.yaml 只保留在 repo，不进入 ~/.codex/skills/<skill>/ 或 ~/.codex 根目录
 
 managed_root_paths:
   - source: AGENTS.md

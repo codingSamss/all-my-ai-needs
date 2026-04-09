@@ -1,16 +1,26 @@
 # Repository Guidelines
 
 ## 项目结构与模块组织
-本仓库采用平台隔离设计。`platforms/claude/` 与 `platforms/codex/` 是可同步真源；`platforms/hermes/` 记录当前本机 Hermes 的迁移与差异基线，不提供自动同步脚本。
+本仓库以平台隔离为主，并允许少量**显式共享真源**。`platforms/claude/` 与 `platforms/codex/` 继续承载平台专属内容；`shared/skills/` 仅放经批准的单一共享 skill 真源（当前仅 `llm-wiki`）；`platforms/hermes/` 记录当前本机 Hermes 的迁移与差异基线，不提供自动同步脚本。
 
 - `platforms/claude/`：Claude 的 `skills/`、`agents/`、`hooks/`、`.claude-plugin/` 与安装脚本。
 - `platforms/codex/`：Codex 的 `skills/`（官方加载源）及扩展资产（`agents/`、`hooks/`、`scripts/`）。
+- `shared/skills/`：经批准的共享 skill 真源；默认由 AI 做人工差异同步，脚本仅作 bootstrap / 灾备 fallback。
 - `platforms/hermes/`：Hermes 当前使用态、目录映射与人工迁移说明（文档基线）。
 - 根脚本：`setup.sh`、`scripts/bootstrap.sh`、`scripts/sync_to_codex.sh`。
 - 平台级迁移说明：`platforms/{claude,codex,hermes}/runtime.yaml`。
-- `runtime.yaml` 的字段约定以各平台 `skill_runtime_contract` 为准；新增 skill 只补目录内容，不修改通用同步设计。
+- `runtime.yaml` 的字段约定以各平台 `skill_runtime_contract` 为准；共享 skill 使用 `platform: shared`，并只记录共享文件、依赖与验证；共享 skill 仅在确有维护收益时新增，避免扩成通用框架。
 
 每个技能目录建议包含 `SKILL.md`、`runtime.yaml`；如有确定性脚本或检查，再补 `README.md`、`setup.sh`。其中 Codex 技能必须有 `SKILL.md`。
+
+## Shared Skill 同步策略
+- 日常同步默认采用“AI 人工同步 + 差异审阅”，不是直接跑 `setup.sh` / `scripts/sync_to_codex.sh` 做目录镜像。
+- `setup.sh`、`scripts/sync_to_codex.sh`、`scripts/bootstrap.sh` 仅用于新机初始化、灾备恢复、整个平台重建。
+- 共享 skill 在 repo 中可以保留 `SKILL.md`、`runtime.yaml`、平台 UI 元数据等治理文件；运行目录只保留目标平台真正消费的最小文件。
+- `runtime.yaml` 必须留在 repo，**不得**下发到 `~/.claude/skills`、`~/.codex/skills`、`~/.hermes/skills`。
+- `agents/openai.yaml` 仅在 Codex / OpenAI 风格运行目录确实需要时才下发；Claude 与 Hermes 默认不带。
+- Hermes 本机 skill 默认只保留 `SKILL.md`；若需要配置注入，只允许保留 `SKILL.md` frontmatter 中的 `metadata.hermes.config`。
+- 当用户要求“同步某个 skill”时，先比较 repo 真源与本地运行目录差异，再执行最小同步并回报结果；不要顺手同步无关 skill。
 
 ## README 维护约定
 - 根 `README.md` 负责仓库级能力总览：共用 skills、平台差异 skills、平台能力摘要、同步入口。
@@ -21,10 +31,10 @@
 
 ## 构建、测试与开发命令
 - `./setup.sh list`：列出可执行配置的 Claude 技能。
-- `./setup.sh all`：执行 Claude 的核心配置与全部技能配置。
+- `./setup.sh all`：执行 Claude 的核心配置与全部技能配置（bootstrap / 灾备 fallback）。
 - `./setup.sh <skill...>`：仅配置指定技能。
 - `./scripts/sync_to_codex.sh --dry-run`：预览 Codex 配置同步结果。
-- `./scripts/sync_to_codex.sh`：同步 `platforms/codex/skills` 与受管 root 配置到 `~/.codex`（默认不覆盖本机 `config.toml`）。
+- `./scripts/sync_to_codex.sh`：同步 `shared/skills`、`platforms/codex/skills` 与受管 root 配置到 `~/.codex`（bootstrap / 灾备 fallback，默认不覆盖本机 `config.toml`）。
 - `./scripts/sync_to_codex.sh --sync-config`：显式同步 `platforms/codex/config.toml` 到 `~/.codex/config.toml`。
 - `./scripts/bootstrap.sh all`：新机一次执行 Claude 配置 + Codex 同步。
 
@@ -46,7 +56,7 @@
 
 - 直接运行受影响的 `setup.sh`。
 - 用 `codex mcp list` 或 `claude mcp list` 验证 MCP 状态。
-- 涉及同步逻辑时，先跑 `./scripts/sync_to_codex.sh --dry-run` 再正式执行。
+- 涉及同步逻辑时，默认先做 repo 与本地运行目录 diff；只有在 bootstrap / 灾备场景下，才优先跑 `./scripts/sync_to_codex.sh --dry-run`。
 - 执行同步、提交、推送前，先让读取本仓库的 AI 比较本地 `~/.codex`、`~/.claude` 与仓库受管全局配置的差异；忽略 secrets、占位符和运行态噪音，若本地有值得保留的新内容，先回写仓库。
 - 涉及 Hermes 文档或回流时，先比较 `~/.hermes/skills` 下与仓库同名的 skills；忽略 `.hub/`、`skill-promotions/`、会话/记忆/日志等运行态目录。
 
@@ -91,14 +101,17 @@
 - 通知协作者重新同步，避免旧提交继续传播。
 
 ## 同步一致性与发布门禁
-- 以下三处必须保持一致：
+- 以下四处必须保持一致：
   - GitHub 仓库状态
   - 本地项目目录（仓库工作区）
+  - 共享 skill 真源（`shared/skills`，如本次涉及）
   - 本地 CLI 根目录（`~/.claude`、`~/.codex`；若本次涉及 Hermes，再比较 `~/.hermes`）
-- Codex 同步链路：`platforms/codex/skills` -> `~/.codex/skills`（`./scripts/sync_to_codex.sh`）。
+- Claude 共享 skill 日常同步链路：`shared/skills/<skill>` -> AI 手工 diff -> `~/.claude/skills/<skill>`（最小文件集）。
+- Claude 平台 skill 同步链路：通过 `./setup.sh` 将 `platforms/claude/skills` 应用到本地 Claude 根目录；日常共享 skill 同步不以脚本为先。
+- Codex 共享 skill 日常同步链路：`shared/skills/<skill>` -> AI 手工 diff -> `~/.codex/skills/<skill>`（最小文件集）。
+- Codex 平台 skill 同步链路：`platforms/codex/skills` -> `~/.codex/skills`（`./scripts/sync_to_codex.sh`，主要用于 bootstrap / 灾备）。
 - Codex root 受管配置同步链路：`platforms/codex/{AGENTS.md,agents,bin,hooks,scripts,rules}` -> `~/.codex/...`。
 - `platforms/codex/config.toml` 默认不自动覆盖 `~/.codex/config.toml`；仅在显式 `--sync-config` 时同步。
-- Claude 同步链路：通过 `./setup.sh` 将仓库配置应用到本地 Claude 根目录。
 - Hermes 基线链路：`platforms/hermes/` 仅记录 `~/.hermes` 的迁移说明与差异基线，不直接同步到本机。
 - Hermes 反向回流仅允许“用户手动触发 + 人工审批”，禁止自动周期回流或未审批覆盖。
 - Hermes 回流规则（简版）：
@@ -107,6 +120,7 @@
   - 回流执行前必须先输出“差异总结（新增/删除/修改）”，并等待用户审核确认后再落盘。
 - 推送 GitHub 前必须获得用户明确确认，不允许自动推送。
 - 当用户要求“同步仓库内容”“提交”或“推送”时：先比较本地 `~/.codex`、`~/.claude` 与仓库受管全局配置；若本次涉及 Hermes，再比较 `~/.hermes/skills` 下与仓库同名的 skill。忽略 secrets、占位符和运行态噪音，若本地有值得保留的新内容，先提示同步回仓库，再继续后续动作。
+- 当处理 `all-my-ai-needs` 的同步任务时，无论方向是“本地运行目录 -> 仓库”还是“仓库 -> 本地运行目录”，任务结束时都必须向用户明确列出同步内容清单；至少包含：新增、更新、删除、跳过/未同步项。
 - 当本次改动触发 README 维护条件时：先检查根 `README.md` 与受影响平台 README 是否需要同步更新；若无需更新，需明确说明原因后再继续提交或推送。
 
 ## 安全与配置建议
