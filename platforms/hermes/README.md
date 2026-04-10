@@ -14,8 +14,8 @@
 
 当前仓库只维护以下 Hermes 内容：
 
-1. 当前从 Codex 复制到 Hermes 的同名 skill
-2. `llm-wiki`
+1. 默认按 Codex 同名 skill 对照得到的 Hermes skill
+2. `platforms/hermes/managed-extra-skills.txt` 中显式声明的 Hermes-only 例外 skill
 3. Hermes cron 相关内容
 
 不纳入仓库的运行态内容：
@@ -32,7 +32,10 @@
 ```text
 platforms/hermes/
 ├── README.md
+├── managed-extra-skills.txt
 ├── runtime.yaml
+├── scripts/
+│   └── managed_skills.sh
 ├── skills/
 │   ├── autonomous-ai-agents/
 │   │   ├── hermes-cron-local-script-notify/
@@ -67,31 +70,26 @@ platforms/hermes/
         └── codex_keepalive_notify.py
 ```
 
-## 白名单技能映射
+## 受管 skill 判定规则
 
-| Repo 路径 | 本机运行路径 |
-| --- | --- |
-| `platforms/hermes/skills/social-media/bird-twitter` | `~/.hermes/skills/social-media/bird-twitter` |
-| `platforms/hermes/skills/mcp/context-hub` | `~/.hermes/skills/mcp/context-hub` |
-| `platforms/hermes/skills/productivity/google-workspace` | `~/.hermes/skills/productivity/google-workspace` |
-| `platforms/hermes/skills/creative/image-gen` | `~/.hermes/skills/creative/image-gen` |
-| `platforms/hermes/skills/social-media/linuxdo` | `~/.hermes/skills/social-media/linuxdo` |
-| `platforms/hermes/skills/research/llm-wiki` | `~/.hermes/skills/research/llm-wiki` |
-| `platforms/hermes/skills/software-development/midea-recall-diagnose-playwright` | `~/.hermes/skills/software-development/midea-recall-diagnose-playwright` |
-| `platforms/hermes/skills/research/openai-docs` | `~/.hermes/skills/research/openai-docs` |
-| `platforms/hermes/skills/note-taking/orbit-os` | `~/.hermes/skills/note-taking/orbit-os` |
-| `platforms/hermes/skills/note-taking/orbit-session-diary` | `~/.hermes/skills/note-taking/orbit-session-diary` |
-| `platforms/hermes/skills/software-development/peekaboo` | `~/.hermes/skills/software-development/peekaboo` |
-| `platforms/hermes/skills/software-development/pinchtab` | `~/.hermes/skills/software-development/pinchtab` |
-| `platforms/hermes/skills/software-development/playwright` | `~/.hermes/skills/software-development/playwright` |
-| `platforms/hermes/skills/social-media/reddit` | `~/.hermes/skills/social-media/reddit` |
-| `platforms/hermes/skills/research/scrapling` | `~/.hermes/skills/research/scrapling` |
-| `platforms/hermes/skills/software-development/screenshot` | `~/.hermes/skills/software-development/screenshot` |
-| `platforms/hermes/skills/creative/ui-ux-pro-max` | `~/.hermes/skills/creative/ui-ux-pro-max` |
-| `platforms/hermes/skills/media/video-transcribe` | `~/.hermes/skills/media/video-transcribe` |
-| `platforms/hermes/skills/social-media/xiaohongshu-session-reader` | `~/.hermes/skills/social-media/xiaohongshu-session-reader` |
-| `platforms/hermes/skills/autonomous-ai-agents/opencode-copilot-opus` | `~/.hermes/skills/autonomous-ai-agents/opencode-copilot-opus` |
-| `platforms/hermes/skills/autonomous-ai-agents/hermes-cron-local-script-notify` | `~/.hermes/skills/autonomous-ai-agents/hermes-cron-local-script-notify` |
+- 不再手工维护逐项映射表。
+- 默认规则：`platforms/codex/skills/<skill>` 与 `platforms/hermes/skills/<category>/<skill>` 同名时，视为 Hermes 受管 skill。
+- Hermes-only 例外：写在 `platforms/hermes/managed-extra-skills.txt`，当前用于保留 `hermes-cron-local-script-notify` 这类不在 Codex 中但需要受管的 Hermes skill。
+- 本机比对仍然是 repo 路径对同名运行路径：`platforms/hermes/skills/<category>/<skill>` <-> `~/.hermes/skills/<category>/<skill>`。
+
+推荐直接用检查脚本，不再手工数名单：
+
+```bash
+bash platforms/hermes/scripts/managed_skills.sh list
+bash platforms/hermes/scripts/managed_skills.sh status
+bash platforms/hermes/scripts/managed_skills.sh candidates
+```
+
+输出含义：
+
+- `list`：列出当前受管的 repo skill，以及来源是 `codex-same-name` 还是 `hermes-extra`
+- `status`：列出受管 skill、repo 与本机运行目录的 diff、以及“本机已有但 repo 还没纳管”的 Codex 同名候选
+- `candidates`：只列出待补回仓的 Codex 同名候选 skill
 
 ## Cron 受管内容
 
@@ -109,7 +107,7 @@ platforms/hermes/
 ## 日常同步规则
 
 - Hermes 不走自动脚本同步
-- 仅当用户手动触发时，才比较仓库白名单目录与 `~/.hermes` 的同名路径
+- 仅当用户手动触发时，才比较当前受管集合与 `~/.hermes` 的同名路径
 - 同步前必须先给出差异总结
 - 同步后必须明确汇报：新增、更新、删除、跳过或未同步项
 
@@ -121,12 +119,13 @@ platforms/hermes/
 2. 恢复个人私有配置：`~/.hermes/config.yaml`、`~/.hermes/.env`、必要登录态与 OAuth 文件；这些都不入仓。
 3. 按本目录中的 `skills/` 与 `cron/` 手动恢复白名单 subset。
 4. 不要迁移 `.hub/`、`skill-promotions/`、`sessions/`、`logs/`、`memories/`、`cron/output/`。
-5. 若之后需要把 Hermes 新变化回写仓库，只比较仓库已受管的同名路径，并先输出差异总结给用户审核。
+5. 若之后需要把 Hermes 新变化回写仓库，先运行 `bash platforms/hermes/scripts/managed_skills.sh status`，再只比较当前受管集合与同名本机路径，并先输出差异总结给用户审核。
 
 ## 校验命令
 
 ```bash
 hermes skills list
+bash platforms/hermes/scripts/managed_skills.sh status
 find ~/.hermes/skills -mindepth 2 -maxdepth 2 -type d | sort
 cat ~/.hermes/cron/jobs.json
 ```

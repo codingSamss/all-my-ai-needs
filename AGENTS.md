@@ -19,7 +19,7 @@
 - `setup.sh`、`scripts/sync_to_codex.sh`、`scripts/bootstrap.sh` 仅用于新机初始化、灾备恢复、整个平台重建。
 - `runtime.yaml` 必须留在 repo，**不得**下发到 `~/.claude/skills`、`~/.codex/skills`、`~/.hermes/skills`。
 - `agents/openai.yaml` 仅在 Codex / OpenAI 风格运行目录确有必要时才下发；Claude 与 Hermes 默认不带。
-- Hermes 只受管白名单 subset：当前从 Codex 复制到 Hermes 的同名 skill、`llm-wiki`、Hermes cron 相关内容。
+- Hermes 只受管白名单 subset：默认按 Codex 同名 skill 对照，Hermes-only 例外项见 `platforms/hermes/managed-extra-skills.txt`，另含 Hermes cron 相关内容。
 - 当用户要求“同步某个 skill”时，先比较该平台目录与对应本地运行目录的差异，再执行最小同步并回报结果；不要顺手同步无关 skill。
 
 ## README 维护约定

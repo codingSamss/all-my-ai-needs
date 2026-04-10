@@ -87,10 +87,11 @@
 - 真源目录：`platforms/hermes/`
 - `platforms/hermes/skills/` 保持 Hermes 原生分类布局：`<category>/<skill>`
 - 当前只受管白名单 subset：
-  - 从 Codex 复制到 Hermes 的同名 skill
-  - `llm-wiki`
+  - 默认按 Codex 同名 skill 对照
+  - Hermes-only 例外项见 `platforms/hermes/managed-extra-skills.txt`
   - Hermes cron 相关内容
 - `platforms/hermes/cron/` 当前保存 `jobs.json` 与依赖脚本
+- `bash platforms/hermes/scripts/managed_skills.sh status` 可查看当前受管集合、diff 与待补回仓候选
 - Hermes 不走仓库脚本自动同步；新机恢复采用“官方安装 + 手工放置白名单 skill + 人工审核差异”的方式
 
 ## 快速入口
