@@ -1,0 +1,38 @@
+{
+  "jobs": [
+    {
+      "id": "834e02d4c54a",
+      "name": "codex-cli-refresh-beijing",
+      "prompt": "\u9884\u8fd0\u884c\u811a\u672c\u5df2\u7ecf\u5b8c\u6210\u8f7b\u91cf keepalive\uff1a\u5b83\u4f1a\u76f4\u63a5 shell \u8c03\u7528 Codex CLI\uff08\u4e0d\u4f7f\u7528 git init\uff0c\u4e0d\u52a0\u8f7d codex skill\uff09\uff0c\u5e76\u5728\u672c\u673a\u53d1\u9001 macOS \u6210\u529f/\u5931\u8d25\u901a\u77e5\u3002\u4f60\u7684\u4efb\u52a1\u53ea\u6709\u4e00\u4ef6\u4e8b\uff1a\u628a\u811a\u672c stdout \u7684\u6700\u540e\u4e00\u884c\u539f\u6837\u8f93\u51fa\uff0c\u4e0d\u8981\u6dfb\u52a0\u4efb\u4f55\u89e3\u91ca\u3002",
+      "skills": [],
+      "skill": null,
+      "model": "gpt-5.4",
+      "provider": "openai-codex",
+      "base_url": null,
+      "script": "codex_keepalive_notify.py",
+      "schedule": {
+        "kind": "cron",
+        "expr": "30 8,13,18,23 * * *",
+        "display": "30 8,13,18,23 * * *"
+      },
+      "schedule_display": "30 8,13,18,23 * * *",
+      "repeat": {
+        "times": null,
+        "completed": 2
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-04-09T16:06:57.457933+08:00",
+      "next_run_at": "2026-04-10T13:30:00+08:00",
+      "last_run_at": "2026-04-10T08:42:02.416986+08:00",
+      "last_status": "ok",
+      "last_error": null,
+      "deliver": "origin",
+      "origin": null,
+      "last_delivery_error": "no delivery target resolved for deliver=origin"
+    }
+  ],
+  "updated_at": "2026-04-10T08:42:02.417287+08:00"
+}

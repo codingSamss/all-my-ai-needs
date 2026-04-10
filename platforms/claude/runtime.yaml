@@ -6,9 +6,7 @@ official_layout:
   runtime_root: ~/.claude
   notes:
     - 平台专属 skill 放到 platforms/claude/skills/<skill-name>
-    - 经批准的共享 skill 放到 shared/skills/<skill-name>，由 ./setup.sh / core.sh 一并同步
     - repo 中可保留 runtime.yaml，但运行目录不下发
-    - 仅为明确批准的共享 skill 维护 shared/skills，避免扩成通用共享框架
     - 平台级 runtime.yaml 仅供仓库内 AI 理解迁移规则，不同步到 ~/.claude 根目录
 
 skill_runtime_contract:
@@ -23,7 +21,7 @@ skill_runtime_contract:
   optional_fields:
     - services
   notes:
-    - 平台专属 skill 仍以 platforms/claude/skills 为准；共享 skill 以 shared/skills 为准
+    - 平台 skill 以 platforms/claude/skills 为准，不再单独维护 shared skill 真源
     - sync_paths 仅声明真正需要进入 ~/.claude/skills/<skill> 的文件或目录，保持最小同步面
     - platform 必须固定为 claude，避免把 Codex 命令或布局误写到 Claude skill 中
     - skill 级 runtime.yaml 只保留在 repo，不进入 ~/.claude/skills/<skill>/ 或 ~/.claude 根目录

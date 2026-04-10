@@ -3,8 +3,6 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLUGIN_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-SHARED_SKILLS_DIR="$REPO_ROOT/shared/skills"
 
 echo "[core] 配置公共组件..."
 
@@ -177,7 +175,6 @@ sync_skill_root() {
   done
 }
 
-sync_skill_root "$SHARED_SKILLS_DIR"
 sync_skill_root "$PLUGIN_DIR/skills"
 
 echo "[core] 完成"

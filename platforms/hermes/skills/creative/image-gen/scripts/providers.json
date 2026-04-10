@@ -1,0 +1,26 @@
+{
+  "active": "huan",
+  "providers": {
+    "huan": {
+      "name": "Huan API",
+      "base_url": "https://ai.huan666.de/v1",
+      "api_key": "",
+      "model": "nano-banana-pro",
+      "format": "openai"
+    },
+    "undying": {
+      "name": "Undying API",
+      "base_url": "https://vip.undyingapi.com/v1",
+      "api_key": "",
+      "model": "nano-banana-pro",
+      "format": "openai"
+    },
+    "google": {
+      "name": "Google AI Studio",
+      "base_url": "https://generativelanguage.googleapis.com/v1beta",
+      "api_key": "",
+      "model": "gemini-3-pro-image-preview",
+      "format": "gemini"
+    }
+  }
+}

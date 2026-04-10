@@ -1,0 +1,4 @@
+interface:
+  display_name: "Opencode Copilot Opus"
+  short_description: "Run and continue Copilot Opus reviews via opencode session_id"
+  default_prompt: "Use this skill to run architecture review with github-copilot/claude-opus-4.6, keep continuity with the same session_id, and return a concise risk/mitigation summary."

@@ -6,7 +6,6 @@ official_layout:
   runtime_root: ~/.codex
   notes:
     - 平台专属 skill 放到 platforms/codex/skills/<skill-name> 并包含 SKILL.md
-    - 经批准的共享 skill 放到 shared/skills/<skill-name>，由 ./scripts/sync_to_codex.sh 一并同步
     - repo 中可保留 runtime.yaml 供 AI 迁移时读取，但运行目录不下发
     - 平台级 runtime.yaml 仅供仓库内 AI 理解迁移规则，不同步到 ~/.codex 根目录
 
@@ -22,7 +21,7 @@ skill_runtime_contract:
   optional_fields:
     - services
   notes:
-    - 平台专属 skill 以 platforms/codex/skills 为准；共享 skill 以 shared/skills 为准
+    - 平台 skill 以 platforms/codex/skills 为准，不再单独维护 shared skill 真源
     - sync_paths 仅声明真正需要进入 ~/.codex/skills/<skill> 的文件或目录，保持最小同步面
     - platform 必须固定为 codex，避免跨平台说明混入
     - skill 级 runtime.yaml 只保留在 repo，不进入 ~/.codex/skills/<skill>/ 或 ~/.codex 根目录

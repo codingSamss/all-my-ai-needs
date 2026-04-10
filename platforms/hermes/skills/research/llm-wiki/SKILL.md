@@ -3,6 +3,13 @@ name: llm-wiki
 version: "1.0.0"
 updated: 2026-04-10
 description: "Karpathy 风格 LLM Wiki / markdown knowledge base 工作流。用于 ingest、query、lint 持久化知识库；先做 orientation，再按 analysis -> generation 维护 wiki。"
+metadata:
+  hermes:
+    config:
+      - key: wiki.path
+        description: Path to the LLM Wiki knowledge base directory
+        default: "~/wiki"
+        prompt: Wiki directory path
 ---
 用于维护 **Karpathy 风格的 LLM Wiki**：把长期有价值的知识编译进一个可持续更新的 markdown wiki，而不是每次查询都从原始材料重做检索。
 

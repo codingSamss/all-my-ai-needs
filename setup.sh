@@ -4,7 +4,6 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CLAUDE_ROOT="$SCRIPT_DIR/platforms/claude"
 SKILLS_ROOT="$CLAUDE_ROOT/skills"
-SHARED_SKILLS_ROOT="$SCRIPT_DIR/shared/skills"
 CORE_SETUP="$CLAUDE_ROOT/setup/core.sh"
 DEFAULT_PROXY="http://127.0.0.1:7897"
 
@@ -29,7 +28,7 @@ print_usage() {
   ./setup.sh <skill...>      # 仅执行指定 skill，例如 ./setup.sh reddit peekaboo
 
 说明:
-  日常共享 skill 同步默认由 AI 手工 diff 后做最小落盘。
+  日常同步默认由 AI 手工 diff 后做最小落盘。
   本脚本主要用于 Claude 侧 bootstrap / 灾备 fallback。
 
 退出码:
@@ -40,10 +39,7 @@ USAGE
 }
 
 list_skills() {
-  {
-    [ -d "$SHARED_SKILLS_ROOT" ] && find "$SHARED_SKILLS_ROOT" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;
-    [ -d "$SKILLS_ROOT" ] && find "$SKILLS_ROOT" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;
-  } | sort -u
+  [ -d "$SKILLS_ROOT" ] && find "$SKILLS_ROOT" -mindepth 1 -maxdepth 1 -type d -exec basename {} \; | sort -u
 }
 
 resolve_skill_dir() {
@@ -51,11 +47,6 @@ resolve_skill_dir() {
 
   if [ -d "$SKILLS_ROOT/$skill" ]; then
     echo "$SKILLS_ROOT/$skill"
-    return 0
-  fi
-
-  if [ -d "$SHARED_SKILLS_ROOT/$skill" ]; then
-    echo "$SHARED_SKILLS_ROOT/$skill"
     return 0
   fi
 
