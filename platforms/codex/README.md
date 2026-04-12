@@ -23,7 +23,6 @@
 | Skill | 能力 | 运行说明 |
 | --- | --- | --- |
 | `bird-twitter` | 只读访问 X/Twitter 内容 | 依赖 Bird CLI |
-| `bird-twitter-bookmarks` | 使用 Field Theory CLI 同步/检索/分类 X 收藏夹本地数据，并支持 unknown 条目 L2 细分标签管理 | 依赖 Node.js/npm、fieldtheory CLI、Python3、sqlite3 与 Chrome 登录态 |
 | `context-hub` | 通过 chub 检索版本化 API/SDK 文档与技能内容 | 依赖 Node.js/npm 与 chub CLI |
 | `google-workspace` | 只读访问 Google Workspace 内容 | 依赖 gogcli 与 OAuth 登录态 |
 | `image-gen` | 图片生成与结构化图表生成 | 依赖图片 provider 配置 |

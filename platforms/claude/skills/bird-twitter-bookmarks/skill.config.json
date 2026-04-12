@@ -1,5 +1,0 @@
-{
-  "name": "bird-twitter-bookmarks",
-  "targets": ["claude", "codex"],
-  "entry": "SKILL.md"
-}

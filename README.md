@@ -38,12 +38,6 @@
 | `video-transcribe` | 视频/音频转录、关键帧分析与总结 |
 | `xiaohongshu-session-reader` | 小红书 HTTP/API 优先读取，必要时回退 Playwright |
 
-### Claude / Codex
-
-| Skill | 能力 |
-| --- | --- |
-| `bird-twitter-bookmarks` | 使用 Field Theory CLI 同步/检索/分类 X 收藏夹本地数据，并支持 unknown 条目 L2 细分标签与复核队列 |
-
 ### Codex / Hermes
 
 | Skill | 能力 |
