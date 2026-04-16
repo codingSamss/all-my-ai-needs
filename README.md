@@ -5,14 +5,14 @@
 - Claude 平台真源：`platforms/claude/`
 - Codex 平台真源：`platforms/codex/`
 - Hermes 平台真源：`platforms/hermes/`
-- 根脚本入口：`./setup.sh`、`./scripts/sync_to_codex.sh`、`./scripts/bootstrap.sh`
+- 根脚本入口：`./setup.sh`、`./scripts/sync_to_codex.sh`、`./scripts/sync_to_hermes.sh`、`./scripts/bootstrap.sh`
 - skill 简介以对应 `SKILL.md` 的 `description` 为准；根 README 负责仓库级总览，平台 README 负责各平台完整清单
 
 默认同步策略：
 - 日常同步优先由 AI 做“人工 diff + 最小落盘”，不直接依赖脚本镜像。
 - `runtime.yaml` 只保留在 repo，不下发到 `~/.claude`、`~/.codex`、`~/.hermes`。
-- `./setup.sh`、`./scripts/sync_to_codex.sh`、`./scripts/bootstrap.sh` 主要用于新机初始化、灾备恢复、整个平台重建。
-- Hermes 不提供自动同步脚本；仅对 local/DIY subset（`source=local`）做人工同步。
+- `./setup.sh`、`./scripts/sync_to_codex.sh`、`./scripts/sync_to_hermes.sh`、`./scripts/bootstrap.sh` 主要用于新机初始化、灾备恢复、整个平台重建。
+- Hermes 的 skills/cron 仍以人工 diff 同步为主；仅提供 `./scripts/sync_to_hermes.sh` 做“脱敏配置模板 -> 本机 config”手动合并。
 
 ## 当前 Skills 总览
 
@@ -59,6 +59,8 @@
 | Skill | 能力 |
 | --- | --- |
 | `hermes-cron-local-script-notify` | 创建轻量 Hermes cron job，让真正工作在本地脚本中执行并发送 macOS 通知 |
+| `hermes-skill-source-classification` | 诊断 Hermes `source=builtin/local` 判定与误报，避免错误同步决策 |
+| `repo-hermes-config-template-sync` | 将 Hermes 脱敏配置模板与 `sync_to_hermes.sh` 同步流程沉淀到仓库 |
 | `skill-promotion-and-dedup` | 将 imported skills 提升为一等分类并去重，保留回滚路径 |
 | `trace-skill-provenance` | 追溯 skill 来源、创建时间、builtin/local 归属与修改会话线索 |
 | `x-article-canonicalization` | 将 X/Twitter 长文高保真落库到 Obsidian/知识库（block 顺序、可点击链接、图片本地化） |
@@ -87,9 +89,11 @@
   - 仅纳入 `hermes skills list --source local` 的 skill
   - 不纳入 builtin / hub
   - Hermes cron 相关内容
+  - 脱敏配置模板 `platforms/hermes/config.template.yaml`（当前覆盖 MCP 片段）
 - `platforms/hermes/cron/` 当前保存 `jobs.json` 与依赖脚本
 - `bash platforms/hermes/scripts/managed_skills.sh status` 可查看当前受管集合、diff 与待补回仓候选
-- Hermes 不走仓库脚本自动同步；新机恢复采用“官方安装 + 手工放置 local/DIY skills + 人工审核差异”的方式
+- `./scripts/sync_to_hermes.sh --dry-run` 预览配置模板合并，`--sync-config` 执行写入（保留本机非占位敏感值）
+- Hermes skills/cron 仍不走自动镜像脚本；新机恢复采用“官方安装 + 手工放置 local/DIY skills + 人工审核差异”的方式
 
 ## 快速入口
 
@@ -113,6 +117,13 @@
 ./scripts/sync_to_codex.sh
 ./scripts/sync_to_codex.sh --dry-run
 ./scripts/sync_to_codex.sh --sync-config
+```
+
+### Hermes（配置模板）
+
+```bash
+./scripts/sync_to_hermes.sh --dry-run
+./scripts/sync_to_hermes.sh --sync-config
 ```
 
 ### 新机一键
