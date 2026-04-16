@@ -1,4 +1,0 @@
-# Hermes 受管集合中的显式额外白名单。
-# 格式：<category>/<skill>
-
-autonomous-ai-agents/hermes-cron-local-script-notify

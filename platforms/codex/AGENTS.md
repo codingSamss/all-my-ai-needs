@@ -44,7 +44,7 @@
 - 处理 Obsidian iCloud Vault 中的 `.md` 文件时，外部修改后必须执行 `touch <file>` 刷新时间戳。
 - 更新知识库文档时，必须基于原文整合式修订，禁止只在文末简单追加。
 - 提到“知识库/日记/笔记”时，优先走当前项目已定义的 skill；若未给出目标路径，先问清再写入。
-- 处理 `all-my-ai-needs` 同步时，默认采用 `platform-first`；Hermes 仅处理仓库已受管的白名单 skill 与 cron。
+- 处理 `all-my-ai-needs` 同步时，默认采用 `platform-first`；Hermes 仅处理仓库已受管的 local/DIY skills（`source=local`）与 cron。
 - 处理 `all-my-ai-needs` 同步时，不要把 `runtime.yaml` 下发到任何 agent 运行目录；`agents/openai.yaml` 仅在 Codex 运行目录确有必要时保留。
 - 处理 `all-my-ai-needs` 同步任务时，完成后必须汇报同步内容清单：新增、更新、删除、跳过/未同步项。
 

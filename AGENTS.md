@@ -6,7 +6,7 @@
 
 - `platforms/claude/`：Claude 的 `skills/`、`agents/`、`hooks/`、`.claude-plugin/` 与安装脚本。
 - `platforms/codex/`：Codex 的 `skills/`、`agents/`、`hooks/`、`scripts/`、`rules/`、`bin/`。
-- `platforms/hermes/`：Hermes 的白名单 subset；包含 `skills/` 与 `cron/`。其中 `skills/` 保持 Hermes 原生分类布局：`<category>/<skill>`。
+- `platforms/hermes/`：Hermes 的 local/DIY subset；包含 `skills/` 与 `cron/`。其中 `skills/` 保持 Hermes 原生分类布局：`<category>/<skill>`。
 - 根脚本：`setup.sh`、`scripts/bootstrap.sh`、`scripts/sync_to_codex.sh`。
 - 平台级迁移说明：`platforms/{claude,codex,hermes}/runtime.yaml`。
 - `runtime.yaml` 的字段约定以各平台 `skill_runtime_contract` 为准；平台固定为各自目录对应平台，不再使用 `platform: shared`。
@@ -19,7 +19,7 @@
 - `setup.sh`、`scripts/sync_to_codex.sh`、`scripts/bootstrap.sh` 仅用于新机初始化、灾备恢复、整个平台重建。
 - `runtime.yaml` 必须留在 repo，**不得**下发到 `~/.claude/skills`、`~/.codex/skills`、`~/.hermes/skills`。
 - `agents/openai.yaml` 仅在 Codex / OpenAI 风格运行目录确有必要时才下发；Claude 与 Hermes 默认不带。
-- Hermes 只受管白名单 subset：默认按 Codex 同名 skill 对照，Hermes-only 例外项见 `platforms/hermes/managed-extra-skills.txt`，另含 Hermes cron 相关内容。
+- Hermes 只受管 local/DIY subset：以 `hermes skills list --source local` 为准，另含 Hermes cron 相关内容。
 - 当用户要求“同步某个 skill”时，先比较该平台目录与对应本地运行目录的差异，再执行最小同步并回报结果；不要顺手同步无关 skill。
 
 ## README 维护约定
@@ -72,7 +72,7 @@
 - 直接运行受影响的 `setup.sh` 或 `sync_to_codex.sh`。
 - 用 `codex mcp list` 或 `claude mcp list` 验证 MCP 状态。
 - 涉及同步逻辑时，默认先做 repo 与本地运行目录 diff；只有在 bootstrap / 灾备场景下，才优先跑脚本。
-- 执行同步、提交、推送前，先让读取本仓库的 AI 比较本地 `~/.codex`、`~/.claude` 与仓库受管全局配置的差异；若本次涉及 Hermes，再比较 `~/.hermes/skills` 与 `~/.hermes/cron` 下与仓库同名的白名单路径。
+- 执行同步、提交、推送前，先让读取本仓库的 AI 比较本地 `~/.codex`、`~/.claude` 与仓库受管全局配置的差异；若本次涉及 Hermes，再比较 `~/.hermes/skills` 中 `source=local` 的 skill 与仓库 `platforms/hermes/skills`，并同时比较 `~/.hermes/cron` 与仓库 `platforms/hermes/cron`。
 - 忽略 secrets、占位符和运行态噪音；若本地有值得保留的新内容，先回写仓库。
 
 新增技能时，建议提供 `runtime.yaml`；若有 `README.md`，其中至少保留一条验证命令。
@@ -118,13 +118,13 @@
 - 以下几处必须保持一致：
   - GitHub 仓库状态
   - 本地项目目录（仓库工作区）
-  - 本地 CLI 根目录（`~/.claude`、`~/.codex`；若本次涉及 Hermes，再比较 `~/.hermes` 的白名单 subset）
+  - 本地 CLI 根目录（`~/.claude`、`~/.codex`；若本次涉及 Hermes，再比较 `~/.hermes` 的 local/DIY subset）
 - Claude 平台 skill 日常同步链路：`platforms/claude/skills/<skill>` -> AI 手工 diff -> `~/.claude/skills/<skill>`（最小文件集）。
 - Claude 平台 skill 脚本链路：通过 `./setup.sh` 将 `platforms/claude/skills` 应用到本地 Claude 根目录。
 - Codex 平台 skill 日常同步链路：`platforms/codex/skills/<skill>` -> AI 手工 diff -> `~/.codex/skills/<skill>`（最小文件集）。
 - Codex 平台 skill 脚本链路：`platforms/codex/skills` -> `~/.codex/skills`（`./scripts/sync_to_codex.sh`，主要用于 bootstrap / 灾备）。
 - Codex root 受管配置同步链路：`platforms/codex/{AGENTS.md,agents,bin,hooks,scripts,rules}` -> `~/.codex/...`。
-- Hermes 白名单链路：`platforms/hermes/skills/<category>/<skill>` 与 `platforms/hermes/cron/*` <-> `~/.hermes/...`，仅允许用户手动触发 + 人工审批，不走自动脚本。
+- Hermes local-only 链路：`platforms/hermes/skills/<category>/<skill>` <-> `~/.hermes/skills` 中 `source=local` 的同名路径；cron 链路：`platforms/hermes/cron/*` <-> `~/.hermes/cron/*`，仅允许用户手动触发 + 人工审批，不走自动脚本。
 - 推送 GitHub 前必须获得用户明确确认，不允许自动推送。
 - 当用户要求“同步仓库内容”“提交”或“推送”时：先比较相关平台的本地目录与仓库差异；若本地有值得保留的新内容，先提示同步回仓库，再继续后续动作。
 - 当处理 `all-my-ai-needs` 的同步任务时，无论方向是“本地运行目录 -> 仓库”还是“仓库 -> 本地运行目录”，任务结束时都必须向用户明确列出同步内容清单；至少包含：新增、更新、删除、跳过/未同步项。

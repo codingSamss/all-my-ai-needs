@@ -1,6 +1,6 @@
 platform: hermes
 runtime_version: 1
-mode: manual-managed-subset
+mode: manual-local-only-subset
 
 official_layout:
   skills_root: platforms/hermes/skills
@@ -8,7 +8,8 @@ official_layout:
   upstream_source: ~/.hermes/hermes-agent
   notes:
     - 仓库中的 Hermes skills 保持 Hermes 原生分类布局：platforms/hermes/skills/<category>/<skill>
-    - 当前仓库只受管白名单 subset：默认按 Codex 同名 skill 推导，Hermes-only 例外项写在 platforms/hermes/managed-extra-skills.txt，另含 Hermes cron 相关内容
+    - 当前仓库只受管 local/DIY subset：以 `hermes skills list --source local` 为准，另含 Hermes cron 相关内容
+    - 不纳入 builtin 与 hub skills
     - 日常同步走人工 diff + 最小落盘，不提供自动同步脚本
     - 会话、日志、记忆、.hub 缓存与 skill-promotions 都属于运行态，不纳入仓库受管内容
 
@@ -23,18 +24,21 @@ skill_runtime_contract:
     - verify
   optional_fields:
     - services
+    - source
   notes:
     - 如后续要把某个 Hermes skill 纳入仓库管理，可在对应目录补充 runtime.yaml
     - platform 必须固定为 hermes
-    - 仅记录与仓库同名且值得长期保留的 Hermes skill，不追踪整份 ~/.hermes/skills
+    - 仅记录 `source=local` 且值得长期保留的 Hermes skills，不追踪整份 ~/.hermes/skills
 
 managed_root_paths: []
 
 manual_steps:
-  - 新机先按官方方式安装 Hermes，再参考 platforms/hermes/README.md 手动恢复仓库白名单 skills 与 cron
-  - 涉及 Hermes 回流时，先运行 platforms/hermes/scripts/managed_skills.sh 生成当前受管集合，再比较对应 `~/.hermes/skills` 下同名路径
+  - 新机先按官方方式安装 Hermes，再参考 platforms/hermes/README.md 手动恢复仓库 local/DIY skills 与 cron
+  - 涉及 Hermes 回流时，先运行 `hermes skills list --source local` 或 platforms/hermes/scripts/managed_skills.sh 生成当前受管集合，再比较对应 `~/.hermes/skills` 下同名路径
   - 回流执行前必须先输出差异总结，并等待用户审核确认后再落盘
+  - `repo - local` 仅作为删除候选输出，必须人工确认，禁止自动删除
 
 verify:
-  - hermes skills list
+  - hermes skills list --source local
+  - bash platforms/hermes/scripts/managed_skills.sh status
   - find ~/.hermes/skills -mindepth 2 -maxdepth 2 -type d

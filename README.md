@@ -1,6 +1,6 @@
 # All My AI Needs（Claude Code + Codex + Hermes）
 
-这个仓库采用 `platform-first` 维护模式：每个平台各自维护自己的 `skills/`、脚本与运行约定；允许同名 skill 在不同平台目录中并存，不强行去重。当前 Hermes 也已经纳入仓库，但只受管一个白名单 subset，而不是整份 `~/.hermes`。
+这个仓库采用 `platform-first` 维护模式：每个平台各自维护自己的 `skills/`、脚本与运行约定；允许同名 skill 在不同平台目录中并存，不强行去重。当前 Hermes 也已经纳入仓库，但只受管 local/DIY subset（`source=local`），而不是整份 `~/.hermes`。
 
 - Claude 平台真源：`platforms/claude/`
 - Codex 平台真源：`platforms/codex/`
@@ -12,7 +12,7 @@
 - 日常同步优先由 AI 做“人工 diff + 最小落盘”，不直接依赖脚本镜像。
 - `runtime.yaml` 只保留在 repo，不下发到 `~/.claude`、`~/.codex`、`~/.hermes`。
 - `./setup.sh`、`./scripts/sync_to_codex.sh`、`./scripts/bootstrap.sh` 主要用于新机初始化、灾备恢复、整个平台重建。
-- Hermes 不提供自动同步脚本；仅对白名单 subset 做人工同步。
+- Hermes 不提供自动同步脚本；仅对 local/DIY subset（`source=local`）做人工同步。
 
 ## 当前 Skills 总览
 
@@ -59,6 +59,9 @@
 | Skill | 能力 |
 | --- | --- |
 | `hermes-cron-local-script-notify` | 创建轻量 Hermes cron job，让真正工作在本地脚本中执行并发送 macOS 通知 |
+| `skill-promotion-and-dedup` | 将 imported skills 提升为一等分类并去重，保留回滚路径 |
+| `trace-skill-provenance` | 追溯 skill 来源、创建时间、builtin/local 归属与修改会话线索 |
+| `x-article-canonicalization` | 将 X/Twitter 长文高保真落库到 Obsidian/知识库（block 顺序、可点击链接、图片本地化） |
 
 ## 平台能力摘要
 
@@ -80,13 +83,13 @@
 
 - 真源目录：`platforms/hermes/`
 - `platforms/hermes/skills/` 保持 Hermes 原生分类布局：`<category>/<skill>`
-- 当前只受管白名单 subset：
-  - 默认按 Codex 同名 skill 对照
-  - Hermes-only 例外项见 `platforms/hermes/managed-extra-skills.txt`
+- 当前只受管 local/DIY subset：
+  - 仅纳入 `hermes skills list --source local` 的 skill
+  - 不纳入 builtin / hub
   - Hermes cron 相关内容
 - `platforms/hermes/cron/` 当前保存 `jobs.json` 与依赖脚本
 - `bash platforms/hermes/scripts/managed_skills.sh status` 可查看当前受管集合、diff 与待补回仓候选
-- Hermes 不走仓库脚本自动同步；新机恢复采用“官方安装 + 手工放置白名单 skill + 人工审核差异”的方式
+- Hermes 不走仓库脚本自动同步；新机恢复采用“官方安装 + 手工放置 local/DIY skills + 人工审核差异”的方式
 
 ## 快速入口
 
@@ -122,4 +125,4 @@
 
 - Claude 平台完整能力与同步说明：`platforms/claude/README.md`
 - Codex 平台完整能力与同步说明：`platforms/codex/README.md`
-- Hermes 白名单 subset、cron 与迁移说明：`platforms/hermes/README.md`
+- Hermes local/DIY subset、cron 与迁移说明：`platforms/hermes/README.md`
