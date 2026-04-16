@@ -1,6 +1,6 @@
 # Hermes 平台目录（hermes）
 
-`platforms/hermes` 是当前 Hermes 平台的仓库真源，但只受管一个白名单 subset，不尝试镜像整份 `~/.hermes`。仓库采用 `platform-first`：Hermes 的 skill、cron 与迁移规则都留在 `platforms/hermes/` 下，和 Claude / Codex 分开维护。
+`platforms/hermes` 是当前 Hermes 平台的仓库真源，但只受管 local/DIY subset（`source=local`），不尝试镜像整份 `~/.hermes`。仓库采用 `platform-first`：Hermes 的 skill、cron 与迁移规则都留在 `platforms/hermes/` 下，和 Claude / Codex 分开维护。
 
 ## 当前定位
 
@@ -14,9 +14,8 @@
 
 当前仓库只维护以下 Hermes 内容：
 
-1. 默认按 Codex 同名 skill 对照得到的 Hermes skill
-2. `platforms/hermes/managed-extra-skills.txt` 中显式声明的 Hermes-only 例外 skill
-3. Hermes cron 相关内容
+1. `hermes skills list --source local` 返回的 local/DIY skills
+2. Hermes cron 相关内容
 
 不纳入仓库的运行态内容：
 
@@ -27,43 +26,75 @@
 - `~/.hermes/sessions/`、`~/.hermes/logs/`、`~/.hermes/memories/`
 - `~/.hermes/cron/output/`
 
+## 当前 skill 清单（完整）
+
+统计口径：
+
+- 仓库 `platforms/hermes/skills` 当前 24 个 skill（完整清单如下）
+- 本机 `hermes skills list --source local` 当前 22 个 skill
+- 仓库有但当前本机 local 暂无（仅删除候选，需人工确认）：`productivity/google-workspace`、`research/llm-wiki`
+
+### autonomous-ai-agents
+
+- `hermes-cron-local-script-notify`：本地脚本驱动的轻量 Hermes cron 与通知
+- `opencode-copilot-opus`：通过 opencode 与 GitHub Copilot Opus 持续协作讨论
+- `skill-promotion-and-dedup`：将 imported skills 提升为一等分类并去重
+- `trace-skill-provenance`：追溯 skill 来源、创建时间与归类路径
+
+### creative
+
+- `image-gen`：图片生成与结构化图表生成
+- `ui-ux-pro-max`：UI/UX 设计知识与落地辅助
+
+### mcp
+
+- `context-hub`：通过 chub 访问版本化 API/SDK 文档与技能
+
+### media
+
+- `video-transcribe`：视频/音频转录、关键帧与可视分析
+
+### note-taking
+
+- `orbit-os`：OrbitOS Obsidian Vault 结构与规范
+- `orbit-session-diary`：基于本地会话日志生成日记
+
+### productivity
+
+- `google-workspace`：Gmail/Calendar/Drive/Docs/Sheets 集成
+
+### research
+
+- `llm-wiki`：Karpathy 风格 markdown wiki 的 ingest/query/lint 工作流
+- `openai-docs`：OpenAI 官方文档检索与实现指引
+- `scrapling`：Scrapling 优先的网页抓取与结构化提取
+
+### social-media
+
+- `bird-twitter`：默认 X/Twitter 只读流程
+- `linuxdo`：LINUX DO 论坛只读访问
+- `reddit`：Reddit 只读访问
+- `x-article-canonicalization`：X 长文高保真 canonical 落库
+- `xiaohongshu-session-reader`：小红书 HTTP/API 优先读取，必要时回退 Playwright
+
+### software-development
+
+- `midea-recall-diagnose-playwright`：`/rag-recall/api/search/keyword` 漏召回排障与取证
+- `peekaboo`：macOS 截图与视觉分析
+- `pinchtab`：PinchTab 优先浏览器自动化
+- `playwright`：MCP-only 真实浏览器自动化
+- `screenshot`：系统级截图与区域捕获
+
 ## 仓库目录布局
 
 ```text
 platforms/hermes/
 ├── README.md
-├── managed-extra-skills.txt
 ├── runtime.yaml
 ├── scripts/
 │   └── managed_skills.sh
 ├── skills/
-│   ├── autonomous-ai-agents/
-│   │   ├── hermes-cron-local-script-notify/
-│   │   └── opencode-copilot-opus/
-│   ├── creative/
-│   │   ├── image-gen/
-│   │   └── ui-ux-pro-max/
-│   ├── mcp/context-hub/
-│   ├── media/video-transcribe/
-│   ├── note-taking/
-│   │   ├── orbit-os/
-│   │   └── orbit-session-diary/
-│   ├── productivity/google-workspace/
-│   ├── research/
-│   │   ├── llm-wiki/
-│   │   ├── openai-docs/
-│   │   └── scrapling/
-│   ├── social-media/
-│   │   ├── bird-twitter/
-│   │   ├── linuxdo/
-│   │   ├── reddit/
-│   │   └── xiaohongshu-session-reader/
-│   └── software-development/
-│       ├── midea-recall-diagnose-playwright/
-│       ├── peekaboo/
-│       ├── pinchtab/
-│       ├── playwright/
-│       └── screenshot/
+│   └── <category>/<skill>/
 └── cron/
     ├── jobs.json
     └── scripts/
@@ -72,24 +103,26 @@ platforms/hermes/
 
 ## 受管 skill 判定规则
 
-- 不再手工维护逐项映射表。
-- 默认规则：`platforms/codex/skills/<skill>` 与 `platforms/hermes/skills/<category>/<skill>` 同名时，视为 Hermes 受管 skill。
-- Hermes-only 例外：写在 `platforms/hermes/managed-extra-skills.txt`，当前用于保留 `hermes-cron-local-script-notify` 这类不在 Codex 中但需要受管的 Hermes skill。
-- 本机比对仍然是 repo 路径对同名运行路径：`platforms/hermes/skills/<category>/<skill>` <-> `~/.hermes/skills/<category>/<skill>`。
+- 不再按 Codex 同名推导，不再使用 `managed-extra-skills.txt`。
+- 默认规则：仅以 `hermes skills list --source local` 作为受管集合来源。
+- 本机比对路径：`platforms/hermes/skills/<category>/<skill>` <-> `~/.hermes/skills/<category>/<skill>`（仅限 local 列表中的项）。
+- `repo - local` 只标记为删除候选，必须人工确认，禁止自动删除。
 
-推荐直接用检查脚本，不再手工数名单：
+推荐直接用检查脚本：
 
 ```bash
 bash platforms/hermes/scripts/managed_skills.sh list
 bash platforms/hermes/scripts/managed_skills.sh status
 bash platforms/hermes/scripts/managed_skills.sh candidates
+bash platforms/hermes/scripts/managed_skills.sh unmanaged-repo
 ```
 
 输出含义：
 
-- `list`：列出当前受管的 repo skill，以及来源是 `codex-same-name` 还是 `hermes-extra`
-- `status`：列出受管 skill、repo 与本机运行目录的 diff、以及“本机已有但 repo 还没纳管”的 Codex 同名候选
-- `candidates`：只列出待补回仓的 Codex 同名候选 skill
+- `list`：列出当前本机 local skills（`source=local`）
+- `status`：列出 local skills、repo 与 local 交集 diff、待新增候选（`local - repo`）、待删除候选（`repo - local`）
+- `candidates`：只列出待补回仓候选（`local - repo`）
+- `unmanaged-repo`：只列出待删除候选（`repo - local`，仅供人工确认）
 
 ## Cron 受管内容
 
@@ -107,7 +140,7 @@ bash platforms/hermes/scripts/managed_skills.sh candidates
 ## 日常同步规则
 
 - Hermes 不走自动脚本同步
-- 仅当用户手动触发时，才比较当前受管集合与 `~/.hermes` 的同名路径
+- 仅当用户手动触发时，比较 `source=local` 集合与仓库同名路径
 - 同步前必须先给出差异总结
 - 同步后必须明确汇报：新增、更新、删除、跳过或未同步项
 
@@ -117,14 +150,14 @@ bash platforms/hermes/scripts/managed_skills.sh candidates
 
 1. 先按 Hermes 官方方式安装，确认 `~/.hermes/hermes-agent`、`~/.hermes/config.yaml`、`hermes` 命令可用。
 2. 恢复个人私有配置：`~/.hermes/config.yaml`、`~/.hermes/.env`、必要登录态与 OAuth 文件；这些都不入仓。
-3. 按本目录中的 `skills/` 与 `cron/` 手动恢复白名单 subset。
+3. 按本目录中的 `skills/` 与 `cron/` 手动恢复 local/DIY subset。
 4. 不要迁移 `.hub/`、`skill-promotions/`、`sessions/`、`logs/`、`memories/`、`cron/output/`。
-5. 若之后需要把 Hermes 新变化回写仓库，先运行 `bash platforms/hermes/scripts/managed_skills.sh status`，再只比较当前受管集合与同名本机路径，并先输出差异总结给用户审核。
+5. 若之后需要把 Hermes 新变化回写仓库，先运行 `bash platforms/hermes/scripts/managed_skills.sh status`，再只比较 local/DIY 受管集合与同名本机路径，并先输出差异总结给用户审核。
 
 ## 校验命令
 
 ```bash
-hermes skills list
+hermes skills list --source local
 bash platforms/hermes/scripts/managed_skills.sh status
 find ~/.hermes/skills -mindepth 2 -maxdepth 2 -type d | sort
 cat ~/.hermes/cron/jobs.json

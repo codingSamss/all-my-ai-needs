@@ -3,12 +3,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PLATFORM_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-REPO_ROOT="$(cd "$PLATFORM_ROOT/../.." && pwd)"
-CODEX_SKILLS_ROOT="$REPO_ROOT/platforms/codex/skills"
 HERMES_REPO_SKILLS_ROOT="$PLATFORM_ROOT/skills"
 HERMES_HOME_DIR="${HERMES_HOME:-$HOME/.hermes}"
 HERMES_LOCAL_SKILLS_ROOT="$HERMES_HOME_DIR/skills"
-EXTRA_SKILLS_FILE="$PLATFORM_ROOT/managed-extra-skills.txt"
 TMP_DIR="$(mktemp -d)"
 
 cleanup() {
@@ -25,110 +22,70 @@ usage() {
   ./platforms/hermes/scripts/managed_skills.sh unmanaged-repo
 
 说明:
-  - 默认按 Codex 同名 skill 推导 Hermes 受管集合
-  - Hermes-only 例外项从 platforms/hermes/managed-extra-skills.txt 读取
-  - 只做检查，不会执行同步
+  - Hermes 受管集合仅来自 `hermes skills list --source local`
+  - 不再按 Codex 同名推导，不再使用 managed-extra-skills.txt
+  - 只做检查，不会执行同步或删除
 USAGE
 }
 
-write_codex_names() {
-  find "$CODEX_SKILLS_ROOT" -mindepth 1 -maxdepth 1 -type d \
-    -exec basename {} \; | sort -u > "$TMP_DIR/codex_names"
-}
-
 write_repo_hermes_rels() {
-  find "$HERMES_REPO_SKILLS_ROOT" -mindepth 2 -maxdepth 2 -type d \
-    | sed "s#^$HERMES_REPO_SKILLS_ROOT/##" \
-    | sort > "$TMP_DIR/repo_hermes_rels"
-}
-
-write_local_hermes_rels() {
-  if [ ! -d "$HERMES_LOCAL_SKILLS_ROOT" ]; then
-    : > "$TMP_DIR/local_hermes_rels"
+  if [ ! -d "$HERMES_REPO_SKILLS_ROOT" ]; then
+    : > "$TMP_DIR/repo_hermes_rels"
     return
   fi
 
-  find "$HERMES_LOCAL_SKILLS_ROOT" -mindepth 2 -maxdepth 2 -type d \
-    | sed "s#^$HERMES_LOCAL_SKILLS_ROOT/##" \
-    | sort > "$TMP_DIR/local_hermes_rels"
+  while IFS= read -r dir_path; do
+    if [ -f "$dir_path/SKILL.md" ]; then
+      printf '%s\n' "${dir_path#"$HERMES_REPO_SKILLS_ROOT/"}"
+    fi
+  done < <(find "$HERMES_REPO_SKILLS_ROOT" -mindepth 2 -maxdepth 2 -type d | sort) > "$TMP_DIR/repo_hermes_rels"
 }
 
-write_extra_rels() {
-  if [ ! -f "$EXTRA_SKILLS_FILE" ]; then
-    : > "$TMP_DIR/extra_rels"
-    return
+write_local_hermes_rels_from_cli() {
+  if ! command -v hermes >/dev/null 2>&1; then
+    echo "[错误] 未找到 hermes 命令，无法读取 local skills" >&2
+    exit 2
   fi
 
-  grep -Ev '^[[:space:]]*($|#)' "$EXTRA_SKILLS_FILE" | sort -u > "$TMP_DIR/extra_rels" || true
+  hermes skills list --source local 2>/dev/null \
+    | awk -F'│' '
+      $0 ~ /^│/ {
+        name=$2
+        category=$3
+        source=$4
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", name)
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", category)
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "", source)
+        if (source == "local" && name != "Name" && category != "Category" && category != "") {
+          print category "/" name
+        }
+      }
+    ' \
+    | sort -u > "$TMP_DIR/local_hermes_rels"
 }
 
 prepare_sets() {
-  write_codex_names
   write_repo_hermes_rels
-  write_local_hermes_rels
-  write_extra_rels
+  write_local_hermes_rels_from_cli
 }
 
-is_codex_name() {
-  local skill_name="$1"
-  grep -Fxq "$skill_name" "$TMP_DIR/codex_names"
-}
-
-is_extra_rel() {
-  local rel_path="$1"
-  grep -Fxq "$rel_path" "$TMP_DIR/extra_rels"
-}
-
-emit_managed_repo_rels() {
-  local rel_path=""
-  local skill_name=""
-
+emit_local_with_source() {
   while IFS= read -r rel_path; do
-    skill_name="${rel_path##*/}"
-    if is_codex_name "$skill_name" || is_extra_rel "$rel_path"; then
-      printf '%s\n' "$rel_path"
-    fi
-  done < "$TMP_DIR/repo_hermes_rels"
-}
-
-emit_managed_repo_rels_with_source() {
-  local rel_path=""
-  local skill_name=""
-
-  while IFS= read -r rel_path; do
-    skill_name="${rel_path##*/}"
-    if is_codex_name "$skill_name"; then
-      printf '%s\t%s\n' "$rel_path" "codex-same-name"
-    elif is_extra_rel "$rel_path"; then
-      printf '%s\t%s\n' "$rel_path" "hermes-extra"
-    fi
-  done < "$TMP_DIR/repo_hermes_rels"
-}
-
-emit_unmanaged_repo_rels() {
-  local rel_path=""
-  local skill_name=""
-
-  while IFS= read -r rel_path; do
-    skill_name="${rel_path##*/}"
-    if ! is_codex_name "$skill_name" && ! is_extra_rel "$rel_path"; then
-      printf '%s\n' "$rel_path"
-    fi
-  done < "$TMP_DIR/repo_hermes_rels"
-}
-
-emit_candidate_local_rels() {
-  local rel_path=""
-  local skill_name=""
-
-  emit_managed_repo_rels | awk -F/ '{print $NF}' | sort -u > "$TMP_DIR/managed_repo_names"
-
-  while IFS= read -r rel_path; do
-    skill_name="${rel_path##*/}"
-    if is_codex_name "$skill_name" && ! grep -Fxq "$skill_name" "$TMP_DIR/managed_repo_names"; then
-      printf '%s\n' "$rel_path"
-    fi
+    [ -n "$rel_path" ] || continue
+    printf '%s\t%s\n' "$rel_path" "local-source"
   done < "$TMP_DIR/local_hermes_rels"
+}
+
+emit_local_not_in_repo() {
+  comm -23 "$TMP_DIR/local_hermes_rels" "$TMP_DIR/repo_hermes_rels"
+}
+
+emit_repo_not_in_local() {
+  comm -13 "$TMP_DIR/local_hermes_rels" "$TMP_DIR/repo_hermes_rels"
+}
+
+emit_intersection_rels() {
+  comm -12 "$TMP_DIR/local_hermes_rels" "$TMP_DIR/repo_hermes_rels"
 }
 
 show_diff_status() {
@@ -139,8 +96,15 @@ show_diff_status() {
   local has_diff="false"
 
   while IFS= read -r rel_path; do
+    [ -n "$rel_path" ] || continue
     repo_dir="$HERMES_REPO_SKILLS_ROOT/$rel_path"
     local_dir="$HERMES_LOCAL_SKILLS_ROOT/$rel_path"
+
+    if [ ! -d "$repo_dir" ]; then
+      printf 'MISSING_REPO\t%s\n' "$rel_path"
+      has_diff="true"
+      continue
+    fi
 
     if [ ! -d "$local_dir" ]; then
       printf 'MISSING_LOCAL\t%s\n' "$rel_path"
@@ -158,7 +122,7 @@ show_diff_status() {
       printf '%s\n' '---'
       has_diff="true"
     fi
-  done < <(emit_managed_repo_rels)
+  done < <(emit_intersection_rels)
 
   if [ "$has_diff" != "true" ]; then
     echo "CLEAN"
@@ -175,29 +139,29 @@ COMMAND="${1:-status}"
 case "$COMMAND" in
   list)
     prepare_sets
-    emit_managed_repo_rels_with_source
+    emit_local_with_source
     ;;
   status)
     prepare_sets
-    print_section "Managed Repo Skills"
-    emit_managed_repo_rels_with_source
+    print_section "Local Skills (source=local)"
+    emit_local_with_source
     echo
-    print_section "Repo vs Local Diff"
+    print_section "Repo vs Local Diff (Intersection)"
     show_diff_status
     echo
-    print_section "Local Codex-Name Candidates Not In Repo"
-    emit_candidate_local_rels || true
+    print_section "Local Skills Not In Repo (Add Candidates)"
+    emit_local_not_in_repo || true
     echo
-    print_section "Repo Paths Outside Current Rule"
-    emit_unmanaged_repo_rels || true
+    print_section "Repo Skills Not In Local (Remove Candidates / Manual Confirm)"
+    emit_repo_not_in_local || true
     ;;
   candidates)
     prepare_sets
-    emit_candidate_local_rels
+    emit_local_not_in_repo
     ;;
   unmanaged-repo)
     prepare_sets
-    emit_unmanaged_repo_rels
+    emit_repo_not_in_local
     ;;
   -h|--help|help)
     usage

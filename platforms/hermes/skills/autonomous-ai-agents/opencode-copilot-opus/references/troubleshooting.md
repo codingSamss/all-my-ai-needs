@@ -42,9 +42,11 @@ Error: Configuration is invalid ... Unrecognized key: "skills"
 
 Fix:
 
-- Temporarily bypass local config parsing:
-  `XDG_CONFIG_HOME=/tmp opencode ...`
-- Keep auth in `~/.local/share/opencode/auth.json`.
+1. Preferred: create a clean config directory, copy `~/.config/opencode/opencode.json`, remove unsupported keys (for example `skills`), then run with:
+   `XDG_CONFIG_HOME=/path/to/clean opencode ...`
+2. Quick fallback: temporarily bypass local config parsing:
+   `XDG_CONFIG_HOME=/tmp opencode ...`
+3. Keep auth in `~/.local/share/opencode/auth.json`.
 
 ## 4) Keep same discussion context across rounds
 
@@ -54,7 +56,21 @@ Recommended order:
 2. Continue latest: `opencode run -c "补充背景..."`
 3. Continue exact session: `opencode run -s <session_id> "继续..."`
 
-## 5) Session ID retrieval
+## 5) GitHub Copilot `ECONNRESET` / network resets
+
+Symptom:
+
+```text
+ECONNRESET ... https://api.githubcopilot.com/chat/completions
+```
+
+Fix:
+
+- In this environment, run opencode commands with proxy:
+  `HTTP_PROXY=http://127.0.0.1:7897 HTTPS_PROXY=http://127.0.0.1:7897`
+- If you also need custom config, combine with `XDG_CONFIG_HOME=/path/to/clean`.
+
+## 6) Session ID retrieval
 
 - List: `opencode session list`
 - Use first `ses_*` as latest active session.
