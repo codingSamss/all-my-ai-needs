@@ -1,0 +1,25 @@
+# Hermes 脱敏配置模板（仅受管片段）
+#
+# 用途：
+# - 作为仓库中的可审阅配置基线（不包含真实密钥）
+# - 配合 scripts/sync_to_hermes.sh 合并到本机 ~/.hermes/config.yaml
+#
+# 注意：
+# - 这是“模板片段”，不是完整运行态 config
+# - 占位符形如 <...>，同步时优先保留本机已有非占位值
+
+mcp_servers:
+  mempalace:
+    command: <MEMPALACE_PYTHON_PATH>
+    args:
+      - -m
+      - mempalace.mcp_server
+      - --palace
+      - <MEMPALACE_PALACE_PATH>
+  playwright-ext:
+    command: npx
+    args:
+      - '@playwright/mcp@latest'
+      - --extension
+    env:
+      PLAYWRIGHT_MCP_EXTENSION_TOKEN: <PLAYWRIGHT_EXT_TOKEN>

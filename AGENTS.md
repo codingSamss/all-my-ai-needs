@@ -6,8 +6,8 @@
 
 - `platforms/claude/`：Claude 的 `skills/`、`agents/`、`hooks/`、`.claude-plugin/` 与安装脚本。
 - `platforms/codex/`：Codex 的 `skills/`、`agents/`、`hooks/`、`scripts/`、`rules/`、`bin/`。
-- `platforms/hermes/`：Hermes 的 local/DIY subset；包含 `skills/` 与 `cron/`。其中 `skills/` 保持 Hermes 原生分类布局：`<category>/<skill>`。
-- 根脚本：`setup.sh`、`scripts/bootstrap.sh`、`scripts/sync_to_codex.sh`。
+- `platforms/hermes/`：Hermes 的 local/DIY subset；包含 `skills/`、`cron/` 与脱敏配置模板 `config.template.yaml`。其中 `skills/` 保持 Hermes 原生分类布局：`<category>/<skill>`。
+- 根脚本：`setup.sh`、`scripts/bootstrap.sh`、`scripts/sync_to_codex.sh`、`scripts/sync_to_hermes.sh`。
 - 平台级迁移说明：`platforms/{claude,codex,hermes}/runtime.yaml`。
 - `runtime.yaml` 的字段约定以各平台 `skill_runtime_contract` 为准；平台固定为各自目录对应平台，不再使用 `platform: shared`。
 
@@ -16,10 +16,10 @@
 ## 平台同步策略
 
 - 日常同步默认采用“AI 人工同步 + 差异审阅”，不是直接跑脚本做目录镜像。
-- `setup.sh`、`scripts/sync_to_codex.sh`、`scripts/bootstrap.sh` 仅用于新机初始化、灾备恢复、整个平台重建。
+- `setup.sh`、`scripts/sync_to_codex.sh`、`scripts/bootstrap.sh` 仅用于新机初始化、灾备恢复、整个平台重建；`scripts/sync_to_hermes.sh` 仅用于手动合并 Hermes 脱敏配置模板。
 - `runtime.yaml` 必须留在 repo，**不得**下发到 `~/.claude/skills`、`~/.codex/skills`、`~/.hermes/skills`。
 - `agents/openai.yaml` 仅在 Codex / OpenAI 风格运行目录确有必要时才下发；Claude 与 Hermes 默认不带。
-- Hermes 只受管 local/DIY subset：以 `hermes skills list --source local` 为准，另含 Hermes cron 相关内容。
+- Hermes 受管范围：`source=local` skills + cron + 脱敏配置模板；运行态实值配置（`~/.hermes/config.yaml`、`~/.hermes/.env`）不入仓。
 - 当用户要求“同步某个 skill”时，先比较该平台目录与对应本地运行目录的差异，再执行最小同步并回报结果；不要顺手同步无关 skill。
 
 ## README 维护约定
@@ -37,6 +37,8 @@
 - `./scripts/sync_to_codex.sh --dry-run`：预览 Codex 配置同步结果。
 - `./scripts/sync_to_codex.sh`：同步 `platforms/codex/skills` 与受管 root 配置到 `~/.codex`（bootstrap / 灾备 fallback，默认不覆盖本机 `config.toml`）。
 - `./scripts/sync_to_codex.sh --sync-config`：显式同步 `platforms/codex/config.toml` 到 `~/.codex/config.toml`。
+- `./scripts/sync_to_hermes.sh --dry-run`：预览 Hermes 脱敏配置模板与本机 `~/.hermes/config.yaml` 的受管片段合并结果。
+- `./scripts/sync_to_hermes.sh --sync-config`：手动合并 Hermes 脱敏配置模板到本机 `~/.hermes/config.yaml`（保留本地非占位敏感值）。
 - `./scripts/bootstrap.sh all`：新机一次执行 Claude 配置 + Codex 同步。
 
 ## 代码风格与命名约定
@@ -69,7 +71,7 @@
 
 仓库未统一使用单一测试框架，变更主要通过可执行校验完成：
 
-- 直接运行受影响的 `setup.sh` 或 `sync_to_codex.sh`。
+- 直接运行受影响的 `setup.sh`、`sync_to_codex.sh` 或 `sync_to_hermes.sh`。
 - 用 `codex mcp list` 或 `claude mcp list` 验证 MCP 状态。
 - 涉及同步逻辑时，默认先做 repo 与本地运行目录 diff；只有在 bootstrap / 灾备场景下，才优先跑脚本。
 - 执行同步、提交、推送前，先让读取本仓库的 AI 比较本地 `~/.codex`、`~/.claude` 与仓库受管全局配置的差异；若本次涉及 Hermes，再比较 `~/.hermes/skills` 中 `source=local` 的 skill 与仓库 `platforms/hermes/skills`，并同时比较 `~/.hermes/cron` 与仓库 `platforms/hermes/cron`。
@@ -124,7 +126,7 @@
 - Codex 平台 skill 日常同步链路：`platforms/codex/skills/<skill>` -> AI 手工 diff -> `~/.codex/skills/<skill>`（最小文件集）。
 - Codex 平台 skill 脚本链路：`platforms/codex/skills` -> `~/.codex/skills`（`./scripts/sync_to_codex.sh`，主要用于 bootstrap / 灾备）。
 - Codex root 受管配置同步链路：`platforms/codex/{AGENTS.md,agents,bin,hooks,scripts,rules}` -> `~/.codex/...`。
-- Hermes local-only 链路：`platforms/hermes/skills/<category>/<skill>` <-> `~/.hermes/skills` 中 `source=local` 的同名路径；cron 链路：`platforms/hermes/cron/*` <-> `~/.hermes/cron/*`，仅允许用户手动触发 + 人工审批，不走自动脚本。
+- Hermes local-only 链路：`platforms/hermes/skills/<category>/<skill>` <-> `~/.hermes/skills` 中 `source=local` 的同名路径；cron 链路：`platforms/hermes/cron/*` <-> `~/.hermes/cron/*`，仅允许用户手动触发 + 人工审批，不走自动脚本；配置模板链路：`platforms/hermes/config.template.yaml` -> `./scripts/sync_to_hermes.sh` -> `~/.hermes/config.yaml`（仅受管片段合并，保留本地非占位敏感值）。
 - 推送 GitHub 前必须获得用户明确确认，不允许自动推送。
 - 当用户要求“同步仓库内容”“提交”或“推送”时：先比较相关平台的本地目录与仓库差异；若本地有值得保留的新内容，先提示同步回仓库，再继续后续动作。
 - 当处理 `all-my-ai-needs` 的同步任务时，无论方向是“本地运行目录 -> 仓库”还是“仓库 -> 本地运行目录”，任务结束时都必须向用户明确列出同步内容清单；至少包含：新增、更新、删除、跳过/未同步项。

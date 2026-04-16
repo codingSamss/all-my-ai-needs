@@ -8,9 +8,10 @@ official_layout:
   upstream_source: ~/.hermes/hermes-agent
   notes:
     - 仓库中的 Hermes skills 保持 Hermes 原生分类布局：platforms/hermes/skills/<category>/<skill>
-    - 当前仓库只受管 local/DIY subset：以 `hermes skills list --source local` 为准，另含 Hermes cron 相关内容
+    - 当前仓库受管 local/DIY subset：以 `hermes skills list --source local` 为准，另含 Hermes cron 与脱敏配置模板
+    - 脱敏配置模板位于 `platforms/hermes/config.template.yaml`，当前仅覆盖 `mcp_servers` 受管片段
     - 不纳入 builtin 与 hub skills
-    - 日常同步走人工 diff + 最小落盘，不提供自动同步脚本
+    - 日常同步走人工 diff + 最小落盘；skills/cron 不做自动镜像，仅提供手动触发的配置模板合并脚本
     - 会话、日志、记忆、.hub 缓存与 skill-promotions 都属于运行态，不纳入仓库受管内容
 
 skill_runtime_contract:
@@ -34,11 +35,15 @@ managed_root_paths: []
 
 manual_steps:
   - 新机先按官方方式安装 Hermes，再参考 platforms/hermes/README.md 手动恢复仓库 local/DIY skills 与 cron
+  - 可选执行 `./scripts/sync_to_hermes.sh --dry-run` 预览模板差异，确认后执行 `--sync-config` 合并受管配置片段
   - 涉及 Hermes 回流时，先运行 `hermes skills list --source local` 或 platforms/hermes/scripts/managed_skills.sh 生成当前受管集合，再比较对应 `~/.hermes/skills` 下同名路径
   - 回流执行前必须先输出差异总结，并等待用户审核确认后再落盘
-  - `repo - local` 仅作为删除候选输出，必须人工确认，禁止自动删除
+  - repo-local 差集仅作为删除候选输出，必须人工确认，禁止自动删除
 
 verify:
   - hermes skills list --source local
   - bash platforms/hermes/scripts/managed_skills.sh status
+  - ./scripts/sync_to_hermes.sh --dry-run
+  - hermes mcp list
+  - hermes mcp test playwright-ext
   - find ~/.hermes/skills -mindepth 2 -maxdepth 2 -type d

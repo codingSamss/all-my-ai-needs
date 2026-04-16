@@ -8,18 +8,19 @@
 - 官方源码/安装基线：`~/.hermes/hermes-agent`
 - active skills 根目录：`~/.hermes/skills`
 - active skills 原生布局：`~/.hermes/skills/<category>/<skill>`
-- 仓库内 Hermes 真源：`platforms/hermes/skills/<category>/<skill>` 与 `platforms/hermes/cron/`
+- 仓库内 Hermes 真源：`platforms/hermes/skills/<category>/<skill>`、`platforms/hermes/cron/` 与 `platforms/hermes/config.template.yaml`
 
 ## 当前受管范围
 
-当前仓库只维护以下 Hermes 内容：
+当前仓库维护以下 Hermes 内容：
 
 1. `hermes skills list --source local` 返回的 local/DIY skills
 2. Hermes cron 相关内容
+3. 脱敏配置模板：`platforms/hermes/config.template.yaml`（当前仅覆盖 `mcp_servers` 受管片段）
 
 不纳入仓库的运行态内容：
 
-- `~/.hermes/config.yaml`
+- `~/.hermes/config.yaml`（运行态实值；仓库只保存脱敏模板）
 - `~/.hermes/.env`
 - `~/.hermes/.hub/`
 - `~/.hermes/skill-promotions/`
@@ -30,13 +31,14 @@
 
 统计口径：
 
-- 仓库 `platforms/hermes/skills` 当前 24 个 skill（完整清单如下）
-- 本机 `hermes skills list --source local` 当前 22 个 skill
-- 仓库有但当前本机 local 暂无（仅删除候选，需人工确认）：`productivity/google-workspace`、`research/llm-wiki`
+- 仓库 `platforms/hermes/skills` 当前 26 个 skill（完整清单如下）
+- 本机 `hermes skills list --source local` 当前 24 个 skill
+- 注意：`google-workspace`、`llm-wiki` 可能因 bundled manifest 命中显示为 `source=builtin`，但本机同名 local 路径仍可能存在
 
 ### autonomous-ai-agents
 
 - `hermes-cron-local-script-notify`：本地脚本驱动的轻量 Hermes cron 与通知
+- `hermes-skill-source-classification`：诊断 `source=builtin/local` 判定与误报
 - `opencode-copilot-opus`：通过 opencode 与 GitHub Copilot Opus 持续协作讨论
 - `skill-promotion-and-dedup`：将 imported skills 提升为一等分类并去重
 - `trace-skill-provenance`：追溯 skill 来源、创建时间与归类路径
@@ -83,6 +85,7 @@
 - `peekaboo`：macOS 截图与视觉分析
 - `pinchtab`：PinchTab 优先浏览器自动化
 - `playwright`：MCP-only 真实浏览器自动化
+- `repo-hermes-config-template-sync`：Hermes 脱敏配置模板与同步脚本落库流程
 - `screenshot`：系统级截图与区域捕获
 
 ## 仓库目录布局
@@ -91,6 +94,7 @@
 platforms/hermes/
 ├── README.md
 ├── runtime.yaml
+├── config.template.yaml
 ├── scripts/
 │   └── managed_skills.sh
 ├── skills/
@@ -137,9 +141,32 @@ bash platforms/hermes/scripts/managed_skills.sh unmanaged-repo
 - `cron/output/`、锁文件与运行日志不入仓
 - 若 cron 继续扩展，优先把“配置 + 脚本”纳入仓库，而不是把运行结果目录纳入仓库
 
+## 配置模板（脱敏）与手动合并
+
+当前仓库新增：`platforms/hermes/config.template.yaml`。
+
+- 只保存受管片段（当前为 `mcp_servers`），不保存运行态私密实值
+- 占位符写法统一为 `<...>`，例如 `<PLAYWRIGHT_EXT_TOKEN>`
+- 合并入口：`./scripts/sync_to_hermes.sh`
+
+推荐命令：
+
+```bash
+./scripts/sync_to_hermes.sh --dry-run
+./scripts/sync_to_hermes.sh --sync-config
+```
+
+合并策略：
+
+- 非占位模板值会更新到本机 `~/.hermes/config.yaml`
+- 占位模板值优先保留本机已有非占位值
+- 若本机缺失且存在同名环境变量，则使用环境变量值
+- 不改动 skills/cron 的手工同步策略
+
 ## 日常同步规则
 
-- Hermes 不走自动脚本同步
+- Hermes skills/cron 不走自动镜像脚本
+- 配置模板合并仅允许用户手动触发 `./scripts/sync_to_hermes.sh`
 - 仅当用户手动触发时，比较 `source=local` 集合与仓库同名路径
 - 同步前必须先给出差异总结
 - 同步后必须明确汇报：新增、更新、删除、跳过或未同步项
@@ -149,16 +176,20 @@ bash platforms/hermes/scripts/managed_skills.sh unmanaged-repo
 建议按下面顺序恢复：
 
 1. 先按 Hermes 官方方式安装，确认 `~/.hermes/hermes-agent`、`~/.hermes/config.yaml`、`hermes` 命令可用。
-2. 恢复个人私有配置：`~/.hermes/config.yaml`、`~/.hermes/.env`、必要登录态与 OAuth 文件；这些都不入仓。
-3. 按本目录中的 `skills/` 与 `cron/` 手动恢复 local/DIY subset。
-4. 不要迁移 `.hub/`、`skill-promotions/`、`sessions/`、`logs/`、`memories/`、`cron/output/`。
-5. 若之后需要把 Hermes 新变化回写仓库，先运行 `bash platforms/hermes/scripts/managed_skills.sh status`，再只比较 local/DIY 受管集合与同名本机路径，并先输出差异总结给用户审核。
+2. 先恢复个人私有配置：`~/.hermes/config.yaml`、`~/.hermes/.env`、必要登录态与 OAuth 文件；这些实值不入仓。
+3. 用 `./scripts/sync_to_hermes.sh --dry-run` 预览模板差异，确认后再执行 `--sync-config` 合并受管配置片段。
+4. 按本目录中的 `skills/` 与 `cron/` 手动恢复 local/DIY subset。
+5. 不要迁移 `.hub/`、`skill-promotions/`、`sessions/`、`logs/`、`memories/`、`cron/output/`。
+6. 若之后需要把 Hermes 新变化回写仓库，先运行 `bash platforms/hermes/scripts/managed_skills.sh status`，再只比较 local/DIY 受管集合与同名本机路径，并先输出差异总结给用户审核。
 
 ## 校验命令
 
 ```bash
 hermes skills list --source local
 bash platforms/hermes/scripts/managed_skills.sh status
+./scripts/sync_to_hermes.sh --dry-run
+hermes mcp list
+hermes mcp test playwright-ext
 find ~/.hermes/skills -mindepth 2 -maxdepth 2 -type d | sort
 cat ~/.hermes/cron/jobs.json
 ```
