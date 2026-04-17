@@ -24,6 +24,7 @@
 | `context-hub` | 通过 chub 检索版本化 API/SDK 文档与技能内容 |
 | `google-workspace` | 访问 Gmail、Drive、Docs、Calendar 等 Google Workspace 能力 |
 | `image-gen` | 图片生成与结构化图表生成 |
+| `fireworks-tech-graph` | 结构化技术图生成（架构图/流程图/时序图/泳道图，SVG+PNG） |
 | `linuxdo` | 只读访问 LINUX DO 论坛 |
 | `llm-wiki` | 用 analysis -> generation 维护 Karpathy 风格 markdown wiki，支持 ingest / query / lint |
 | `midea-recall-diagnose-playwright` | keyword 漏召回排查、回放与 trace/ELK/ES 取证 |

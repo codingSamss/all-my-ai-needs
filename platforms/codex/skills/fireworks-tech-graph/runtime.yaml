@@ -1,0 +1,26 @@
+runtime_version: 1
+skill: fireworks-tech-graph
+platform: codex
+
+sync_paths:
+  - SKILL.md
+  - runtime.yaml
+  - references/
+  - scripts/
+  - templates/
+  - fixtures/
+  - assets/
+
+dependencies:
+  commands:
+    - python3
+    - rsvg-convert
+
+manual_steps:
+  - 安装 librsvg 以提供 rsvg-convert（macOS: brew install librsvg）
+  - 复杂图优先使用 scripts/generate-from-template.py 生成骨架，再迭代细节
+
+verify:
+  - python3 --version
+  - rsvg-convert --version
+  - bash scripts/validate-svg.sh templates/architecture.svg

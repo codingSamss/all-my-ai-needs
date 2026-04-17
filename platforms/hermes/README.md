@@ -31,7 +31,7 @@
 
 统计口径：
 
-- 仓库 `platforms/hermes/skills` 当前 26 个 skill（完整清单如下）
+- 仓库 `platforms/hermes/skills` 当前 27 个 skill（完整清单如下）
 - 本机 `hermes skills list --source local` 当前 24 个 skill
 - 注意：`google-workspace`、`llm-wiki` 可能因 bundled manifest 命中显示为 `source=builtin`，但本机同名 local 路径仍可能存在
 
@@ -45,6 +45,7 @@
 
 ### creative
 
+- `fireworks-tech-graph`：结构化技术图生成（架构图/流程图/时序图/泳道图，SVG+PNG）
 - `image-gen`：图片生成与结构化图表生成
 - `ui-ux-pro-max`：UI/UX 设计知识与落地辅助
 

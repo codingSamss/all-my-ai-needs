@@ -26,6 +26,7 @@
 | `context-hub` | 通过 chub 检索版本化 API/SDK 文档与技能内容 | 依赖 Node.js/npm 与 chub CLI |
 | `google-workspace` | 只读访问 Google Workspace 内容 | 依赖 gogcli 与 OAuth 登录态 |
 | `image-gen` | 图片生成与结构化图表生成 | 依赖图片 provider 配置 |
+| `fireworks-tech-graph` | 结构化技术图生成（架构图/流程图/时序图/泳道图，SVG+PNG） | 依赖 `python3` 与 `rsvg-convert` |
 | `linuxdo` | 只读访问 LINUX DO 论坛 | 依赖 Chrome Cookie |
 | `llm-wiki` | 用 analysis -> generation 维护 Karpathy 风格 markdown wiki | 平台本地真源：`platforms/codex/skills/llm-wiki` |
 | `midea-recall-diagnose-playwright` | keyword 漏召回排查、回放与 trace/ELK/ES 取证 | 依赖 Playwright 会话与本地脚本 |
