@@ -7,8 +7,8 @@
 - 官方安装运行根目录：`~/.hermes`
 - 官方源码/安装基线：`~/.hermes/hermes-agent`
 - active skills 根目录：`~/.hermes/skills`
-- active skills 原生布局：`~/.hermes/skills/<category>/<skill>`
-- 仓库内 Hermes 真源：`platforms/hermes/skills/<category>/<skill>`、`platforms/hermes/cron/` 与 `platforms/hermes/config.template.yaml`
+- active skills 原生布局：`~/.hermes/skills/<category>/<...>/<skill>`（允许多级分类）
+- 仓库内 Hermes 真源：`platforms/hermes/skills/<category>/<...>/<skill>`、`platforms/hermes/cron/` 与 `platforms/hermes/config.template.yaml`
 
 ## 当前受管范围
 
@@ -31,7 +31,7 @@
 
 统计口径：
 
-- 仓库 `platforms/hermes/skills` 当前 27 个 skill（完整清单如下）
+- 仓库 `platforms/hermes/skills` 当前 26 个 skill（完整清单如下）
 - 本机 `hermes skills list --source local` 当前 24 个 skill
 - 注意：`google-workspace`、`llm-wiki` 可能因 bundled manifest 命中显示为 `source=builtin`，但本机同名 local 路径仍可能存在
 
@@ -46,7 +46,6 @@
 ### creative
 
 - `fireworks-tech-graph`：结构化技术图生成（架构图/流程图/时序图/泳道图，SVG+PNG）
-- `image-gen`：图片生成与结构化图表生成
 - `ui-ux-pro-max`：UI/UX 设计知识与落地辅助
 
 ### mcp
@@ -110,8 +109,13 @@ platforms/hermes/
 
 - 不再按 Codex 同名推导，不再使用 `managed-extra-skills.txt`。
 - 默认规则：仅以 `hermes skills list --source local` 作为受管集合来源。
-- 本机比对路径：`platforms/hermes/skills/<category>/<skill>` <-> `~/.hermes/skills/<category>/<skill>`（仅限 local 列表中的项）。
-- `repo - local` 只标记为删除候选，必须人工确认，禁止自动删除。
+- 官方来源索引优先按 `hermes skills list --source builtin|hub` 读取；若 builtin 查询失败则回退 `~/.hermes/skills/.bundled_manifest`。
+- `managed_skills.sh` 会基于 local 列表中的 `name/category` 回查 `~/.hermes/skills/**/SKILL.md`，解析真实路径后再比较（支持 `mlops/models/*` 这类多级分类）。
+- `candidates` 默认只自动排除 `upstream-mirror`；其余分类（含 `upstream-catalog` / `upstream-superseded`）都会保留在候选中做人审，避免同名目录误杀。
+  - `upstream-mirror`：与 upstream（`~/.hermes/hermes-agent/{skills,optional-skills}`）目录内容一致。
+  - `upstream-catalog`：未在本机 upstream 目录找到同名副本，但 `SKILL.md` 作者为 `Orchestra Research`（通常属于上游目录重组或导入形态）。
+  - `upstream-superseded`：本机仍保留旧 skill，但 upstream 已由新 skill 显式 supersede/replace（例如 `find-nearby`、`xitter`）。
+- `repo - local` 会先区分“本地磁盘缺失”与“本地存在但非 `source=local`”，仅前者标记为删除候选；删除必须人工确认。
 
 推荐直接用检查脚本：
 
@@ -119,15 +123,21 @@ platforms/hermes/
 bash platforms/hermes/scripts/managed_skills.sh list
 bash platforms/hermes/scripts/managed_skills.sh status
 bash platforms/hermes/scripts/managed_skills.sh candidates
+bash platforms/hermes/scripts/managed_skills.sh likely-custom
+bash platforms/hermes/scripts/managed_skills.sh official-review
 bash platforms/hermes/scripts/managed_skills.sh unmanaged-repo
 ```
 
 输出含义：
 
-- `list`：列出当前本机 local skills（`source=local`）
-- `status`：列出 local skills、repo 与 local 交集 diff、待新增候选（`local - repo`）、待删除候选（`repo - local`）
-- `candidates`：只列出待补回仓候选（`local - repo`）
-- `unmanaged-repo`：只列出待删除候选（`repo - local`，仅供人工确认）
+- `list`：列出当前本机 local skills（`source=local`），并附 provenance 分类与 `official_hint`（`official-confirmed-builtin` / `official-confirmed-hub` / `official-likely-upstream` / `likely-custom` / `review`）
+- `status`：列出 local skills、repo 与 local 交集 diff、待新增候选（已排除 `upstream-mirror`）、`likely-custom` 子集、`official-review` 子集、被排除项、以及 repo 侧两类差异：
+  - 本地已存在但不在 `source=local`（通常是 builtin/hub）
+  - 本地磁盘缺失（才作为删除候选）
+- `candidates`：只列出待补回仓候选（默认排除 `upstream-mirror`）
+- `likely-custom`：只列出更可能是自定义回流项（`custom-local` + `upstream-variant`）
+- `official-review`：列出带官方迹象的待审项（`upstream-superseded` / `upstream-catalog` / `unknown`）
+- `unmanaged-repo`：只列出“本地磁盘缺失”的待删除候选（仅供人工确认）
 
 ## Cron 受管内容
 
@@ -191,6 +201,6 @@ bash platforms/hermes/scripts/managed_skills.sh status
 ./scripts/sync_to_hermes.sh --dry-run
 hermes mcp list
 hermes mcp test playwright-ext
-find ~/.hermes/skills -mindepth 2 -maxdepth 2 -type d | sort
+find ~/.hermes/skills -mindepth 2 -maxdepth 4 -type d | sort
 cat ~/.hermes/cron/jobs.json
 ```
