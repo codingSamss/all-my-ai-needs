@@ -149,6 +149,7 @@ sync_skill_root() {
   local skill_name=""
   local target_dir=""
   local sub=""
+  local sub_name=""
 
   [ -d "$source_root" ] || return 0
 
@@ -166,7 +167,12 @@ sync_skill_root() {
     # 同步子目录（如 scripts/、references/、assets/）；Claude 运行目录不带 agents/ 与 runtime.yaml
     for sub in "$skill_dir"*/; do
       [ -d "$sub" ] || continue
-      if [ "$(basename "${sub%/}")" = "agents" ]; then
+      sub_name="$(basename "${sub%/}")"
+      if [ "$sub_name" = "agents" ]; then
+        continue
+      fi
+      # bird-twitter 的 vendor 为 repo-only 备份资产，不下发到本地运行目录
+      if [ "$skill_name" = "bird-twitter" ] && [ "$sub_name" = "vendor" ]; then
         continue
       fi
       cp -r "${sub%/}" "$target_dir/"

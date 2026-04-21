@@ -42,6 +42,7 @@ usage() {
 
   目录内每个 skill 必须包含 SKILL.md
   skill 级 runtime.yaml 保留在 repo，不会下发到 ~/.codex/skills
+  repo-only 备份资产（如 bird-twitter/vendor）不会下发到 ~/.codex/skills
   所有同步均为增量模式（保留目录外未托管内容）
   使用 --sync-config 同步 root/config.toml 时会保留本地 MCP 敏感配置（鉴权字段、env token/key）
   避免覆盖本机 secret
@@ -130,6 +131,9 @@ skill_runtime_noise_files=(
   "skill.config.json"
   "runtime.yaml"
 )
+skill_repo_only_subdirs=(
+  "bird-twitter/vendor"
+)
 if [ "$DRY_RUN" = "true" ]; then
   base_rsync_args+=("--dry-run" "--itemize-changes")
 fi
@@ -161,6 +165,9 @@ sync_skills_incremental() {
   local skill_name=""
   local rsync_args=()
   local noise_file=""
+  local repo_only_subdir=""
+  local repo_only_rel=""
+  local repo_only_target=""
 
   mkdir -p "$target_root"
 
@@ -171,6 +178,12 @@ sync_skills_incremental() {
 
     for noise_file in "${skill_runtime_noise_files[@]}"; do
       rsync_args+=("--exclude" "/$noise_file")
+    done
+    for repo_only_subdir in "${skill_repo_only_subdirs[@]}"; do
+      if [[ "$repo_only_subdir" == "$skill_name/"* ]]; then
+        repo_only_rel="${repo_only_subdir#"$skill_name/"}"
+        rsync_args+=("--exclude" "/$repo_only_rel/")
+      fi
     done
 
     echo "[同步] skill/$skill_name: $skill_dir -> $target_root/$skill_name"
@@ -184,6 +197,20 @@ sync_skills_incremental() {
         else
           rm -f "$target_root/$skill_name/$noise_file"
           echo "[清理] skill/$skill_name 删除运行态噪音: $target_root/$skill_name/$noise_file"
+        fi
+      fi
+    done
+    for repo_only_subdir in "${skill_repo_only_subdirs[@]}"; do
+      if [[ "$repo_only_subdir" == "$skill_name/"* ]]; then
+        repo_only_rel="${repo_only_subdir#"$skill_name/"}"
+        repo_only_target="$target_root/$skill_name/$repo_only_rel"
+        if [ -e "$repo_only_target" ]; then
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "[清理预览] skill/$skill_name 删除 repo-only 目录: $repo_only_target"
+          else
+            rm -rf "$repo_only_target"
+            echo "[清理] skill/$skill_name 删除 repo-only 目录: $repo_only_target"
+          fi
         fi
       fi
     done
