@@ -34,10 +34,10 @@ platforms/codex/skills/bird-twitter/setup.sh
 
 - 退出码：`0` 自动完成，`2` 需手动补齐，`1` 执行失败
 - 自动检查项：
-  - Bird CLI 是否可用（缺失时尝试 `brew install steipete/tap/bird`）
+  - Bird CLI 是否可用（缺失时优先安装仓库内置包 `vendor/bird-macos-universal-v0.8.0.tar.gz`，再回退 `brew` / `npm`）
   - Bird 认证状态（走代理 + 超时保护）
 - 需手动补齐项：
-  - 没有 Homebrew 时，手动安装 Bird CLI
+  - 仓库内置包缺失且外部来源不可用时，手动安装 Bird CLI
   - 未登录 X/Twitter 时，先在 Chrome 登录并完成 Bird 认证
 
 ## 验证命令
@@ -59,5 +59,11 @@ python3 "${SKILLS_HOME}/bird-twitter/scripts/device_follow_timeline.py" \
 - 详细命令与触发规则见：`platforms/codex/skills/bird-twitter/SKILL.md`
 
 ## 依赖
-- Bird CLI（`brew install steipete/tap/bird`）
+- Bird CLI（优先仓库内置包 `vendor/bird-macos-universal-v0.8.0.tar.gz`，外部来源可用时可选 `brew install steipete/tap/bird`）
 - Chrome 已登录 X/Twitter
+
+## 仓库内置包
+- 文件：`vendor/bird-macos-universal-v0.8.0.tar.gz`
+- `sha256`：`3d89bb404e8b0ed4ef331f0dc62d873852634ca2a814ae7a4ac7effc114320cf`
+- 来源：从本机 Homebrew 缓存提取，用于上游 release 下线后的兜底安装
+- 同步策略：该目录为 repo-only 备份资产，`scripts/sync_to_codex.sh` 不会将其下发到 `~/.codex/skills`
