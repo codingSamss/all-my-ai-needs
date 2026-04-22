@@ -120,6 +120,8 @@ platforms/hermes/
 推荐直接用检查脚本：
 
 ```bash
+./scripts/syncctl.sh check --direction repo-to-local --platform hermes --scope all
+./scripts/syncctl.sh apply --plan-id <plan_id> --approve-token <token>
 bash platforms/hermes/scripts/managed_skills.sh list
 bash platforms/hermes/scripts/managed_skills.sh status
 bash platforms/hermes/scripts/managed_skills.sh candidates
@@ -130,6 +132,7 @@ bash platforms/hermes/scripts/managed_skills.sh unmanaged-repo
 
 输出含义：
 
+- `syncctl check/apply`：统一入口，按 Hermes 受管边界（`source=local` + `cron`）生成并执行计划
 - `list`：列出当前本机 local skills（`source=local`），并附 provenance 分类与 `official_hint`（`official-confirmed-builtin` / `official-confirmed-hub` / `official-likely-upstream` / `likely-custom` / `review`）
 - `status`：列出 local skills、repo 与 local 交集 diff、待新增候选（已排除 `upstream-mirror`）、`likely-custom` 子集、`official-review` 子集、被排除项、以及 repo 侧两类差异：
   - 本地已存在但不在 `source=local`（通常是 builtin/hub）

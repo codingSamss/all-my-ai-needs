@@ -5,11 +5,12 @@
 - Claude 平台真源：`platforms/claude/`
 - Codex 平台真源：`platforms/codex/`
 - Hermes 平台真源：`platforms/hermes/`
-- 根脚本入口：`./setup.sh`、`./scripts/sync_to_codex.sh`、`./scripts/sync_to_hermes.sh`、`./scripts/bootstrap.sh`
+- 根脚本入口：`./setup.sh`、`./scripts/syncctl.sh`、`./scripts/sync_to_codex.sh`、`./scripts/sync_to_hermes.sh`、`./scripts/bootstrap.sh`
 - skill 简介以对应 `SKILL.md` 的 `description` 为准；根 README 负责仓库级总览，平台 README 负责各平台完整清单
 
 默认同步策略：
 - 日常同步优先由 AI 做“人工 diff + 最小落盘”，不直接依赖脚本镜像。
+- 日常一致性检查优先使用 `./scripts/syncctl.sh check`，执行同步使用 `plan_id + approve_token` 的两阶段 `apply`。
 - `runtime.yaml` 只保留在 repo，不下发到 `~/.claude`、`~/.codex`、`~/.hermes`。
 - `./setup.sh`、`./scripts/sync_to_codex.sh`、`./scripts/sync_to_hermes.sh`、`./scripts/bootstrap.sh` 主要用于新机初始化、灾备恢复、整个平台重建。
 - Hermes 的 skills/cron 仍以人工 diff 同步为主；仅提供 `./scripts/sync_to_hermes.sh` 做“脱敏配置模板 -> 本机 config”手动合并。
@@ -97,6 +98,13 @@
 - Hermes skills/cron 仍不走自动镜像脚本；新机恢复采用“官方安装 + 手工放置 local/DIY skills + 人工审核差异”的方式
 
 ## 快速入口
+
+### 统一检查/执行入口（推荐）
+
+```bash
+./scripts/syncctl.sh check --direction repo-to-local --platform codex --scope skills --skill fireworks-tech-graph
+./scripts/syncctl.sh apply --plan-id <plan_id> --approve-token <token>
+```
 
 ### Claude
 

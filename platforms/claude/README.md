@@ -5,6 +5,8 @@
 ## 同步入口
 
 ```bash
+./scripts/syncctl.sh check --direction repo-to-local --platform claude --scope all
+./scripts/syncctl.sh apply --plan-id <plan_id> --approve-token <token>
 ./setup.sh
 ./setup.sh list
 ./setup.sh <skill-name>
@@ -15,6 +17,11 @@
 - `0`：自动完成
 - `2`：需手动补齐
 - `1`：失败
+
+说明：
+
+- `syncctl` 是日常一致性检查与执行入口（最小同步口径 + 两阶段审批）
+- `setup.sh` 主要用于 bootstrap / 灾备 fallback
 
 ## 当前 Skills
 

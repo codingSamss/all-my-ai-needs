@@ -5,6 +5,8 @@
 ## 同步入口
 
 ```bash
+./scripts/syncctl.sh check --direction repo-to-local --platform codex --scope all
+./scripts/syncctl.sh apply --plan-id <plan_id> --approve-token <token>
 ./scripts/sync_to_codex.sh
 ./scripts/sync_to_codex.sh --dry-run
 ./scripts/sync_to_codex.sh --sync-config
@@ -12,6 +14,7 @@
 
 说明：
 
+- `syncctl` 是日常入口：默认最小同步口径，支持 `check -> apply` 两阶段令牌审批
 - 默认同步 `platforms/codex/skills/` 与受管 root 配置到 `~/.codex`
 - `config.toml` 默认不覆盖本机，仅在显式 `--sync-config` 时同步
 - `--sync-config` 覆盖 `config.toml` 时会保留本地 MCP 敏感配置
