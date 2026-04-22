@@ -16,6 +16,7 @@
 ## 平台同步策略
 
 - 日常同步默认采用“AI 人工同步 + 差异审阅”，不是直接跑脚本做目录镜像。
+- 差异核对前必须先明确口径并在输出中标注：默认使用“日常最小同步口径”（按平台脚本/运行目录规则过滤 repo-only 文件）；仅在用户明确要求“严格镜像/包含删除”时才使用镜像口径。
 - `setup.sh`、`scripts/sync_to_codex.sh`、`scripts/bootstrap.sh` 仅用于新机初始化、灾备恢复、整个平台重建；`scripts/sync_to_hermes.sh` 仅用于手动合并 Hermes 脱敏配置模板。
 - `runtime.yaml` 必须留在 repo，**不得**下发到 `~/.claude/skills`、`~/.codex/skills`、`~/.hermes/skills`。
 - `agents/openai.yaml` 仅在 Codex / OpenAI 风格运行目录确有必要时才下发；Claude 与 Hermes 默认不带。
@@ -37,6 +38,8 @@
 - `./scripts/sync_to_codex.sh --dry-run`：预览 Codex 配置同步结果。
 - `./scripts/sync_to_codex.sh`：同步 `platforms/codex/skills` 与受管 root 配置到 `~/.codex`（bootstrap / 灾备 fallback，默认不覆盖本机 `config.toml`）。
 - `./scripts/sync_to_codex.sh --sync-config`：显式同步 `platforms/codex/config.toml` 到 `~/.codex/config.toml`。
+- `./scripts/syncctl.sh check --direction repo-to-local --platform codex --scope skills`：统一入口做日常最小同步口径检查。
+- `./scripts/syncctl.sh apply --plan-id <plan_id> --approve-token <token>`：统一入口执行计划（两阶段审批，`local->repo` 删除默认禁用）。
 - `./scripts/sync_to_hermes.sh --dry-run`：预览 Hermes 脱敏配置模板与本机 `~/.hermes/config.yaml` 的受管片段合并结果。
 - `./scripts/sync_to_hermes.sh --sync-config`：手动合并 Hermes 脱敏配置模板到本机 `~/.hermes/config.yaml`（保留本地非占位敏感值）。
 - `./scripts/bootstrap.sh all`：新机一次执行 Claude 配置 + Codex 同步。
