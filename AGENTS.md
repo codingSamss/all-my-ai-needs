@@ -20,8 +20,9 @@
 - `setup.sh`、`scripts/sync_to_codex.sh`、`scripts/bootstrap.sh` 仅用于新机初始化、灾备恢复、整个平台重建；`scripts/sync_to_hermes.sh` 仅用于手动合并 Hermes 脱敏配置模板。
 - `runtime.yaml` 必须留在 repo，**不得**下发到 `~/.claude/skills`、`~/.codex/skills`、`~/.hermes/skills`。
 - `agents/openai.yaml` 仅在 Codex / OpenAI 风格运行目录确有必要时才下发；Claude 与 Hermes 默认不带。
-- Hermes 受管范围：`source=local` skills + cron + 脱敏配置模板；运行态实值配置（`~/.hermes/config.yaml`、`~/.hermes/.env`）不入仓。
+- Hermes 受管范围：`source=local` skills + cron + 脱敏配置模板 + memory 白名单脱敏快照；运行态实值配置（`~/.hermes/config.yaml`、`~/.hermes/.env`）及原始 memory 文件不入仓。
 - 当用户要求“同步某个 skill”时，先比较该平台目录与对应本地运行目录的差异，再执行最小同步并回报结果；不要顺手同步无关 skill。
+- 跨平台统一审批约束（Claude/Codex/Hermes）：当用户提出“同步/提交/推送”或类似“看下本地跟仓库有什么内容需要同步的”但未明确授权执行写入动作时，默认只执行 `check` 与差异汇总；必须等待用户明确批准后，才可继续 `apply` / `commit` / `push`。
 
 ## README 维护约定
 
@@ -42,6 +43,7 @@
 - `./scripts/syncctl.sh apply --plan-id <plan_id> --approve-token <token>`：统一入口执行计划（两阶段审批，`local->repo` 删除默认禁用）。
 - `./scripts/sync_to_hermes.sh --dry-run`：预览 Hermes 脱敏配置模板与本机 `~/.hermes/config.yaml` 的受管片段合并结果。
 - `./scripts/sync_to_hermes.sh --sync-config`：手动合并 Hermes 脱敏配置模板到本机 `~/.hermes/config.yaml`（保留本地非占位敏感值）。
+- `./scripts/sync_hermes_memory_whitelist.sh check`：预览 Hermes memory 白名单脱敏快照的 repo 回流计划（两阶段审批）。
 - `./scripts/bootstrap.sh all`：新机一次执行 Claude 配置 + Codex 同步。
 
 ## 代码风格与命名约定
@@ -129,9 +131,10 @@
 - Codex 平台 skill 日常同步链路：`platforms/codex/skills/<skill>` -> AI 手工 diff -> `~/.codex/skills/<skill>`（最小文件集）。
 - Codex 平台 skill 脚本链路：`platforms/codex/skills` -> `~/.codex/skills`（`./scripts/sync_to_codex.sh`，主要用于 bootstrap / 灾备）。
 - Codex root 受管配置同步链路：`platforms/codex/{AGENTS.md,agents,bin,hooks,scripts,rules}` -> `~/.codex/...`。
-- Hermes local-only 链路：`platforms/hermes/skills/<category>/<skill>` <-> `~/.hermes/skills` 中 `source=local` 的同名路径；cron 链路：`platforms/hermes/cron/*` <-> `~/.hermes/cron/*`，仅允许用户手动触发 + 人工审批，不走自动脚本；配置模板链路：`platforms/hermes/config.template.yaml` -> `./scripts/sync_to_hermes.sh` -> `~/.hermes/config.yaml`（仅受管片段合并，保留本地非占位敏感值）。
+- Hermes local-only 链路：`platforms/hermes/skills/<category>/<skill>` <-> `~/.hermes/skills` 中 `source=local` 的同名路径；cron 链路：`platforms/hermes/cron/*` <-> `~/.hermes/cron/*`，仅允许用户手动触发 + 人工审批，不走自动脚本；配置模板链路：`platforms/hermes/config.template.yaml` -> `./scripts/sync_to_hermes.sh` -> `~/.hermes/config.yaml`（仅受管片段合并，保留本地非占位敏感值）；memory 白名单链路：`~/.hermes/memories/*` -> `platforms/hermes/memory/snapshots/*`（仅白名单 + 脱敏后 local->repo）。
 - 推送 GitHub 前必须获得用户明确确认，不允许自动推送。
-- 当用户要求“同步仓库内容”“提交”或“推送”时：先比较相关平台的本地目录与仓库差异；若本地有值得保留的新内容，先提示同步回仓库，再继续后续动作。
+- 当用户要求“同步仓库内容”“提交”“推送”或说“看下本地跟仓库有什么内容需要同步的”时：默认先执行同步检查（`syncctl check` 或对应 check 命令）并输出汇总；若本地有值得保留的新内容，先提示同步回仓库，再等待用户审批后继续执行写入动作。
+- 未获得用户明确审批前，禁止执行会产生写入副作用的命令（例如：`syncctl apply`、`sync_to_codex.sh`、`sync_to_hermes.sh --sync-config`、`git add/commit/push`）。
 - 当处理 `all-my-ai-needs` 的同步任务时，无论方向是“本地运行目录 -> 仓库”还是“仓库 -> 本地运行目录”，任务结束时都必须向用户明确列出同步内容清单；至少包含：新增、更新、删除、跳过/未同步项。
 - 当本次改动触发 README 维护条件时：先检查根 `README.md` 与受影响平台 README 是否需要同步更新；若无需更新，需明确说明原因后再继续提交或推送。
 

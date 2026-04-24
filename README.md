@@ -10,10 +10,11 @@
 
 默认同步策略：
 - 日常同步优先由 AI 做“人工 diff + 最小落盘”，不直接依赖脚本镜像。
+- 跨平台统一审批（Claude/Codex/Hermes）：当用户仅说“同步/提交/推送”或“看下本地跟仓库有什么内容需要同步的”时，agent 默认先执行 `check` 并汇总变更，等待用户明确审批后才执行 `apply` / `commit` / `push`。
 - 日常一致性检查优先使用 `./scripts/syncctl.sh check`，执行同步使用 `plan_id + approve_token` 的两阶段 `apply`。
 - `runtime.yaml` 只保留在 repo，不下发到 `~/.claude`、`~/.codex`、`~/.hermes`。
 - `./setup.sh`、`./scripts/sync_to_codex.sh`、`./scripts/sync_to_hermes.sh`、`./scripts/bootstrap.sh` 主要用于新机初始化、灾备恢复、整个平台重建。
-- Hermes 的 skills/cron 仍以人工 diff 同步为主；仅提供 `./scripts/sync_to_hermes.sh` 做“脱敏配置模板 -> 本机 config”手动合并。
+- Hermes 的 skills/cron 仍以人工 diff 同步为主；配置模板使用 `./scripts/sync_to_hermes.sh` 手动合并；memory 白名单脱敏快照使用 `./scripts/sync_hermes_memory_whitelist.sh` 两阶段同步。
 
 ## 当前 Skills 总览
 
@@ -92,9 +93,11 @@
   - 不纳入 builtin / hub
   - Hermes cron 相关内容
   - 脱敏配置模板 `platforms/hermes/config.template.yaml`（当前覆盖 MCP 片段）
+  - Hermes memory 白名单脱敏快照 `platforms/hermes/memory/snapshots/*`（仅 local->repo）
 - `platforms/hermes/cron/` 当前保存 `jobs.json` 与依赖脚本
 - `bash platforms/hermes/scripts/managed_skills.sh status` 可查看当前受管集合、diff 与待补回仓候选
 - `./scripts/sync_to_hermes.sh --dry-run` 预览配置模板合并，`--sync-config` 执行写入（保留本机非占位敏感值）
+- `./scripts/sync_hermes_memory_whitelist.sh check` 预览 memory 白名单脱敏快照的 repo 回流计划，确认后再 `apply`
 - Hermes skills/cron 仍不走自动镜像脚本；新机恢复采用“官方安装 + 手工放置 local/DIY skills + 人工审核差异”的方式
 
 ## 快速入口
@@ -133,6 +136,13 @@
 ```bash
 ./scripts/sync_to_hermes.sh --dry-run
 ./scripts/sync_to_hermes.sh --sync-config
+```
+
+### Hermes（memory 白名单脱敏快照）
+
+```bash
+./scripts/sync_hermes_memory_whitelist.sh check
+./scripts/sync_hermes_memory_whitelist.sh apply --plan-id <plan_id> --approve-token <token>
 ```
 
 ### 新机一键

@@ -21,7 +21,7 @@ usage() {
   ./scripts/syncctl.sh check \
     --direction repo-to-local|local-to-repo \
     --platform all|codex|claude|hermes \
-    --scope all|skills|root|config|cron \
+    --scope all|skills|root|config|cron|memory \
     [--skill <skill_or_relpath>]... \
     [--format text|json]
 
@@ -55,8 +55,8 @@ validate_platform() {
 
 validate_scope() {
   case "$1" in
-    all|skills|root|config|cron) ;;
-    *) syncctl_die "--scope 仅支持 all|skills|root|config|cron" ;;
+    all|skills|root|config|cron|memory) ;;
+    *) syncctl_die "--scope 仅支持 all|skills|root|config|cron|memory" ;;
   esac
 }
 
@@ -300,6 +300,9 @@ syncctl_execute_check_tasks() {
       codex_config)
         syncctl_check_codex_config_task "$platform" "$scope" "$target" "$src" "$dst" "$label" "$ops_file"
         ;;
+      hermes_memory_entry)
+        syncctl_check_hermes_memory_task "$platform" "$scope" "$target" "$src" "$dst" "$excludes" "$reason" "$ops_file"
+        ;;
       skip)
         syncctl_add_op "$ops_file" "skip" "$platform" "$scope" "$target" "-" "$src" "$dst" "0" "$reason"
         ;;
@@ -389,6 +392,17 @@ syncctl_execute_apply_tasks() {
         if [ -f "$src" ]; then
           syncctl_codex_apply_config "$src" "$dst"
           SYNCCTL_APPLIED_TASK_COUNT=$((SYNCCTL_APPLIED_TASK_COUNT + 1))
+        fi
+        ;;
+      hermes_memory_entry)
+        if syncctl_apply_hermes_memory_task "$target" "$src" "$dst" "$excludes" "$reason"; then
+          SYNCCTL_APPLIED_TASK_COUNT=$((SYNCCTL_APPLIED_TASK_COUNT + 1))
+        else
+          rc=$?
+          if [ "$rc" -eq 3 ]; then
+            SYNCCTL_SKIPPED_HASH_MISMATCH_COUNT=$((SYNCCTL_SKIPPED_HASH_MISMATCH_COUNT + 1))
+          fi
+          SYNCCTL_SKIPPED_TASK_COUNT=$((SYNCCTL_SKIPPED_TASK_COUNT + 1))
         fi
         ;;
       skip)
@@ -484,6 +498,7 @@ run_apply() {
   SYNCCTL_APPLIED_TASK_COUNT=0
   SYNCCTL_SKIPPED_TASK_COUNT=0
   SYNCCTL_SKIPPED_DELETE_COUNT=0
+  SYNCCTL_SKIPPED_HASH_MISMATCH_COUNT=0
   if [ "$allow_delete" != "true" ]; then
     SYNCCTL_SKIPPED_DELETE_COUNT="$(awk -F'\t' '$1=="delete" && $8=="1"{c++} END{print c+0}' "$ops_file")"
   fi
@@ -493,7 +508,7 @@ run_apply() {
   echo "[syncctl][apply] plan_id=$plan_id"
   echo "[syncctl][apply] direction=$direction"
   echo "[syncctl][apply] allow_delete=$allow_delete"
-  echo "[syncctl][summary] applied_tasks=$SYNCCTL_APPLIED_TASK_COUNT skipped_tasks=$SYNCCTL_SKIPPED_TASK_COUNT skipped_delete=$SYNCCTL_SKIPPED_DELETE_COUNT"
+  echo "[syncctl][summary] applied_tasks=$SYNCCTL_APPLIED_TASK_COUNT skipped_tasks=$SYNCCTL_SKIPPED_TASK_COUNT skipped_delete=$SYNCCTL_SKIPPED_DELETE_COUNT skipped_hash_mismatch=$SYNCCTL_SKIPPED_HASH_MISMATCH_COUNT"
 
   if [ "$SYNCCTL_SKIPPED_DELETE_COUNT" -gt 0 ]; then
     echo "[syncctl][提示] 计划包含删除项，当前未开启 --allow-delete，删除已跳过。"

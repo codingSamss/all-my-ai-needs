@@ -1,0 +1,43 @@
+version: 1
+default_level: standard
+
+levels:
+  standard:
+    regex_replace:
+      - pattern: "AKIA[0-9A-Z]{16}"
+        replacement: "<REDACTED_AWS_KEY>"
+      - pattern: "ASIA[0-9A-Z]{16}"
+        replacement: "<REDACTED_AWS_SESSION_KEY>"
+      - pattern: "ghp_[A-Za-z0-9]{36}"
+        replacement: "<REDACTED_GITHUB_TOKEN>"
+      - pattern: "github_pat_[A-Za-z0-9_]{20,}"
+        replacement: "<REDACTED_GITHUB_PAT>"
+      - pattern: "xox[baprs]-[A-Za-z0-9-]{10,}"
+        replacement: "<REDACTED_SLACK_TOKEN>"
+      - pattern: "sk-[A-Za-z0-9]{20,}"
+        replacement: "<REDACTED_API_KEY>"
+      - pattern: "(?i)(authorization\\s*[:=]\\s*)(bearer\\s+[^\\s\"']+)"
+        replacement: "\\1<REDACTED_BEARER_TOKEN>"
+      - pattern: "(?i)(x-api-key\\s*[:=]\\s*)\"[^\"\\n]+\""
+        replacement: "\\1\"<REDACTED_API_KEY>\""
+      - pattern: "(?i)(token\\s*[:=]\\s*)\"[^\"\\n]+\""
+        replacement: "\\1\"<REDACTED_TOKEN>\""
+    line_mask_keywords:
+      - password
+      - passwd
+      - secret
+      - private_key
+
+  strict:
+    inherit: standard
+    regex_replace:
+      - pattern: "https?://[^\\s]*[?&](key|token|secret|password)=[^&\\s]+"
+        replacement: "<REDACTED_URL_WITH_SECRET_QUERY>"
+      - pattern: "(?i)(cookie\\s*[:=]\\s*)[^\\n]+"
+        replacement: "\\1<REDACTED_COOKIE>"
+    line_mask_keywords:
+      - token
+      - api_key
+      - session
+      - cookie
+      - auth

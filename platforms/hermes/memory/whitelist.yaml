@@ -1,0 +1,13 @@
+version: 1
+# 仅同步白名单中的条目；默认建议由用户审核后再启用。
+# 每条 entry 对应 ~/.hermes/memories/<source_file> 的一个脱敏快照。
+entries: []
+
+# 示例（按需取消注释）:
+# entries:
+#   - id: user-profile
+#     source_file: USER.md
+#     snapshot_file: user-profile.md   # 可选，默认 <id>.md
+#     redaction_level: strict          # optional: standard|strict, default standard
+#     enabled: false                   # optional: true|false, default true
+#     description: 用户偏好白名单快照
