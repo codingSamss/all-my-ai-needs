@@ -15,6 +15,7 @@
 说明：
 
 - `syncctl` 是日常入口：默认最小同步口径，支持 `check -> apply` 两阶段令牌审批
+- 处理同步/提交/推送请求时，若用户只给目标未明确授权写入（例如“看下本地跟仓库有什么内容需要同步的”），默认先执行 `check` 并汇总，待用户审批后再执行 `apply` / `commit` / `push`
 - 默认同步 `platforms/codex/skills/` 与受管 root 配置到 `~/.codex`
 - `config.toml` 默认不覆盖本机，仅在显式 `--sync-config` 时同步
 - `--sync-config` 覆盖 `config.toml` 时会保留本地 MCP 敏感配置

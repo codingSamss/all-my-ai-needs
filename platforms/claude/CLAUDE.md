@@ -18,6 +18,11 @@
 - 分支切换或创建需要用户批准
 - 提交信息遵循 Conventional Commits 格式
 
+## all-my-ai-needs 同步默认流程
+- 当用户提出“同步/提交/推送”或类似“看下本地跟仓库有什么内容需要同步的”时，默认先执行只读 `check` 并汇总差异（新增、更新、删除、跳过/未同步），不直接写入。
+- 未获得用户明确审批前，禁止执行写入副作用操作：`syncctl apply`、`setup.sh`、`git add/commit/push`。
+- 若用户未指定平台，先按仓库受管范围做同步检查（至少 Claude/Codex；涉及 Hermes 时纳入 Hermes 受管项），再由用户决定后续 apply 范围。
+
 ## 提交前审计清单（必做）
 - 隐私扫描（禁止真实密钥，允许 `<TOKEN>` 占位符）：
   - `git grep -nEI "AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|sk-[A-Za-z0-9]{20,}|PLAYWRIGHT_MCP_EXTENSION_TOKEN\\s*=\\s*\"[^<\\\"]+\"|x-api-key\\s*[:=]\\s*\"[^<\\\"]+\""`

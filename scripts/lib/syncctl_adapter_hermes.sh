@@ -2,6 +2,9 @@
 
 set -euo pipefail
 
+# shellcheck source=scripts/lib/syncctl_hermes_memory.sh
+source "$SYNCCTL_REPO_ROOT/scripts/lib/syncctl_hermes_memory.sh"
+
 syncctl_adapter_hermes_list_local_source_rels() {
   local repo_skills_root="$1"
   rg -l --glob '**/runtime.yaml' '^source\s*:\s*local\s*$' "$repo_skills_root" 2>/dev/null \
@@ -84,5 +87,9 @@ syncctl_adapter_hermes_collect_tasks() {
     local task_id
     task_id="$(syncctl_next_task_id)"
     syncctl_add_task "$tasks_file" "$task_id" "$platform" "$direction" "config" "config.template.yaml" "skip" "-" "-" "never" "" "hermes config" "check_only_use_sync_to_hermes"
+  fi
+
+  if syncctl_scope_includes "$scope" "memory"; then
+    syncctl_hermes_memory_collect_tasks "$tasks_file" "$platform" "$direction" "$repo_root" "$local_root"
   fi
 }

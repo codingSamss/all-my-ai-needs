@@ -8,7 +8,7 @@
 - 官方源码/安装基线：`~/.hermes/hermes-agent`
 - active skills 根目录：`~/.hermes/skills`
 - active skills 原生布局：`~/.hermes/skills/<category>/<...>/<skill>`（允许多级分类）
-- 仓库内 Hermes 真源：`platforms/hermes/skills/<category>/<...>/<skill>`、`platforms/hermes/cron/` 与 `platforms/hermes/config.template.yaml`
+- 仓库内 Hermes 真源：`platforms/hermes/skills/<category>/<...>/<skill>`、`platforms/hermes/cron/`、`platforms/hermes/config.template.yaml` 与 `platforms/hermes/memory/`
 
 ## 当前受管范围
 
@@ -17,6 +17,7 @@
 1. `hermes skills list --source local` 返回的 local/DIY skills
 2. Hermes cron 相关内容
 3. 脱敏配置模板：`platforms/hermes/config.template.yaml`（当前仅覆盖 `mcp_servers` 受管片段）
+4. memory 白名单脱敏快照：`platforms/hermes/memory/{whitelist.yaml,redaction-rules.yaml,snapshots/*}`（仅 local->repo）
 
 不纳入仓库的运行态内容：
 
@@ -24,7 +25,7 @@
 - `~/.hermes/.env`
 - `~/.hermes/.hub/`
 - `~/.hermes/skill-promotions/`
-- `~/.hermes/sessions/`、`~/.hermes/logs/`、`~/.hermes/memories/`
+- `~/.hermes/sessions/`、`~/.hermes/logs/`、`~/.hermes/memories/`（原始运行态文件）
 - `~/.hermes/cron/output/`
 
 ## 当前 skill 清单（完整）
@@ -95,6 +96,11 @@ platforms/hermes/
 ├── README.md
 ├── runtime.yaml
 ├── config.template.yaml
+├── memory/
+│   ├── README.md
+│   ├── whitelist.yaml
+│   ├── redaction-rules.yaml
+│   └── snapshots/
 ├── scripts/
 │   └── managed_skills.sh
 ├── skills/
@@ -132,7 +138,7 @@ bash platforms/hermes/scripts/managed_skills.sh unmanaged-repo
 
 输出含义：
 
-- `syncctl check/apply`：统一入口，按 Hermes 受管边界（`source=local` + `cron`）生成并执行计划
+- `syncctl check/apply`：统一入口，按 Hermes 受管边界（`source=local` + `cron` + `memory` 白名单脱敏快照）生成并执行计划
 - `list`：列出当前本机 local skills（`source=local`），并附 provenance 分类与 `official_hint`（`official-confirmed-builtin` / `official-confirmed-hub` / `official-likely-upstream` / `likely-custom` / `review`）
 - `status`：列出 local skills、repo 与 local 交集 diff、待新增候选（已排除 `upstream-mirror`）、`likely-custom` 子集、`official-review` 子集、被排除项、以及 repo 侧两类差异：
   - 本地已存在但不在 `source=local`（通常是 builtin/hub）
@@ -177,10 +183,27 @@ bash platforms/hermes/scripts/managed_skills.sh unmanaged-repo
 - 若本机缺失且存在同名环境变量，则使用环境变量值
 - 不改动 skills/cron 的手工同步策略
 
+## Memory 白名单脱敏快照（local->repo）
+
+当前仓库新增：`platforms/hermes/memory/{whitelist.yaml,redaction-rules.yaml,snapshots/}`。
+
+- `~/.hermes/memories/` 原始运行态文件不入仓
+- 仅白名单条目会生成脱敏快照到 `platforms/hermes/memory/snapshots/`
+- 仅支持 `local->repo`，不支持 `repo->local` 回写 memory
+- check 与 apply 两阶段审批，apply 前必须人工确认
+
+推荐命令：
+
+```bash
+./scripts/sync_hermes_memory_whitelist.sh check
+./scripts/sync_hermes_memory_whitelist.sh apply --plan-id <plan_id> --approve-token <token>
+```
+
 ## 日常同步规则
 
 - Hermes skills/cron 不走自动镜像脚本
 - 配置模板合并仅允许用户手动触发 `./scripts/sync_to_hermes.sh`
+- memory 回流仅允许用户手动触发 `./scripts/sync_hermes_memory_whitelist.sh` 或 `syncctl --scope memory`
 - 仅当用户手动触发时，比较 `source=local` 集合与仓库同名路径
 - 同步前必须先给出差异总结
 - 同步后必须明确汇报：新增、更新、删除、跳过或未同步项
@@ -192,9 +215,9 @@ bash platforms/hermes/scripts/managed_skills.sh unmanaged-repo
 1. 先按 Hermes 官方方式安装，确认 `~/.hermes/hermes-agent`、`~/.hermes/config.yaml`、`hermes` 命令可用。
 2. 先恢复个人私有配置：`~/.hermes/config.yaml`、`~/.hermes/.env`、必要登录态与 OAuth 文件；这些实值不入仓。
 3. 用 `./scripts/sync_to_hermes.sh --dry-run` 预览模板差异，确认后再执行 `--sync-config` 合并受管配置片段。
-4. 按本目录中的 `skills/` 与 `cron/` 手动恢复 local/DIY subset。
-5. 不要迁移 `.hub/`、`skill-promotions/`、`sessions/`、`logs/`、`memories/`、`cron/output/`。
-6. 若之后需要把 Hermes 新变化回写仓库，先运行 `bash platforms/hermes/scripts/managed_skills.sh status`，再只比较 local/DIY 受管集合与同名本机路径，并先输出差异总结给用户审核。
+4. 按本目录中的 `skills/`、`cron/`、`memory/` 恢复受管内容（memory 仅恢复白名单与规则，不回写原始 memory）。
+5. 不要迁移 `.hub/`、`skill-promotions/`、`sessions/`、`logs/`、`memories/`（原始运行态）、`cron/output/`。
+6. 若之后需要把 Hermes 新变化回写仓库，先运行 `bash platforms/hermes/scripts/managed_skills.sh status`（skills）或 `./scripts/sync_hermes_memory_whitelist.sh check`（memory），再先输出差异总结给用户审核。
 
 ## 校验命令
 
@@ -202,6 +225,8 @@ bash platforms/hermes/scripts/managed_skills.sh unmanaged-repo
 hermes skills list --source local
 bash platforms/hermes/scripts/managed_skills.sh status
 ./scripts/sync_to_hermes.sh --dry-run
+./scripts/sync_hermes_memory_whitelist.sh check
+./scripts/syncctl.sh check --direction local-to-repo --platform hermes --scope memory
 hermes mcp list
 hermes mcp test playwright-ext
 find ~/.hermes/skills -mindepth 2 -maxdepth 4 -type d | sort
