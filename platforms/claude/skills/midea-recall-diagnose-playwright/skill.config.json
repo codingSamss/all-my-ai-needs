@@ -1,5 +1,0 @@
-{
-  "name": "midea-recall-diagnose-playwright",
-  "targets": ["claude", "codex"],
-  "entry": "SKILL.md"
-}

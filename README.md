@@ -29,7 +29,7 @@
 | `fireworks-tech-graph` | 结构化技术图生成（架构图/流程图/时序图/泳道图，SVG+PNG） |
 | `linuxdo` | 只读访问 LINUX DO 论坛 |
 | `llm-wiki` | 用 analysis -> generation 维护 Karpathy 风格 markdown wiki，支持 ingest / query / lint |
-| `midea-recall-diagnose-playwright` | keyword 漏召回排查、回放与 trace/ELK/ES 取证 |
+| `midea-recall-diagnose` | keyword 漏召回排查、回放与 ELK/ES API 取证 |
 | `orbit-os` | OrbitOS Obsidian Vault 共享配置与规范 |
 | `orbit-session-diary` | 基于本地会话日志生成 Obsidian 日记 |
 | `peekaboo` | macOS 截图与视觉分析 |

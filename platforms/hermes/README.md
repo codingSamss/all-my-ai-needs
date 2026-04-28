@@ -82,7 +82,7 @@
 
 ### software-development
 
-- `midea-recall-diagnose-playwright`：`/rag-recall/api/search/keyword` 漏召回排障与取证
+- `midea-recall-diagnose`：`/rag-recall/api/search/keyword` 漏召回排障与 ELK/ES API 取证
 - `peekaboo`：macOS 截图与视觉分析
 - `pinchtab`：PinchTab 优先浏览器自动化
 - `playwright`：MCP-only 真实浏览器自动化

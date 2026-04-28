@@ -7,3 +7,11 @@ __pycache__/
 *.pyc
 *.swp
 .playwright-cli/
+
+# Local/private recall diagnosis mappings. Keep real infra routes and
+# sourceSystem->cluster/index tables out of the repository.
+**/references/env-config.local.yaml
+**/references/env-config.local.yml
+**/references/env-config.local.json
+**/references/来源系统索引.xlsx
+**/references/source-system-cluster-map.local.xlsx

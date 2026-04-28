@@ -47,6 +47,8 @@
 - 处理 `all-my-ai-needs` 同步时，默认采用 `platform-first`；Hermes 仅处理仓库已受管的 local/DIY subset（`source=local` skills + cron + 脱敏配置模板 + memory 白名单脱敏快照）。
 - 处理 `all-my-ai-needs` 同步/提交/推送时，若用户未明确授权写入动作（例如只说“看下本地跟仓库有什么内容需要同步的”），默认先执行 `check` 并汇总差异，等待审批后再执行 `apply` / `commit` / `push`。
 - 处理 `all-my-ai-needs` 同步时，不要把 `runtime.yaml` 下发到任何 agent 运行目录；`agents/openai.yaml` 仅在 Codex 运行目录确有必要时保留。
+- 处理 `all-my-ai-needs` 同步时，禁止把内部路由与映射数据写入仓库：`env-config.local.*`、sourceSystem 到集群/索引的明细表、真实 ES/Kibana/控制台路由、集群别名、实例 ID、region/zone 组合、doc_count/容量类内部表只能留在本地 ignored 文件；repo 只允许占位符模板。
+- 处理 `midea-recall-diagnose` 等诊断 skill 回流时，必须先检查两类残留：一是 `env-config.local`、`来源系统索引`、`source-system-cluster-map.local` 等本地文件名；二是真实内部域名、数字实例 ID、非占位 `source_system_cluster_map` 等内容。发现命中后先删除或脱敏，再继续提交。
 - 处理 `all-my-ai-needs` 同步任务时，完成后必须汇报同步内容清单：新增、更新、删除、跳过/未同步项。
 
 ## 网络代理约定

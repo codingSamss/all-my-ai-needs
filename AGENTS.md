@@ -21,6 +21,7 @@
 - `runtime.yaml` 必须留在 repo，**不得**下发到 `~/.claude/skills`、`~/.codex/skills`、`~/.hermes/skills`。
 - `agents/openai.yaml` 仅在 Codex / OpenAI 风格运行目录确有必要时才下发；Claude 与 Hermes 默认不带。
 - Hermes 受管范围：`source=local` skills + cron + 脱敏配置模板 + memory 白名单脱敏快照；运行态实值配置（`~/.hermes/config.yaml`、`~/.hermes/.env`）及原始 memory 文件不入仓。
+- 内部路由与映射数据不得入仓：`env-config.local.*`、sourceSystem 到集群/索引的明细表、真实 ES/Kibana/控制台路由、集群别名、实例 ID、region/zone 组合、doc_count/容量类内部表都只能留在本地 ignored 文件中；repo 只允许提交占位符模板（如 `env-config.example.yaml`、`config.template.yaml`）。
 - 当用户要求“同步某个 skill”时，先比较该平台目录与对应本地运行目录的差异，再执行最小同步并回报结果；不要顺手同步无关 skill。
 - 跨平台统一审批约束（Claude/Codex/Hermes）：当用户提出“同步/提交/推送”或类似“看下本地跟仓库有什么内容需要同步的”但未明确授权执行写入动作时，默认只执行 `check` 与差异汇总；必须等待用户明确批准后，才可继续 `apply` / `commit` / `push`。
 
@@ -107,6 +108,9 @@
 
 - 隐私扫描：
   - `git grep -nEI "AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|sk-[A-Za-z0-9]{20,}|PLAYWRIGHT_MCP_EXTENSION_TOKEN\\s*=\\s*\"[^<\\\"]+\"|x-api-key\\s*[:=]\\s*\"[^<\\\"]+\""`
+  - `git ls-files | rg "env-config\\.local|来源系统索引|source-system-cluster-map\\.local" || true`
+  - `git ls-files -o --exclude-standard | rg "env-config\\.local|来源系统索引|source-system-cluster-map\\.local" || true`
+  - `rg -n "console-cloud\\.midea\\.com|elkpro\\.midea\\.com|instance_id:\\s*[0-9]+|\\\"instance_id\\\"\\s*:\\s*\\\"[0-9]+\\\"|source_system_cluster_map:\\s*[^<]" . --glob '!**/.git/**' --glob '!AGENTS.md' --glob '!platforms/codex/AGENTS.md' || true`
 - diff 完整性检查：
   - `git diff --check && git diff --cached --check`
 - 删除后残留引用检查：
@@ -119,6 +123,7 @@
 - 立即轮换相关密钥；
 - 使用 `git filter-repo` 或 BFG 清理历史并强推；
 - 通知协作者重新同步，避免旧提交继续传播。
+- 若发现内部环境映射、sourceSystem 明细表或集群路由数据已被跟踪，必须从当前树删除或改为占位符模板，并补 `.gitignore`；若内容已经推送到不可信远端，再按历史清理流程处理。
 
 ## 同步一致性与发布门禁
 

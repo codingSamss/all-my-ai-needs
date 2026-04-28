@@ -36,7 +36,7 @@
 | `fireworks-tech-graph` | 结构化技术图生成（架构图/流程图/时序图/泳道图，SVG+PNG） | 依赖 `python3` 与 `rsvg-convert` |
 | `linuxdo` | 只读访问 LINUX DO 论坛 | 依赖 Chrome Cookie |
 | `llm-wiki` | 用 analysis -> generation 维护 Karpathy 风格 markdown wiki | 平台本地真源：`platforms/claude/skills/llm-wiki` |
-| `midea-recall-diagnose-playwright` | keyword 漏召回排查、回放与 trace/ELK/ES 取证 | 依赖 Playwright 会话与本地脚本 |
+| `midea-recall-diagnose` | keyword 漏召回排查、回放与 ELK/ES API 取证 | 依赖 Python、本地脚本与浏览器 Cookie 登录态 |
 | `orbit-os` | OrbitOS Obsidian Vault 共享配置与规范 | 供 orbit-* 系列 skill 引用 |
 | `orbit-session-diary` | 基于本地会话日志生成 Obsidian 日记 | 依赖本地 jsonl 与目标 Vault |
 | `peekaboo` | macOS 截图与视觉分析 | 依赖 Peekaboo |

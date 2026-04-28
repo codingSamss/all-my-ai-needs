@@ -1,0 +1,5 @@
+{
+  "name": "midea-recall-diagnose",
+  "targets": ["claude", "codex"],
+  "entry": "SKILL.md"
+}
