@@ -9,8 +9,6 @@ source "$SCRIPT_DIR/lib/syncctl_common.sh"
 source "$SCRIPT_DIR/lib/syncctl_adapter_codex.sh"
 # shellcheck source=scripts/lib/syncctl_adapter_claude.sh
 source "$SCRIPT_DIR/lib/syncctl_adapter_claude.sh"
-# shellcheck source=scripts/lib/syncctl_adapter_hermes.sh
-source "$SCRIPT_DIR/lib/syncctl_adapter_hermes.sh"
 
 SYNCCTL_SKILL_FILTERS=()
 SYNCCTL_CHECK_SCRATCH=""
@@ -20,8 +18,8 @@ usage() {
 用法:
   ./scripts/syncctl.sh check \
     --direction repo-to-local|local-to-repo \
-    --platform all|codex|claude|hermes \
-    --scope all|skills|root|config|cron|memory \
+    --platform all|codex|claude \
+    --scope all|skills|root|config \
     [--skill <skill_or_relpath>]... \
     [--format text|json]
 
@@ -48,15 +46,15 @@ validate_direction() {
 
 validate_platform() {
   case "$1" in
-    all|codex|claude|hermes) ;;
-    *) syncctl_die "--platform 仅支持 all|codex|claude|hermes" ;;
+    all|codex|claude) ;;
+    *) syncctl_die "--platform 仅支持 all|codex|claude" ;;
   esac
 }
 
 validate_scope() {
   case "$1" in
-    all|skills|root|config|cron|memory) ;;
-    *) syncctl_die "--scope 仅支持 all|skills|root|config|cron|memory" ;;
+    all|skills|root|config) ;;
+    *) syncctl_die "--scope 仅支持 all|skills|root|config" ;;
   esac
 }
 
@@ -77,16 +75,12 @@ syncctl_collect_tasks() {
     all)
       syncctl_adapter_codex_collect_tasks "$direction" "$scope" "$tasks_file"
       syncctl_adapter_claude_collect_tasks "$direction" "$scope" "$tasks_file"
-      syncctl_adapter_hermes_collect_tasks "$direction" "$scope" "$tasks_file"
       ;;
     codex)
       syncctl_adapter_codex_collect_tasks "$direction" "$scope" "$tasks_file"
       ;;
     claude)
       syncctl_adapter_claude_collect_tasks "$direction" "$scope" "$tasks_file"
-      ;;
-    hermes)
-      syncctl_adapter_hermes_collect_tasks "$direction" "$scope" "$tasks_file"
       ;;
     *)
       syncctl_die "未知 platform: $platform"
@@ -300,9 +294,6 @@ syncctl_execute_check_tasks() {
       codex_config)
         syncctl_check_codex_config_task "$platform" "$scope" "$target" "$src" "$dst" "$label" "$ops_file"
         ;;
-      hermes_memory_entry)
-        syncctl_check_hermes_memory_task "$platform" "$scope" "$target" "$src" "$dst" "$excludes" "$reason" "$ops_file"
-        ;;
       skip)
         syncctl_add_op "$ops_file" "skip" "$platform" "$scope" "$target" "-" "$src" "$dst" "0" "$reason"
         ;;
@@ -392,17 +383,6 @@ syncctl_execute_apply_tasks() {
         if [ -f "$src" ]; then
           syncctl_codex_apply_config "$src" "$dst"
           SYNCCTL_APPLIED_TASK_COUNT=$((SYNCCTL_APPLIED_TASK_COUNT + 1))
-        fi
-        ;;
-      hermes_memory_entry)
-        if syncctl_apply_hermes_memory_task "$target" "$src" "$dst" "$excludes" "$reason"; then
-          SYNCCTL_APPLIED_TASK_COUNT=$((SYNCCTL_APPLIED_TASK_COUNT + 1))
-        else
-          rc=$?
-          if [ "$rc" -eq 3 ]; then
-            SYNCCTL_SKIPPED_HASH_MISMATCH_COUNT=$((SYNCCTL_SKIPPED_HASH_MISMATCH_COUNT + 1))
-          fi
-          SYNCCTL_SKIPPED_TASK_COUNT=$((SYNCCTL_SKIPPED_TASK_COUNT + 1))
         fi
         ;;
       skip)

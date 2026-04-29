@@ -2,13 +2,12 @@
 
 ## 项目结构与模块组织
 
-本仓库采用 `platform-first` 模型：`platforms/claude/`、`platforms/codex/`、`platforms/hermes/` 各自维护各自的平台真源；允许同名 skill 在不同平台目录并存，不强行去重。`shared/` 不再作为主要组织方式。
+本仓库采用 `platform-first` 模型：`platforms/claude/`、`platforms/codex/` 各自维护各自的平台真源；允许同名 skill 在不同平台目录并存，不强行去重。`shared/` 不再作为主要组织方式。
 
 - `platforms/claude/`：Claude 的 `skills/`、`agents/`、`hooks/`、`.claude-plugin/` 与安装脚本。
 - `platforms/codex/`：Codex 的 `skills/`、`agents/`、`hooks/`、`scripts/`、`rules/`、`bin/`。
-- `platforms/hermes/`：Hermes 的 local/DIY subset；包含 `skills/`、`cron/` 与脱敏配置模板 `config.template.yaml`。其中 `skills/` 保持 Hermes 原生分类布局：`<category>/<skill>`。
-- 根脚本：`setup.sh`、`scripts/bootstrap.sh`、`scripts/sync_to_codex.sh`、`scripts/sync_to_hermes.sh`。
-- 平台级迁移说明：`platforms/{claude,codex,hermes}/runtime.yaml`。
+- 根脚本：`setup.sh`、`scripts/bootstrap.sh`、`scripts/sync_to_codex.sh`。
+- 平台级迁移说明：`platforms/{claude,codex}/runtime.yaml`。
 - `runtime.yaml` 的字段约定以各平台 `skill_runtime_contract` 为准；平台固定为各自目录对应平台，不再使用 `platform: shared`。
 
 每个技能目录建议包含 `SKILL.md`、`runtime.yaml`；如有确定性脚本或检查，再补 `README.md`、`setup.sh`。其中 Codex 技能必须有 `SKILL.md`。
@@ -17,18 +16,17 @@
 
 - 日常同步默认采用“AI 人工同步 + 差异审阅”，不是直接跑脚本做目录镜像。
 - 差异核对前必须先明确口径并在输出中标注：默认使用“日常最小同步口径”（按平台脚本/运行目录规则过滤 repo-only 文件）；仅在用户明确要求“严格镜像/包含删除”时才使用镜像口径。
-- `setup.sh`、`scripts/sync_to_codex.sh`、`scripts/bootstrap.sh` 仅用于新机初始化、灾备恢复、整个平台重建；`scripts/sync_to_hermes.sh` 仅用于手动合并 Hermes 脱敏配置模板。
-- `runtime.yaml` 必须留在 repo，**不得**下发到 `~/.claude/skills`、`~/.codex/skills`、`~/.hermes/skills`。
-- `agents/openai.yaml` 仅在 Codex / OpenAI 风格运行目录确有必要时才下发；Claude 与 Hermes 默认不带。
-- Hermes 受管范围：`source=local` skills + cron + 脱敏配置模板 + memory 白名单脱敏快照；运行态实值配置（`~/.hermes/config.yaml`、`~/.hermes/.env`）及原始 memory 文件不入仓。
-- 内部路由与映射数据不得入仓：`env-config.local.*`、sourceSystem 到集群/索引的明细表、真实 ES/Kibana/控制台路由、集群别名、实例 ID、region/zone 组合、doc_count/容量类内部表都只能留在本地 ignored 文件中；repo 只允许提交占位符模板（如 `env-config.example.yaml`、`config.template.yaml`）。
+- `setup.sh`、`scripts/sync_to_codex.sh`、`scripts/bootstrap.sh` 仅用于新机初始化、灾备恢复、整个平台重建。
+- `runtime.yaml` 必须留在 repo，**不得**下发到 `~/.claude/skills`、`~/.codex/skills`。
+- `agents/openai.yaml` 仅在 Codex / OpenAI 风格运行目录确有必要时才下发；Claude 默认不带。
+- 内部路由与映射数据不得入仓：`env-config.local.*`、sourceSystem 到集群/索引的明细表、真实 ES/Kibana/控制台路由、集群别名、实例 ID、region/zone 组合、doc_count/容量类内部表都只能留在本地 ignored 文件中；repo 只允许提交占位符模板（如 `env-config.example.yaml`）。
 - 当用户要求“同步某个 skill”时，先比较该平台目录与对应本地运行目录的差异，再执行最小同步并回报结果；不要顺手同步无关 skill。
-- 跨平台统一审批约束（Claude/Codex/Hermes）：当用户提出“同步/提交/推送”或类似“看下本地跟仓库有什么内容需要同步的”但未明确授权执行写入动作时，默认只执行 `check` 与差异汇总；必须等待用户明确批准后，才可继续 `apply` / `commit` / `push`。
+- 跨平台统一审批约束（Claude/Codex）：当用户提出“同步/提交/推送”或类似“看下本地跟仓库有什么内容需要同步的”但未明确授权执行写入动作时，默认只执行 `check` 与差异汇总；必须等待用户明确批准后，才可继续 `apply` / `commit` / `push`。
 
 ## README 维护约定
 
 - 根 `README.md` 负责仓库级能力总览：平台模型、技能概览、平台摘要、同步入口。
-- `platforms/{claude,codex,hermes}/README.md` 负责对应平台的完整 skill 清单、平台能力资产与同步说明。
+- `platforms/{claude,codex}/README.md` 负责对应平台的完整 skill 清单、平台能力资产与同步说明。
 - skill 简介默认以对应 `SKILL.md` frontmatter 的 `description` 为准；README 只做压缩，不另写脱离源文案。
 - 当新增、删除、重命名 skill，修改 `SKILL.md` 的 `description` 或平台归属，调整平台能力资产、同步入口、用户可见行为时，提交或推送前必须检查并同步更新相关 README。
 
@@ -42,9 +40,6 @@
 - `./scripts/sync_to_codex.sh --sync-config`：显式同步 `platforms/codex/config.toml` 到 `~/.codex/config.toml`。
 - `./scripts/syncctl.sh check --direction repo-to-local --platform codex --scope skills`：统一入口做日常最小同步口径检查。
 - `./scripts/syncctl.sh apply --plan-id <plan_id> --approve-token <token>`：统一入口执行计划（两阶段审批，`local->repo` 删除默认禁用）。
-- `./scripts/sync_to_hermes.sh --dry-run`：预览 Hermes 脱敏配置模板与本机 `~/.hermes/config.yaml` 的受管片段合并结果。
-- `./scripts/sync_to_hermes.sh --sync-config`：手动合并 Hermes 脱敏配置模板到本机 `~/.hermes/config.yaml`（保留本地非占位敏感值）。
-- `./scripts/sync_hermes_memory_whitelist.sh check`：预览 Hermes memory 白名单脱敏快照的 repo 回流计划（两阶段审批）。
 - `./scripts/bootstrap.sh all`：新机一次执行 Claude 配置 + Codex 同步。
 
 ## 代码风格与命名约定
@@ -57,7 +52,7 @@
 ## 输出引用规范
 
 - 默认使用短引用格式：`文件名:行号`。
-- 若存在同名文件冲突，再使用最短必要相对路径：`platforms/hermes/README.md:42`。
+- 若存在同名文件冲突，再使用最短必要相对路径：`platforms/codex/README.md:42`。
 - 默认不输出长绝对路径和 markdown 可点击绝对路径链接，避免影响可读性。
 - 仅当用户明确要求“可点击地址”时，才提供绝对路径链接。
 - 同一段落中引用风格保持一致，避免同时混用多种链接样式。
@@ -77,10 +72,10 @@
 
 仓库未统一使用单一测试框架，变更主要通过可执行校验完成：
 
-- 直接运行受影响的 `setup.sh`、`sync_to_codex.sh` 或 `sync_to_hermes.sh`。
+- 直接运行受影响的 `setup.sh` 或 `sync_to_codex.sh`。
 - 用 `codex mcp list` 或 `claude mcp list` 验证 MCP 状态。
 - 涉及同步逻辑时，默认先做 repo 与本地运行目录 diff；只有在 bootstrap / 灾备场景下，才优先跑脚本。
-- 执行同步、提交、推送前，先让读取本仓库的 AI 比较本地 `~/.codex`、`~/.claude` 与仓库受管全局配置的差异；若本次涉及 Hermes，再比较 `~/.hermes/skills` 中 `source=local` 的 skill 与仓库 `platforms/hermes/skills`，并同时比较 `~/.hermes/cron` 与仓库 `platforms/hermes/cron`。
+- 执行同步、提交、推送前，先让读取本仓库的 AI 比较本地 `~/.codex`、`~/.claude` 与仓库受管全局配置的差异。
 - 忽略 secrets、占位符和运行态噪音；若本地有值得保留的新内容，先回写仓库。
 
 新增技能时，建议提供 `runtime.yaml`；若有 `README.md`，其中至少保留一条验证命令。
@@ -130,16 +125,15 @@
 - 以下几处必须保持一致：
   - GitHub 仓库状态
   - 本地项目目录（仓库工作区）
-  - 本地 CLI 根目录（`~/.claude`、`~/.codex`；若本次涉及 Hermes，再比较 `~/.hermes` 的 local/DIY subset）
+  - 本地 CLI 根目录（`~/.claude`、`~/.codex`）
 - Claude 平台 skill 日常同步链路：`platforms/claude/skills/<skill>` -> AI 手工 diff -> `~/.claude/skills/<skill>`（最小文件集）。
 - Claude 平台 skill 脚本链路：通过 `./setup.sh` 将 `platforms/claude/skills` 应用到本地 Claude 根目录。
 - Codex 平台 skill 日常同步链路：`platforms/codex/skills/<skill>` -> AI 手工 diff -> `~/.codex/skills/<skill>`（最小文件集）。
 - Codex 平台 skill 脚本链路：`platforms/codex/skills` -> `~/.codex/skills`（`./scripts/sync_to_codex.sh`，主要用于 bootstrap / 灾备）。
 - Codex root 受管配置同步链路：`platforms/codex/{AGENTS.md,agents,bin,hooks,scripts,rules}` -> `~/.codex/...`。
-- Hermes local-only 链路：`platforms/hermes/skills/<category>/<skill>` <-> `~/.hermes/skills` 中 `source=local` 的同名路径；cron 链路：`platforms/hermes/cron/*` <-> `~/.hermes/cron/*`，仅允许用户手动触发 + 人工审批，不走自动脚本；配置模板链路：`platforms/hermes/config.template.yaml` -> `./scripts/sync_to_hermes.sh` -> `~/.hermes/config.yaml`（仅受管片段合并，保留本地非占位敏感值）；memory 白名单链路：`~/.hermes/memories/*` -> `platforms/hermes/memory/snapshots/*`（仅白名单 + 脱敏后 local->repo）。
 - 推送 GitHub 前必须获得用户明确确认，不允许自动推送。
 - 当用户要求“同步仓库内容”“提交”“推送”或说“看下本地跟仓库有什么内容需要同步的”时：默认先执行同步检查（`syncctl check` 或对应 check 命令）并输出汇总；若本地有值得保留的新内容，先提示同步回仓库，再等待用户审批后继续执行写入动作。
-- 未获得用户明确审批前，禁止执行会产生写入副作用的命令（例如：`syncctl apply`、`sync_to_codex.sh`、`sync_to_hermes.sh --sync-config`、`git add/commit/push`）。
+- 未获得用户明确审批前，禁止执行会产生写入副作用的命令（例如：`syncctl apply`、`sync_to_codex.sh`、`git add/commit/push`）。
 - 当处理 `all-my-ai-needs` 的同步任务时，无论方向是“本地运行目录 -> 仓库”还是“仓库 -> 本地运行目录”，任务结束时都必须向用户明确列出同步内容清单；至少包含：新增、更新、删除、跳过/未同步项。
 - 当本次改动触发 README 维护条件时：先检查根 `README.md` 与受影响平台 README 是否需要同步更新；若无需更新，需明确说明原因后再继续提交或推送。
 

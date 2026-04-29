@@ -7,9 +7,8 @@
 这是一个 `platform-first` 的多平台技能仓库：
 
 - 不再以 `shared/skills/` 作为主要组织方式
-- `platforms/claude`、`platforms/codex`、`platforms/hermes` 各自维护各自的平台真源
+- `platforms/claude`、`platforms/codex` 各自维护各自的平台真源
 - 同名 skill 允许在不同平台目录重复存在
-- Hermes 仅受管 local/DIY subset（`source=local`），不尝试镜像整份 `~/.hermes`
 
 ## 仓库结构
 
@@ -30,22 +29,16 @@ all-my-ai-needs/
     │   ├── skills/
     │   ├── hooks/
     │   └── agents/
-    ├── codex/
-    │   ├── AGENTS.md
-    │   ├── config.toml
-    │   ├── runtime.yaml
-    │   ├── skills/
-    │   ├── hooks/
-    │   ├── agents/
-    │   ├── bin/
-    │   ├── rules/
-    │   └── scripts/
-    └── hermes/
-        ├── README.md
+    └── codex/
+        ├── AGENTS.md
+        ├── config.toml
         ├── runtime.yaml
         ├── skills/
-        │   └── <category>/<skill>/
-        └── cron/
+        ├── hooks/
+        ├── agents/
+        ├── bin/
+        ├── rules/
+        └── scripts/
 ```
 
 ## Skill 文件格式
@@ -75,13 +68,11 @@ description: "包含触发关键词的描述"
 
 - Claude：`./setup.sh`，主要用于 bootstrap / 灾备；日常优先手工 diff
 - Codex：`./scripts/sync_to_codex.sh`，主要用于 bootstrap / 灾备；日常优先手工 diff
-- Hermes：没有自动同步脚本；仅对 local/DIY subset（`source=local`）做人工 diff + 最小落盘
 
 运行目录规则：
 
 - `runtime.yaml` 只保留在 repo，不下发到任何运行目录
 - `agents/openai.yaml` 仅在 Codex / OpenAI 风格运行目录确有必要时才保留
-- Hermes 运行目录优先保留原生最小集；仓库中允许保留额外治理元数据
 
 ## 提交前必检清单
 
@@ -89,8 +80,7 @@ description: "包含触发关键词的描述"
 
 1. 涉及 `platforms/claude/` 的改动：先执行 `./setup.sh <skill>` 或 `./setup.sh core`
 2. 涉及 `platforms/codex/` 的改动：先执行 `./scripts/sync_to_codex.sh --dry-run`
-3. 涉及 `platforms/hermes/` 的改动：先比较仓库 local/DIY 受管目录与 `~/.hermes` 中 `source=local` 的同名目录差异，再给出差异总结
-4. 推送前必须得到用户明确确认
+3. 推送前必须得到用户明确确认
 
 ## 隐私与一致性检查
 

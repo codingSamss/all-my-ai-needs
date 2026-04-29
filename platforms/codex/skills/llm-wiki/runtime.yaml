@@ -17,7 +17,7 @@ manual_steps:
   - 使用前先通过 `platforms/codex/skills/llm-wiki` 与本机 `~/.codex/skills/llm-wiki` 做人工 diff 或脚本同步
   - 日常同步默认由 AI 手工 diff 后做最小落盘；脚本仅用于 bootstrap / 灾备 fallback
   - `runtime.yaml` 仅保留在 repo，不下发到任何 agent 运行目录
-  - Hermes 与 Claude 各自维护各自平台目录；不要假设当前目录是跨平台唯一真源
+  - Claude 与 Codex 各自维护各自平台目录；不要假设当前目录是跨平台唯一真源
   - 具体 wiki 路径、SCHEMA、purpose 与 taxonomy 继续留在项目现场规则中
 
 verify:

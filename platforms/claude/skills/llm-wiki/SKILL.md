@@ -130,7 +130,7 @@ lint 的产出默认是问题清单和建议动作；除非用户要求，不要
 - 不要假设所有 wiki 都有 `purpose.md`、`_meta/ingest-analysis/` 或相同目录结构
 - 不要绕过本地 `SCHEMA.md` 自创结构
 - 不要把临时聊天结论默认当成长期知识入库
-- 不要把 Hermes / Claude / Codex 的运行态 patch 直接当作 wiki 规则
+- 不要把 Claude / Codex 的运行态 patch 直接当作 wiki 规则
 
 # 成功标准
 

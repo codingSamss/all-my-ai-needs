@@ -279,16 +279,13 @@ syncctl_is_safe_managed_path() {
   local path="$1"
   local codex_home="${CODEX_HOME:-$HOME/.codex}"
   local claude_home="${CLAUDE_HOME:-$HOME/.claude}"
-  local hermes_home="${HERMES_HOME:-$HOME/.hermes}"
 
   case "$path" in
     "$SYNCCTL_REPO_ROOT"|"$SYNCCTL_REPO_ROOT"/*) return 0 ;;
     "$HOME/.codex"|"$HOME/.codex"/*) return 0 ;;
     "$HOME/.claude"|"$HOME/.claude"/*) return 0 ;;
-    "$HOME/.hermes"|"$HOME/.hermes"/*) return 0 ;;
     "$codex_home"|"$codex_home"/*) return 0 ;;
     "$claude_home"|"$claude_home"/*) return 0 ;;
-    "$hermes_home"|"$hermes_home"/*) return 0 ;;
     *) return 1 ;;
   esac
 }
