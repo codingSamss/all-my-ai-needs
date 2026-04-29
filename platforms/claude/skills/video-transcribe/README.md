@@ -1,7 +1,7 @@
 # video-transcribe
 
 ## 作用
-从任意视频/音频链接提取内容并分析。支持三种模式：音频转录（Groq Whisper）、视频画面分析（关键帧提取 + Claude 视觉）、综合分析（两者结合）。支持 Twitter/X、YouTube、Bilibili 等 1000+ 站点。
+从任意视频/音频链接提取内容并分析。支持 Groq Whisper 全量转录、关键帧分析、时间轴校验和可替代看视频的 Obsidian 图文笔记。支持 Twitter/X、YouTube、Bilibili 等 1000+ 站点。
 
 ## 平台支持
 - Claude Code（已支持）
@@ -20,6 +20,13 @@
 2. 使用 ffmpeg 按视频时长均匀提取最多 8 张关键帧
 3. 使用 Claude 多模态视觉能力分析帧图片
 4. 输出画面描述和视觉分析总结
+
+### 完整图文笔记模式
+1. 使用 yt-dlp 下载源视频，必要时用 `uvx --from yt-dlp yt-dlp` 避开本机旧版本问题
+2. 使用 `whisper-large-v3` + `verbose_json` 全量转录，保留 timestamp segment
+3. 按源 timestamps 和转录结果做覆盖校验
+4. 提取关键帧并写入同级 assets
+5. 输出“摘要 + 阶段索引 + 折叠时间轴 + 图文精读 + 可复用做法 + 准确度说明”
 
 ### 综合分析模式（默认）
 1. 下载视频 → 提取关键帧 + 提取音频
@@ -76,7 +83,14 @@ HTTP_PROXY=http://127.0.0.1:7897 HTTPS_PROXY=http://127.0.0.1:7897 \
 - 音频转录触发词：`转录`、`字幕`、`语音转文字`、`transcribe`
 - 画面分析触发词：`画面`、`视觉分析`、`展示了什么`、`visual`
 - 综合分析触发词：`分析视频`、`视频内容`、`说了什么`、`帮我看看`
+- 完整笔记触发词：`全量`、`完整`、`不要看视频`、`替代看视频`、`图文笔记`
 - 详细命令与触发规则见：`SKILL.md`
+
+## 内置脚本
+- `scripts/download_media.sh`：下载音频/视频，含 cookies retry 和 `uvx` fallback。
+- `scripts/transcribe_groq.py`：抽音频、分段、Groq 转录、合并 timestamp。
+- `scripts/extract_frames.sh`：按均匀间隔或指定 timestamps 抽关键帧。
+- `scripts/verify_obsidian_note.sh`：校验 frontmatter、图片引用和 timestamp 覆盖。
 
 ## 依赖
 - yt-dlp（`brew install yt-dlp`）

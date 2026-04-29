@@ -47,7 +47,7 @@
 | `scrapling` | Scrapling 优先的网页抓取与结构化提取 | `scrapling[fetchers]` + `playwright-ext` |
 | `skill-creator` | 创建、优化、评估 skills | 用于 skill 设计与迭代 |
 | `ui-ux-pro-max` | UI/UX 设计知识检索与落地辅助 | 依赖本地 scripts/知识库 |
-| `video-transcribe` | 视频/音频转录、关键帧分析与总结 | 依赖 yt-dlp / ffmpeg / Groq |
+| `video-transcribe` | 视频/音频全量转录、图文笔记与关键帧分析 | 依赖 yt-dlp / ffmpeg / Groq |
 | `xiaohongshu-session-reader` | 小红书 HTTP/API 优先读取 | Chrome Cookie + Playwright fallback |
 
 ## 平台能力资产
