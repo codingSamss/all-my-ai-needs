@@ -98,9 +98,11 @@ python3 ./scripts/generate-from-template.py architecture ./output/arch.svg '{"ti
 5. **Map nodes to shapes** — use Shape Vocabulary below
 6. **Check icon needs** — load `references/icons.md` for known products
 7. **Write SVG** with adaptive strategy (see SVG Generation Strategy below)
-8. **Validate**: Run `rsvg-convert file.svg -o /dev/null 2>&1` to check syntax
-9. **Export PNG**: `rsvg-convert -w 1920 file.svg -o file.png`
-10. **Report** the generated file paths
+8. **Validate syntax**: Run `rsvg-convert file.svg -o /dev/null 2>&1` when available, or an XML parser fallback when `rsvg-convert` is unavailable
+9. **Render without stealing focus**: Export PNG with a non-interactive renderer. Prefer `rsvg-convert -w 1920 file.svg -o file.png`; if unavailable on macOS, `sips -s format png file.svg --out file.png` is acceptable. Do not navigate the user's active browser or use a direct-link browser tab for checking.
+10. **Inspect the rendered PNG**: Open the generated PNG through the available image-inspection tool and verify the full canvas, not just syntax. Check that no text is clipped, no text overflows boxes, arrow labels do not use background pills, arrows do not cross node bodies, and the exported image is not cropped.
+11. **Run a static layout sanity check**: If the diagram has dense text, estimate text width against its container (`text.length × 7px ≤ box_width - 16px`) and check each text baseline stays inside the container's vertical safe area (`text_y ≤ box_y + box_height - 10px`). Edge labels should be plain small text placed near, not on top of, the arrow stroke; avoid background rectangles behind edge labels. Run a small SVG parser check before finalizing when possible.
+12. **Report** the generated file paths and the validation method used
 
 ## Diagram Types & Layout Rules
 
@@ -343,9 +345,11 @@ When two arrows must cross each other, ALWAYS use jump-over arcs to prevent visu
 
 **Validation Checklist** (run before finalizing):
 1. **Arrow-Component Collision**: Arrows MUST NOT pass through component interiors (route around with orthogonal paths)
-2. **Text Overflow**: All text MUST fit with 8px padding (estimate: `text.length × 7px ≤ shape_width - 16px`)
+2. **Text Overflow**: All text MUST fit with 8px padding. Check both horizontal width (`text.length × 7px ≤ shape_width - 16px`) and vertical placement (`text_y ≤ shape_y + shape_height - 10px`). Split long labels into multiple lines or enlarge the box before exporting.
 3. **Arrow-Text Alignment**: Arrow endpoints MUST connect to shape edges (not floating); arrow labels MUST remain readable (use background rect only when needed)
 4. **Container Discipline**: Prefer arrows entering and leaving section containers through open gaps between components, not through inner component bodies
+5. **Rendered Visual QA**: After exporting PNG, inspect the rendered image itself. XML validity alone is not sufficient. Confirm the diagram is not visually cropped, labels are not cut off, and boxes/arrows/text remain readable at the target document size.
+6. **No Active-Browser Checks**: Do not use the user's active browser session or direct-link navigation for visual QA. Use a non-focus renderer (`rsvg-convert`, `sips`, isolated headless renderer) plus an image-inspection tool.
 
 ## SVG Technical Rules
 
