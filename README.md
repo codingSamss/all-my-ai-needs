@@ -30,6 +30,7 @@
 | `midea-recall-diagnose` | keyword 漏召回排查、回放与 ELK/ES API 取证 |
 | `orbit-os` | OrbitOS Obsidian Vault 共享配置与规范 |
 | `orbit-session-diary` | 基于本地会话日志生成 Obsidian 日记 |
+| `online-doc-html` | Markdown 导出为适合在线文档粘贴的 HTML，SVG 图转 PNG 并内嵌 |
 | `peekaboo` | macOS 截图与视觉分析 |
 | `pinchtab` | PinchTab 优先的浏览器自动化，失败时回退 `playwright-ext` |
 | `playwright` | MCP-only 真实浏览器自动化 |

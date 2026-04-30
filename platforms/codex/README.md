@@ -35,6 +35,7 @@
 | `llm-wiki` | 用 analysis -> generation 维护 Karpathy 风格 markdown wiki | 平台本地真源：`platforms/codex/skills/llm-wiki` |
 | `midea-recall-diagnose` | keyword 漏召回排查、回放与 ELK/ES API 取证 | 依赖 Python、本地脚本与浏览器 Cookie 登录态 |
 | `openai-docs` | OpenAI 官方文档与 API 实现指引 | 依赖官方 docs MCP |
+| `online-doc-html` | Markdown 导出为适合在线文档粘贴的 HTML | 依赖 `pandoc` / `rsvg-convert` |
 | `opencode-copilot-opus` | 通过 opencode 与 GitHub Copilot Opus 持续协作讨论 | 依赖 `opencode` 与本地桥接脚本 |
 | `orbit-os` | OrbitOS Obsidian Vault 共享配置与规范 | 供 orbit-* 系列 skill 引用 |
 | `orbit-session-diary` | 基于本地会话日志生成 Obsidian 日记 | 依赖本地 jsonl 与目标 Vault |
