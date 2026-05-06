@@ -1,23 +1,17 @@
 ---
 name: fireworks-tech-graph
 description: >-
-  Use when the user needs technical/system diagrams with structured, editable
+  Use when the user needs technical/system diagrams or image generation with structured, editable
   SVG output and optional PNG export: architecture, flowchart, sequence,
-  swimlane, data flow, ER/state-machine, agent/memory, or concept map. Prefer
-  this skill over image-gen for precise technical diagrams; keep image-gen for
-  artistic/illustrative image generation. Trigger on: "架构图" "流程图"
-  "时序图" "泳道图" "系统图" "数据流图" "sequence diagram"
-  "flowchart" "swimlane" "ER diagram" "state machine" "SVG diagram".
+  swimlane, data flow, ER/state-machine, agent/memory, or concept map.
+  Trigger on: "架构图" "流程图" "时序图" "泳道图" "系统图" "数据流图"
+  "sequence diagram" "flowchart" "swimlane" "ER diagram" "state machine"
+  "SVG diagram" "生成图片" "画图" "生图".
 ---
 
 # Fireworks Tech Graph
 
 Generate production-quality SVG technical diagrams exported as PNG via `rsvg-convert`.
-
-## Routing Rule (with image-gen)
-
-- Use this skill when the request is a technical diagram that needs structured/editable SVG (architecture, sequence, swimlane, ER, state-machine, data flow).
-- Use `image-gen` when the request is artistic, illustrative, photorealistic, or non-structured image generation.
 
 ## Install Source
 

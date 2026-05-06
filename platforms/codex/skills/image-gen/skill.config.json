@@ -1,5 +1,0 @@
-{
-  "name": "image-gen",
-  "targets": ["claude", "codex"],
-  "entry": "SKILL.md"
-}
