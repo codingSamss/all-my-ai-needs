@@ -69,7 +69,7 @@
 - 真源目录：`platforms/codex/`
 - `./scripts/sync_to_codex.sh` 用于 bootstrap / 灾备场景，把 `platforms/codex` 应用到 `~/.codex`
 - 受管 root 仅包含 `AGENTS.md`、`agents/`、`bin/`、`hooks/`、`scripts/`、`rules/`
-- `platforms/codex/config.toml` 默认不自动覆盖本机，仅在显式 `--sync-config` 时同步
+- `platforms/codex/config.toml` 默认不自动覆盖本机；`syncctl --scope all` 不包含 config，只有显式 `--scope config` 或 `sync_to_codex.sh --sync-config` 才检查/同步
 
 ## 快速入口
 

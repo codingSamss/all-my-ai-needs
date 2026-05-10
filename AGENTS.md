@@ -38,7 +38,7 @@
 - `./scripts/sync_to_codex.sh --dry-run`：预览 Codex 配置同步结果。
 - `./scripts/sync_to_codex.sh`：同步 `platforms/codex/skills` 与受管 root 配置到 `~/.codex`（bootstrap / 灾备 fallback，默认不覆盖本机 `config.toml`）。
 - `./scripts/sync_to_codex.sh --sync-config`：显式同步 `platforms/codex/config.toml` 到 `~/.codex/config.toml`。
-- `./scripts/syncctl.sh check --direction repo-to-local --platform codex --scope skills`：统一入口做日常最小同步口径检查。
+- `./scripts/syncctl.sh check --direction repo-to-local --platform codex --scope skills`：统一入口做日常最小同步口径检查；Codex `--scope all` 不包含 `config.toml`，config 必须显式 `--scope config`。
 - `./scripts/syncctl.sh apply --plan-id <plan_id> --approve-token <token>`：统一入口执行计划（两阶段审批，`local->repo` 删除默认禁用）。
 - `./scripts/bootstrap.sh all`：新机一次执行 Claude 配置 + Codex 同步。
 
@@ -131,6 +131,7 @@
 - Codex 平台 skill 日常同步链路：`platforms/codex/skills/<skill>` -> AI 手工 diff -> `~/.codex/skills/<skill>`（最小文件集）。
 - Codex 平台 skill 脚本链路：`platforms/codex/skills` -> `~/.codex/skills`（`./scripts/sync_to_codex.sh`，主要用于 bootstrap / 灾备）。
 - Codex root 受管配置同步链路：`platforms/codex/{AGENTS.md,agents,bin,hooks,scripts,rules}` -> `~/.codex/...`。
+- Codex `config.toml` 为显式 opt-in 同步项，不包含在日常 `syncctl --scope all` 中。
 - 推送 GitHub 前必须获得用户明确确认，不允许自动推送。
 - 当用户要求“同步仓库内容”“提交”“推送”或说“看下本地跟仓库有什么内容需要同步的”时：默认先执行同步检查（`syncctl check` 或对应 check 命令）并输出汇总；若本地有值得保留的新内容，先提示同步回仓库，再等待用户审批后继续执行写入动作。
 - 未获得用户明确审批前，禁止执行会产生写入副作用的命令（例如：`syncctl apply`、`sync_to_codex.sh`、`git add/commit/push`）。

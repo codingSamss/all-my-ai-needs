@@ -17,7 +17,8 @@
 - `syncctl` 是日常入口：默认最小同步口径，支持 `check -> apply` 两阶段令牌审批
 - 处理同步/提交/推送请求时，若用户只给目标未明确授权写入（例如“看下本地跟仓库有什么内容需要同步的”），默认先执行 `check` 并汇总，待用户审批后再执行 `apply` / `commit` / `push`
 - 默认同步 `platforms/codex/skills/` 与受管 root 配置到 `~/.codex`
-- `config.toml` 默认不覆盖本机，仅在显式 `--sync-config` 时同步
+- `syncctl --scope all` 不包含 `config.toml`；只有显式 `--scope config` 才会检查 config 差异
+- `config.toml` 默认不覆盖本机，仅在显式 `--sync-config` 或 `syncctl --scope config` apply 时同步
 - `--sync-config` 覆盖 `config.toml` 时会保留本地 MCP 敏感配置
 - `~/.codex/skills` 保留 `.system` 与本地未托管技能
 - 日常同步优先由 AI 做最小差异落盘，不直接跑脚本镜像
@@ -52,7 +53,7 @@
 
 - 受管 root 配置：`AGENTS.md`、`agents/`、`bin/`、`hooks/`、`scripts/`、`rules/`
 - `./scripts/sync_to_codex.sh` 负责在 bootstrap / 灾备场景下把 `platforms/codex` 应用到 `~/.codex`
-- `platforms/codex/config.toml` 默认不自动覆盖本机 `~/.codex/config.toml`
+- `platforms/codex/config.toml` 默认不自动覆盖本机 `~/.codex/config.toml`，日常全量 `syncctl --scope all` 也不会隐式覆盖
 - `platforms/codex/config.toml` 已内置浏览器 MCP：`playwright-ext` 与 `chrome-devtools`
 - skill 若需要依赖、手动步骤、验证命令，统一写入 repo 中对应 skill 目录下的 `runtime.yaml`
 - 平台级 `platforms/codex/runtime.yaml` 仅用于仓库内 AI 理解迁移规则，不会同步到 `~/.codex` 根目录

@@ -92,7 +92,8 @@ syncctl_adapter_codex_collect_tasks() {
     fi
   fi
 
-  if syncctl_scope_includes "$scope" "config"; then
+  # config.toml is opt-in for Codex because it can overwrite live global config.
+  if [ "$scope" = "config" ]; then
     local task_id
     task_id="$(syncctl_next_task_id)"
     if [ "$direction" = "repo-to-local" ]; then
