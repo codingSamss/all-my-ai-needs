@@ -315,6 +315,9 @@ Always include a **legend** when 2+ arrow types are used.
 - Same-layer nodes: 80px horizontal, 120px vertical between layers
 - Canvas margins: 40px minimum, 60px between node edges
 - Snap to 8px grid: horizontal 120px intervals, vertical 120px intervals
+- Decision diamonds and neighboring boxes must keep at least 40px clear gap after rendering; do not let a diamond's outer points touch or overlap any adjacent node border
+- Rightmost and bottommost nodes must keep at least 24px inner canvas padding after rendering; if labels/arrows crowd the edge, expand the viewBox or move the node inward
+- For any two non-connected node boxes in the same region, preserve at least 24px visual gap in the rendered PNG, not just in source coordinates
 
 **Arrow Labels** (CRITICAL):
 - Background rect is **conditional**, not mandatory:
@@ -329,6 +332,8 @@ Always include a **legend** when 2+ arrow types are used.
 - Anchor arrows on component edges, not geometric centers
 - Route around dense node clusters, use different y-offsets for parallel arrows
 - Jump-over arcs (5px radius) for unavoidable crossings
+- Avoid short dogleg connectors near the destination node; if an orthogonal arrow has a final bend shorter than 24px or looks visually kinked in the PNG, reroute it as a cleaner straight segment or a wider elbow
+- For decision branches, start each outgoing arrow from the actual diamond edge point that matches the branch direction (right point for yes/right branch, bottom point for downward branch, etc.), not from an arbitrary nearby coordinate
 
 **Line Overlap Prevention** (CRITICAL - most common bug on Codex):
 When two arrows must cross each other, ALWAYS use jump-over arcs to prevent visual overlap:
@@ -344,6 +349,9 @@ When two arrows must cross each other, ALWAYS use jump-over arcs to prevent visu
 4. **Container Discipline**: Prefer arrows entering and leaving section containers through open gaps between components, not through inner component bodies
 5. **Rendered Visual QA**: After exporting PNG, inspect the rendered image itself. XML validity alone is not sufficient. Confirm the diagram is not visually cropped, labels are not cut off, and boxes/arrows/text remain readable at the target document size.
 6. **No Active-Browser Checks**: Do not use the user's active browser session or direct-link navigation for visual QA. Use a non-focus renderer (`rsvg-convert`, `sips`, isolated headless renderer) plus an image-inspection tool.
+7. **Node Crowding / Overlap**: Inspect the rendered PNG for geometric crowding, especially around decision diamonds, right-edge nodes, and arrow turns. If any node border visually touches another node, arrow label, or canvas edge, fix layout before finalizing.
+8. **Right-Side Flow Check**: For flows that branch to the right, verify the decision node, branch labels, and destination boxes can be read independently at normal zoom. If the eye cannot distinguish branch ownership immediately, increase spacing or reroute arrows.
+9. **Arrow Geometry Quality**: Reject arrows that look crooked, kinked, or accidental in the rendered PNG even if they are technically valid SVG paths. Branch connectors should read as intentional geometry: straight, symmetric, or clearly orthogonal.
 
 ## SVG Technical Rules
 
