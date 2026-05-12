@@ -1,5 +1,0 @@
-{
-  "name": "google-workspace",
-  "targets": ["claude", "codex"],
-  "entry": "SKILL.md"
-}

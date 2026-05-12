@@ -22,7 +22,6 @@
 | --- | --- |
 | `bird-twitter` | 只读访问 X/Twitter 内容 |
 | `context-hub` | 通过 chub 检索版本化 API/SDK 文档与技能内容 |
-| `google-workspace` | 访问 Gmail、Drive、Docs、Calendar 等 Google Workspace 能力 |
 | `fireworks-tech-graph` | 结构化技术图生成与图片生成（架构图/流程图/时序图/泳道图，SVG+PNG） |
 | `linuxdo` | 只读访问 LINUX DO 论坛 |
 | `llm-wiki` | 用 analysis -> generation 维护 Karpathy 风格 markdown wiki，支持 ingest / query / lint |
