@@ -43,7 +43,6 @@
 | Skill | 能力 |
 | --- | --- |
 | `openai-docs` | OpenAI 官方文档与 API 实现指引 |
-| `opencode-copilot-opus` | 通过 opencode 与 GitHub Copilot Opus 持续协作讨论 |
 | `screenshot` | 系统级截图与区域捕获 |
 
 ### Claude-only
