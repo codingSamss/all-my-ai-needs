@@ -10,7 +10,7 @@ description: 用于排查 sit/uat/prod 环境下 `/rag-recall/api/search/keyword
 - **规则优先级**：`SKILL.md` > `references/*.md`。冲突时只按本文件执行。
 - **接口约束**：`keyword` 回放只能用终端 `curl -X POST`，禁止浏览器地址栏访问。
 - **取证范围**：本技能只用 `ELK + ES`，禁止调用 `/rag-recall/api/search/trace/recordInfo`。
-- **执行通道约束（强制）**：除 `keyword` 回放外，`ELK` 取证一律使用 `python3 scripts/elk_api_query.py`（Kibana API）；`ES` 取证一律使用 `python3 scripts/es_proxy_query.py`（中立云控制台代理 API）。禁止 Playwright 页面查询 ELK/ES，禁止 `curl` 直连 ES，也禁止手写 shell 请求中立云代理接口。
+- **执行通道约束（强制）**：除 `keyword` 回放外，`ELK` 取证一律使用 `python3 scripts/elk_api_query.py`（Kibana API）；`ES` 取证一律使用 `python3 scripts/es_proxy_query.py`。`sit/uat` 走 Kibana Dev Tools 的 `console proxy`，`prod` 走中立云控制台 `requestEs`。正常排查禁止 Playwright 页面查询 ELK/ES，禁止 `curl` 直连 ES，也禁止手写 shell 请求代理接口。
 - **完整请求强制回放**：拿到 `headers + body` 后，必须先回放并获取 fresh `requestId`，再查 ELK/ES。
 - **回放后 requestId-first**：第一条 ELK 查询必须包含 `requestId + TRACE_TARGET_ES + targetId`。
 - **首条 KQL 精确匹配（强制）**：首条查询中 `requestId/targetId/TRACE_TARGET_ES` 必须完整精确匹配，禁止 `*` 通配（如 `replay_*`）。
@@ -24,7 +24,7 @@ description: 用于排查 sit/uat/prod 环境下 `/rag-recall/api/search/keyword
 - **字段规则**：优先以 ELK `requestDsl` 实际字段为准；字段不明确再查 ES `_mapping`。
 - **ES 路由规则（强制）**：进入 ES 前优先从 ELK `targetUrl` 中的 `[cluster=...]` 直接解析集群；若没有集群标识，再从 `requestDsl` / `targetUrl` 提取实际索引名做路由；禁止固定地址直查。
 - **ES 路由消歧规则（强制）**：若日志已带 `[cluster=...]`，不得再要求用户补 `sourceSystem`；只有在无集群标识且 `requestDsl` 命中共享索引导致多集群歧义时，才可用 `sourceSystem` 辅助消歧；若仍不能唯一定位，必须中止，禁止 fallback。
-- **ES 代理接口规则（已核对）**：中立云 ES 控制台支持通过 `POST /Elasticsearch/2024-01-11/dataRetrievales/requestEs` 代理 `_count/_search/_mapping` 等请求；必须通过 `scripts/es_proxy_query.py` 读取本地浏览器 cookie 并发起 API 请求，不启动 Playwright。可加 `--check-url-templates` 先用 `GET /Elasticsearch/2024-01-11/dataRetrievales/urlTemplates?cinsId=<id>` 校验代理接口可用性。
+- **ES 执行通道规则（已核对）**：`sit/uat` 可通过 Kibana Dev Tools 背后的 `POST /api/console/proxy?path=<path>&method=<method>` 执行 `_count/_search/_mapping`；`prod` 不走 Kibana/ELK 地址，必须通过中立云 ES 控制台 `POST /Elasticsearch/2024-01-11/dataRetrievales/requestEs`，请求体包含 `cinsId/path/method/body`。两种通道都只能经 `scripts/es_proxy_query.py` 执行，正常排查不启动 Playwright。
 - **阶段顺序来源（强制）**：优先用运行时 `CHAIN_NAME` 提取真实阶段顺序；拿不到则动态读取关键链路代码（`SearchLiteFlowService + LiteFlowConstants`）；都失败才回退默认顺序。
 - **阶段顺序门禁（强制）**：首次丢失阶段必须按当前链路顺序判定，未验证前序文本召回证据时，禁止直接判定向量阶段丢失。
 - **首次丢失口径（强制）**：first-loss 只能由 `phase=response hit=false` 判定；仅凭下游 `phase=request` 缺失不得判该下游阶段丢失。
@@ -163,11 +163,14 @@ python3 scripts/prepare_diagnosis.py \
 
 - 若脚本报 `requestDsl index route is ambiguous`：先检查是否命中了共享 FAQ 索引；必要时补一个 `sourceSystem` 做消歧。
 - 若脚本报 `unable to resolve ES console route` 或 `sourceSystem ... has no ES cluster mapping`：立即中止并补齐有效的 `requestDsl/sourceSystem` 证据。
+- `sit/uat` 默认 `transport=kibana_console_proxy`，只需要实际 `path/index` 与 DSL；不同环境的索引后缀必须以 ELK `requestDsl/targetUrl` 为准，禁止猜后缀。
+- `prod` 默认 `transport=zhongli_cloud_proxy`，必须先解析到唯一中立云 cluster，并使用该 cluster 的 `instance_id` 作为 `cinsId`；生产禁止退回 Kibana/ELK 地址查 ES 实际内容。
 - `Q1` 原始 `requestDsl` 复跑。
 - `Q2` 目标存在性（DOC 用 `doc_id`；FAQ 用 `knowledge_base_id`）。
 - `Q3` 保留 filter + 去掉 text must（仅文本阶段需要）。
-- 执行方式：仅允许 `scripts/es_proxy_query.py` 走中立云控制台代理 API（自动复用浏览器 cookie），禁止 Playwright 页面操作。
-- 代理调用固定格式：`POST /Elasticsearch/2024-01-11/dataRetrievales/requestEs`，请求体包含 `cinsId`、`path`、`method`、`body`；其中 `body` 必须是传给 ES 的 JSON 字符串，而不是对象。
+- 执行方式：仅允许 `scripts/es_proxy_query.py` 走配置的 ES transport（自动复用浏览器 cookie），禁止 Playwright 页面操作。
+- `prod` 中立云代理调用固定格式：`POST /Elasticsearch/2024-01-11/dataRetrievales/requestEs`，请求体包含 `cinsId`、`path`、`method`、`body`；其中 `body` 必须是传给 ES 的 JSON 字符串，而不是对象。
+- `sit/uat` Kibana console proxy 调用固定格式：`POST /api/console/proxy?path=<path>&method=<method>`，请求体是传给 ES 的 JSON 对象。
 - 原始 `requestDsl` 复跑示例：
 
 ```bash
@@ -191,6 +194,7 @@ python3 scripts/es_proxy_query.py \
 ```
 
 - 仍然禁止 `curl` 直连 ES；若浏览器 cookie 失效或代理接口返回未登录/无权限，先中止并要求用户在浏览器重新登录控制台后重跑脚本，不得 fallback 到 Playwright 页面点击。
+- 若 `prod` 返回 `PROD_ES_PROXY_NOT_CONFIGURED`，说明本地 skill 配置还没有真实中立云 `requestEs` 地址；这属于 skill 维护态问题，允许在维护阶段用 Playwright/Network 捕获真实 API 后写入 `env-config.local.*`，但正常诊断流程不得现场启动 Playwright。
 - 若 gateway 鉴权 cookie 挂在父域，可给 `scripts/es_proxy_query.py` 增加 `--cookie-domain midea.com`；仍不得绕过脚本手写请求。
 
 ### 3.2 requestId 模式

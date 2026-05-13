@@ -4,6 +4,7 @@ notes:
   - "Keep credentials, cookies, and tokens out of this file."
   - "Use browser login state instead of putting auth headers here."
   - "For multi-cluster prod, set es_console.cluster_routes and source_system_cluster_map_excel."
+  - "sit/uat ES DSL uses Kibana console proxy; prod ES DSL uses Zhongli Cloud requestEs."
 
 environments:
   sit:
@@ -26,15 +27,9 @@ environments:
       target_search_hint: "\"<targetId>\" and \"TRACE_TARGET_ES\""
       cookie_browser: "chrome"
     es_console:
-      request_proxy_url: "https://<sit-console-api>/Elasticsearch/2024-01-11/dataRetrievales/requestEs"
-      source_system_cluster_map_excel: "来源系统索引.xlsx"
-      source_system_cluster_map_sheet: "Sheet1"
-      cluster_routes:
-        集群1:
-          page_url: "https://<sit-console-origin>/elasticsearch/instance/instance-menu/indexSearch?...&tab=DevelopmentTool"
-          instance_id: "<instanceId>"
-          region_id: "<regionId>"
-          zone: "<zone>"
+      transport: "kibana_console_proxy"
+      console_base_url: "http://<sit-or-uat-kibana-host>:5601"
+      cookie_browser: "chrome"
 
   uat:
     label: "UAT"
@@ -56,15 +51,9 @@ environments:
       target_search_hint: "\"<targetId>\" and \"TRACE_TARGET_ES\""
       cookie_browser: "chrome"
     es_console:
-      request_proxy_url: "https://<uat-console-api>/Elasticsearch/2024-01-11/dataRetrievales/requestEs"
-      source_system_cluster_map_excel: "来源系统索引.xlsx"
-      source_system_cluster_map_sheet: "Sheet1"
-      cluster_routes:
-        集群1:
-          page_url: "https://<uat-console-origin>/elasticsearch/instance/instance-menu/indexSearch?...&tab=DevelopmentTool"
-          instance_id: "<instanceId>"
-          region_id: "<regionId>"
-          zone: "<zone>"
+      transport: "kibana_console_proxy"
+      console_base_url: "http://<sit-or-uat-kibana-host>:5601"
+      cookie_browser: "chrome"
 
   prod:
     label: "PROD"
@@ -86,7 +75,10 @@ environments:
       target_search_hint: "\"<targetId>\" and \"TRACE_TARGET_ES\""
       cookie_browser: "chrome"
     es_console:
+      transport: "zhongli_cloud_proxy"
       request_proxy_url: "https://<prod-console-api>/Elasticsearch/2024-01-11/dataRetrievales/requestEs"
+      cookie_browser: "chrome"
+      cookie_domain: "midea.com"
       source_system_cluster_map_excel: "来源系统索引.xlsx"
       source_system_cluster_map_sheet: "Sheet1"
       cluster_routes:

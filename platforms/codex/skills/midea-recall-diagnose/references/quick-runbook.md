@@ -38,7 +38,7 @@ python3 scripts/elk_api_query.py \
 2. 目标存在性查询（DOC: `doc_id`；FAQ: `knowledge_base_id`）
 3. 保留 filter + 去掉 text must（仅文本阶段）
 
-- 执行通道：ES 查询只用 `scripts/es_proxy_query.py`（中立云控制台代理 API），禁止 Playwright 页面操作。
+- 执行通道：ES 查询只用 `scripts/es_proxy_query.py`。`sit/uat` 走 Kibana Dev Tools 的 console proxy；`prod` 走中立云控制台 `requestEs`，禁止 Playwright 页面操作。
 
 ```bash
 python3 scripts/es_proxy_query.py \
@@ -48,6 +48,9 @@ python3 scripts/es_proxy_query.py \
   --method POST \
   --body '<es-query-json>'
 ```
+
+- `sit/uat` 使用同一个 Kibana Dev Tools host，索引名以后端 `requestDsl/targetUrl` 为准。
+- `prod` 禁止使用 Kibana/ELK 地址查询 ES 实际内容；若报 `PROD_ES_PROXY_NOT_CONFIGURED`，先在 skill 维护阶段用 Playwright/Network 捕获真实中立云 `requestEs` 地址并写入本地配置。
 
 ## TRACE 真实格式
 
@@ -88,5 +91,6 @@ python3 scripts/first_loss_guard.py \
 - 不要用 Playwright 页面查询 ES
 - 不要用 `curl` 直连 ES（仅 `keyword` 回放允许 `curl`）
 - 不要手写 shell 请求中立云 `requestEs` 代理接口；必须用 `scripts/es_proxy_query.py`
+- 不要在 prod 用 Kibana/ELK Dev Tools 地址查 ES 实际内容
 - 不要把首条 KQL 从三元组降级为 requestId-only 或 targetId-only
 - 不要在 `requestDsl` 未提供唯一索引且又没有可用 `sourceSystem` 消歧时继续执行 ES 查询

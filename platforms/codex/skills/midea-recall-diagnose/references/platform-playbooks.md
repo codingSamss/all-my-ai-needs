@@ -31,9 +31,11 @@
 - 进入 ES 前必须先按 `requestDsl/targetUrl` 解析控制台地址；若命中共享索引歧义，再用 `sourceSystem` 消歧，仍失败则直接阻断。
 - 默认三步：`原DSL` -> `目标存在性` -> `去 text must 对照`。
 - 字段不明确或 DSL 报错时再查 `_mapping`。
-- 取证方式：仅 `scripts/es_proxy_query.py`（中立云控制台代理 API）；禁止 Playwright 页面操作，禁止 `curl` 直连 ES。
+- 取证方式：仅 `scripts/es_proxy_query.py`；`sit/uat` 走 Kibana Dev Tools `console proxy`，`prod` 走中立云控制台 `requestEs`。禁止 Playwright 页面操作，禁止 `curl` 直连 ES。
+- 生产环境没有 Kibana/ELK 查询 ES 实际内容的权限，不得把 prod ES 数据查询退回到 ELK 地址。
 
 ## 自动化注意事项
 
 - 若浏览器 cookie 失效或代理接口返回未登录/无权限，先让用户在浏览器重新登录控制台，再重跑脚本。
 - 多次执行 DSL 时，强制记录 `path/method/body` 与响应摘要，避免把不同查询结果混用。
+- 若 prod 中立云 `request_proxy_url` 仍是占位，属于 skill 维护态未完成；可在维护阶段用 Playwright 抓 Network 后写入本地 `env-config.local.*`，正常排查阶段不得临时打开页面点击查询。

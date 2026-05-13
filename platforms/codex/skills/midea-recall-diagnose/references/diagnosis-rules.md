@@ -11,7 +11,8 @@
 - 首条 KQL 必须是 `requestId + targetId + TRACE_TARGET_ES` 精确匹配，禁止 `*` 通配与降级查询。
 - `TRACE_TARGET_ES` 只会在 `traceTargetIds` 非空时出现；若原始请求 `traceTargetIds=[]`，优先判定为“未完成带 trace 的复现”，应回放并注入 `targetIds`。
 - ELK 取证仅允许 `scripts/elk_api_query.py`（Kibana API）；禁止 Playwright 页面查询 ELK。
-- ES 取证仅允许 `scripts/es_proxy_query.py`（中立云控制台代理 API）；禁止 Playwright 页面查询 ES，禁止 `curl` 直连 ES（`keyword` 回放除外）。
+- ES 取证仅允许 `scripts/es_proxy_query.py`；`sit/uat` 走 Kibana Dev Tools `console proxy`，`prod` 走中立云控制台 `requestEs`。禁止 Playwright 页面查询 ES，禁止 `curl` 直连 ES（`keyword` 回放除外）。
+- 生产 ES 实际内容查询不得退回 ELK/Kibana 地址；缺真实中立云代理地址时输出配置阻塞，而不是误判为索引无数据。
 - 仅召回阶段问题进入 ES。
 - ES 取证前必须先按 `requestDsl/targetUrl` 解析到唯一控制台地址；若命中共享索引歧义，可再用 `sourceSystem` 消歧，仍失败则阻断。
 - 真实格式已核对：`phase=request` 带 `requestDsl=...`；`phase=response` 带 `isError/tookMs/returnedHitCount/totalHitCount`；`targetUrl` 带 `[cluster=N]` 时优先按集群路由。

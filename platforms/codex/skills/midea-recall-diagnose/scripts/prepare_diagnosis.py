@@ -68,6 +68,16 @@ def load_json_payload(args: argparse.Namespace) -> Dict[str, Any]:
             raise SystemExit(
                 f"invalid JSON in --input file {input_path} at line {exc.lineno}, column {exc.colno}: {exc.msg}"
             ) from exc
+    cli_only_fields = (
+        args.env,
+        args.target_type,
+        args.target_id,
+        args.request_id,
+        args.source_system,
+        args.request_dsl,
+    )
+    if any(cli_only_fields):
+        return {}
     if not sys.stdin.isatty():
         try:
             return ensure_dict(json.load(sys.stdin), "root")
@@ -99,6 +109,11 @@ def clean_str(value: Any) -> Optional[str]:
         return None
     text = str(value).strip()
     return text or None
+
+
+def contains_placeholder(value: Any) -> bool:
+    text = clean_str(value)
+    return not text or "<" in text or ">" in text
 
 
 def merge_unique(*groups: Iterable[str]) -> List[str]:
@@ -514,7 +529,18 @@ def resolve_es_console_route(
         raise SystemExit(f"envConfig.es_console.cluster_routes.{cluster_name}.page_url is required")
 
     resolved_route: Dict[str, Any] = {"cluster": cluster_name, "page_url": page_url}
-    for key in ("cluster_alias", "instance_id", "region_id", "zone", "request_proxy_url"):
+    for key in (
+        "cluster_alias",
+        "instance_id",
+        "region_id",
+        "zone",
+        "transport",
+        "console_base_url",
+        "console_proxy_url",
+        "request_proxy_url",
+        "cookie_browser",
+        "cookie_domain",
+    ):
         value = clean_str(route.get(key))
         if value:
             resolved_route[key] = value
@@ -525,9 +551,25 @@ def resolve_es_console_route(
     if matched_cluster_token:
         resolved_route["matched_cluster_token"] = matched_cluster_token
 
-    common_proxy = clean_str(es_console.get("request_proxy_url"))
-    if common_proxy and "request_proxy_url" not in resolved_route:
-        resolved_route["request_proxy_url"] = common_proxy
+    for key in (
+        "transport",
+        "console_base_url",
+        "console_proxy_url",
+        "request_proxy_url",
+        "cookie_browser",
+        "cookie_domain",
+    ):
+        value = clean_str(es_console.get(key))
+        if value and key not in resolved_route:
+            resolved_route[key] = value
+
+    proxy_url = clean_str(resolved_route.get("request_proxy_url"))
+    if not proxy_url:
+        resolved_route["request_proxy_url_status"] = "missing"
+    elif contains_placeholder(proxy_url):
+        resolved_route["request_proxy_url_status"] = "placeholder"
+    else:
+        resolved_route["request_proxy_url_status"] = "configured"
 
     return resolved_route
 
