@@ -10,39 +10,7 @@ notify = ["/bin/zsh", "-lc", "CODEX_NOTIFY_DEBUG=1 /usr/bin/python3 \"$HOME/.cod
 # 30 minutes (1800000 ms) stream idle timeout for long-running sessions.
 stream_idle_timeout_ms = 1800000
 
-# 使用 $HOME 变量，跨机器迁移时无需替换用户名。
-[projects."$HOME/IdeaProjects/rag-recall"]
-trust_level = "trusted"
-
-[projects."$HOME/PycharmProjects/rag-recall-agentic"]
-trust_level = "trusted"
-
-[projects."$HOME"]
-trust_level = "untrusted"
-
-[projects."$HOME/.codex"]
-trust_level = "untrusted"
-
-[projects."$HOME/Documents/personal project"]
-trust_level = "trusted"
-
-[projects."$HOME/Documents/Meowar"]
-trust_level = "trusted"
-
-[projects."$HOME/Documents/STT"]
-trust_level = "trusted"
-
-[projects."$HOME/Documents/技术委员会例会"]
-trust_level = "trusted"
-
-[projects."$HOME/IdeaProjects/rag-flow"]
-trust_level = "trusted"
-
-[projects."$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Sam's"]
-trust_level = "trusted"
-
-[projects."$HOME/IdeaProjects/all-my-ai-needs"]
-trust_level = "trusted"
+# [projects] 信任配置(含个人项目路径)由 Codex 在各设备本地维护，不纳入公开仓库。
 
 [notice]
 hide_rate_limit_model_nudge = true

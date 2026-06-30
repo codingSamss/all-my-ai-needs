@@ -105,7 +105,8 @@
   - `git grep -nEI "AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|sk-[A-Za-z0-9]{20,}|PLAYWRIGHT_MCP_EXTENSION_TOKEN\\s*=\\s*\"[^<\\\"]+\"|x-api-key\\s*[:=]\\s*\"[^<\\\"]+\""`
   - `git ls-files | rg "/references/.*\\.local\\.|/references/.*\\.xlsx$" || true`
   - `git ls-files -o --exclude-standard | rg "/references/.*\\.local\\.|/references/.*\\.xlsx$" || true`
-  - `rg -n "[a-z0-9.-]+\\.midea\\.com|\\binstance_id\\b\\s*[:=]\\s*[0-9]+" . --glob '!**/.git/**' --glob '!AGENTS.md' --glob '!platforms/codex/AGENTS.md' || true`
+  - 私有敏感模式扫描（敏感模式定义在本地私有规则 `.secrets-patterns.local`，不在公开仓库列举；规则文件缺失时必须明确提示，不可静默当通过）：
+    `if [ -f .secrets-patterns.local ]; then rg -nf .secrets-patterns.local . --glob '!**/.git/**' || true; else echo "[提示] 未配置 .secrets-patterns.local（各设备自建），私有敏感模式未扫描"; fi`
 - diff 完整性检查：
   - `git diff --check && git diff --cached --check`
 - 删除后残留引用检查：
@@ -130,7 +131,7 @@
 - Claude 平台 skill 脚本链路：通过 `./setup.sh` 将 `platforms/claude/skills` 应用到本地 Claude 根目录。
 - Codex 平台 skill 日常同步链路：`platforms/codex/skills/<skill>` -> AI 手工 diff -> `~/.codex/skills/<skill>`（最小文件集）。
 - Codex 平台 skill 脚本链路：`platforms/codex/skills` -> `~/.codex/skills`（`./scripts/sync_to_codex.sh`，主要用于 bootstrap / 灾备）。
-- Codex root 受管配置同步链路：`platforms/codex/{AGENTS.md,agents,bin,hooks,scripts,rules}` -> `~/.codex/...`。
+- Codex root 受管配置同步链路：`platforms/codex/{agents,bin,hooks,scripts,rules}` -> `~/.codex/...`（个人全局指令走私有配置叠加，不入公开仓库）。
 - Codex `config.toml` 为显式 opt-in 同步项，不包含在日常 `syncctl --scope all` 中。
 - 推送 GitHub 前必须获得用户明确确认，不允许自动推送。
 - 当用户要求“同步仓库内容”“提交”“推送”或说“看下本地跟仓库有什么内容需要同步的”时：默认先执行同步检查（`syncctl check` 或对应 check 命令）并输出汇总；若本地有值得保留的新内容，先提示同步回仓库，再等待用户审批后继续执行写入动作。
@@ -138,9 +139,31 @@
 - 当处理 `all-my-ai-needs` 的同步任务时，无论方向是“本地运行目录 -> 仓库”还是“仓库 -> 本地运行目录”，任务结束时都必须向用户明确列出同步内容清单；至少包含：新增、更新、删除、跳过/未同步项。
 - 当本次改动触发 README 维护条件时：先检查根 `README.md` 与受影响平台 README 是否需要同步更新；若无需更新，需明确说明原因后再继续提交或推送。
 
-## 安全与配置建议
+## 公开仓库安全基线
 
-- 禁止提交密钥、令牌和机器私有配置。
+本仓库为公开仓库，任何设备切换到此仓库、用 agent 提交时，提交前必须满足以下基线：
+
+- 提交身份必须用公开 handle 与 GitHub noreply 邮箱；禁止真实姓名、雇主邮箱或个人常用邮箱进入 git author；提交前确认 `git config user.email` 为 noreply 形式。
+- 禁止提交真实个人或环境配置：真实 `config.toml` 的 `[projects]`、`.mcp.json` 真实 server 与端点、`*.local.*`、设备 profile、本地绝对路径、内部服务地址、凭据与 token；公开侧只用 `.example`、占位符或虚构样例。
+- 占位符统一用抽象命名：`<PRIVATE_CONFIG_ROOT>`、`<DEVICE_PROFILE>`、`<INTERNAL_ENDPOINT>`、`<COMPANY_DOMAIN>`、`<REAL_NAME>`；举例只用保留域名 `example.com`、`example.internal`、`user@example.com`。
+- Skill 必须参数化个人差异：不得硬编码用户名、设备名、Vault 路径、公司域名、内部服务地址或真实项目路径，一律用环境变量、占位符或本地配置注入。
+- 泄露风险三档：身份信息、凭据、内网域名与 API、真实运行配置一律阻断；能拼出「组织＋人＋业务」画像的名称默认移除；纯通用技术名低风险容忍。
+- 本基线与扫描规则本身也不得泄露：用抽象类别词描述，不在公开仓库列举真实公司词、项目词、内部域名或历史事故细节；具体敏感模式定义在本地私有规则文件 `.secrets-patterns.local`（不入仓）。
+
+## 提交前安全自查（agent 每次提交必跑）
+
+1. `git diff` 与 `git diff --cached` 逐项过目，确认无「仅本机才有的东西」：本地路径、个人或公司项目名、已连服务、设备名、内网地址。
+2. 跑「提交前隐私与一致性门禁」的扫描命令（含本地私有规则 `.secrets-patterns.local`）。
+3. 确认 `git config user.email` 为 noreply。
+4. 禁止 `git add .` 盲提交；只 stage 确认可公开的文件。
+5. 命中任何敏感项，先改写为占位符或移出仓库再提交。
+
+## 个人配置不入仓
+
+本仓库只管理通用 skill 与同步脚手架。个人全局配置（Codex `config.toml`、全局 `AGENTS.md` 与 `CLAUDE.md`、`.mcp.json` 真实鉴权等）由各设备在本地运行目录（`~/.codex`、`~/.claude`）自行维护，不纳入本仓库，也不由同步脚本回写；公开侧涉及配置只保留占位符 example。
+
+## 配置与代理
+
 - 凭据统一使用环境变量注入。
 - 访问 GitHub 相关资源时默认使用本地代理：
   - `HTTP_PROXY=http://127.0.0.1:7897`

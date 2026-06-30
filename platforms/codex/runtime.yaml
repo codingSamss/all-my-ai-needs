@@ -27,8 +27,6 @@ skill_runtime_contract:
     - skill 级 runtime.yaml 只保留在 repo，不进入 ~/.codex/skills/<skill>/ 或 ~/.codex 根目录
 
 managed_root_paths:
-  - source: AGENTS.md
-    target: ~/.codex/AGENTS.md
   - source: agents/
     target: ~/.codex/agents/
   - source: hooks/
@@ -43,8 +41,8 @@ managed_root_paths:
 global_files:
   - source: config.toml
     target: ~/.codex/config.toml
-    mode: opt-in-sync
-    note: 默认不覆盖本机版本；同步或提交前由读取仓库的 AI 比较本地与仓库差异，再决定是否回写
+    mode: local-managed
+    note: config.toml（含 [projects]、provider 等本机状态）由各设备本地维护，仓库不同步、不覆盖本机；仓库版仅作去敏后的参考
 
 dependencies:
   commands:

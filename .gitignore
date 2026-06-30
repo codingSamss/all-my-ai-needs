@@ -12,3 +12,6 @@ __pycache__/
 # tables stay local; repo keeps placeholder templates only).
 **/references/*.local.*
 **/references/*.xlsx
+
+# 本地私有敏感模式规则（供提交前扫描使用），不入公开仓库
+.secrets-patterns.local

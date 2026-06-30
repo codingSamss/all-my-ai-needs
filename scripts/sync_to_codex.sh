@@ -19,9 +19,8 @@ MANAGED_ROOT_DIRS=(
   "rules"
   "bin"
 )
-MANAGED_ROOT_FILES=(
-  "AGENTS.md"
-)
+# 个人全局指令 AGENTS.md 不纳入仓库同步（各设备本地维护）
+MANAGED_ROOT_FILES=()
 
 usage() {
   cat <<'USAGE'
@@ -31,21 +30,20 @@ usage() {
   ./scripts/sync_to_codex.sh --yes
   ./scripts/sync_to_codex.sh --skills-only
   ./scripts/sync_to_codex.sh --root-only
-  ./scripts/sync_to_codex.sh --sync-config
+  ./scripts/sync_to_codex.sh --sync-config   # 已废弃：config.toml 改为各设备本地维护
   ./scripts/sync_to_codex.sh --codex-home /path/to/.codex
 
 说明:
   默认同步到：
   - platforms/codex/skills -> ~/.codex/skills
-  - ~/.codex/{AGENTS.md,agents,hooks,scripts,rules,bin}
-  - 默认不覆盖 ~/.codex/config.toml（可用 --sync-config 显式启用）
+  - ~/.codex/{agents,hooks,scripts,rules,bin}
+  - 不覆盖 ~/.codex/config.toml（含 [projects] 等本机状态，由各设备本地维护）
 
   目录内每个 skill 必须包含 SKILL.md
   skill 级 runtime.yaml 保留在 repo，不会下发到 ~/.codex/skills
   repo-only 备份资产（如 bird-twitter/vendor）不会下发到 ~/.codex/skills
   所有同步均为增量模式（保留目录外未托管内容）
-  使用 --sync-config 同步 root/config.toml 时会保留本地 MCP 敏感配置（鉴权字段、env token/key）
-  避免覆盖本机 secret
+  --sync-config 已废弃：config.toml（含 [projects]、provider）改为各设备本地维护，不再同步或覆盖本机
   覆盖确认支持交互；非交互默认跳过覆盖。可用 --yes 自动覆盖
 USAGE
 }
@@ -465,15 +463,11 @@ if [ "$SYNC_ROOT" = "true" ]; then
     sync_dir_incremental "$PLATFORM_ROOT/$rel_dir" "$CODEX_HOME_DIR/$rel_dir" "root/$rel_dir"
   done
 
-  for rel_file in "${MANAGED_ROOT_FILES[@]}"; do
-    sync_file_incremental "$PLATFORM_ROOT/$rel_file" "$CODEX_HOME_DIR/$rel_file" "root/$rel_file"
-  done
-
+  # 个人全局指令 AGENTS.md 与 config.toml（含 [projects]）由各设备本地维护，仓库不回写、不覆盖本机。
   if [ "$SYNC_CONFIG" = "true" ]; then
-    sync_file_incremental "$PLATFORM_ROOT/config.toml" "$CODEX_HOME_DIR/config.toml" "root/config.toml"
-  else
-    echo "[跳过] root/config.toml（默认不覆盖本机配置；可用 --sync-config 启用）"
+    echo "[警告] --sync-config 已废弃：config.toml 现由各设备本地维护，未做任何同步或覆盖。" >&2
   fi
+  echo "[跳过] root/AGENTS.md、root/config.toml（由各设备本地维护）"
 fi
 
 echo ""

@@ -22,7 +22,6 @@ all-my-ai-needs/
 ├── scripts/
 └── platforms/
     ├── claude/
-    │   ├── CLAUDE.md
     │   ├── .claude-plugin/plugin.json
     │   ├── .mcp.json
     │   ├── runtime.yaml
@@ -30,7 +29,6 @@ all-my-ai-needs/
     │   ├── hooks/
     │   └── agents/
     └── codex/
-        ├── AGENTS.md
         ├── config.toml
         ├── runtime.yaml
         ├── skills/
@@ -94,6 +92,10 @@ description: "包含触发关键词的描述"
    - `git grep -nE "playwright/scripts/playwright_cli\\.sh|playwright/references/cli\\.md|playwright/references/workflows\\.md|\\$PWCLI\\b|@playwright/cli\\b" || true`
 4. 平台一致性检查：
    - 同名 skill 若在多个平台都存在，必须确认语义是否仍然符合各自平台约定
+
+## 安全基线
+
+本仓库为公开仓库。Claude 处理同步、提交、生成 skill 或配置示例时，必须遵守根 `AGENTS.md` 的「公开仓库安全基线」与「提交前安全自查」：不提交真实身份、真实环境配置、内部服务信息或未参数化的个人路径；提交身份用 noreply；个人配置由各设备本地自管，不入仓。
 
 ## 通用约定
 

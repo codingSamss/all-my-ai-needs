@@ -81,20 +81,7 @@ syncctl_adapter_claude_collect_tasks() {
         syncctl_add_task "$tasks_file" "$task_id" "$platform" "$direction" "root" "$rel" "rsync_dir" "$src" "$dst" "never" "$base_excludes" "claude root/$rel" ""
       fi
     done
-
-    if [ "$direction" = "repo-to-local" ]; then
-      src="$repo_root/CLAUDE.md"
-      dst="$local_root/CLAUDE.md"
-    else
-      src="$local_root/CLAUDE.md"
-      dst="$repo_root/CLAUDE.md"
-    fi
-    task_id="$(syncctl_next_task_id)"
-    if [ ! -f "$src" ]; then
-      syncctl_add_task "$tasks_file" "$task_id" "$platform" "$direction" "root" "CLAUDE.md" "skip" "-" "-" "never" "" "claude root/CLAUDE.md" "source_missing:$src"
-    else
-      syncctl_add_task "$tasks_file" "$task_id" "$platform" "$direction" "root" "CLAUDE.md" "rsync_file" "$src" "$dst" "never" "$base_excludes" "claude root/CLAUDE.md" ""
-    fi
+    # CLAUDE.md（个人全局指令）由各设备本地维护，不纳入仓库同步
   fi
 
   if syncctl_scope_includes "$scope" "config"; then

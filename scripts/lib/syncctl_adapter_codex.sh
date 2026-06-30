@@ -107,31 +107,14 @@ syncctl_adapter_codex_collect_tasks() {
         syncctl_add_task "$tasks_file" "$task_id" "$platform" "$direction" "root" "$rel" "rsync_dir" "$src" "$dst" "never" "$base_excludes" "codex root/$rel" ""
       fi
     done
-
-    if [ "$direction" = "repo-to-local" ]; then
-      src="$repo_root/AGENTS.md"
-      dst="$local_root/AGENTS.md"
-    else
-      src="$local_root/AGENTS.md"
-      dst="$repo_root/AGENTS.md"
-    fi
-    task_id="$(syncctl_next_task_id)"
-    if [ ! -f "$src" ]; then
-      syncctl_add_task "$tasks_file" "$task_id" "$platform" "$direction" "root" "AGENTS.md" "skip" "-" "-" "never" "" "codex root/AGENTS.md" "source_missing:$src"
-    else
-      syncctl_add_task "$tasks_file" "$task_id" "$platform" "$direction" "root" "AGENTS.md" "rsync_file" "$src" "$dst" "never" "$base_excludes" "codex root/AGENTS.md" ""
-    fi
+    # AGENTS.md（个人全局指令）由各设备本地维护，不纳入仓库同步
   fi
 
-  # config.toml is opt-in for Codex because it can overwrite live global config.
+  # config.toml（含 [projects]、provider 等本机状态）由各设备本地维护，仓库不回写也不覆盖本机。
   if [ "$scope" = "config" ]; then
     local task_id
     task_id="$(syncctl_next_task_id)"
-    if [ "$direction" = "repo-to-local" ]; then
-      syncctl_add_task "$tasks_file" "$task_id" "$platform" "$direction" "config" "config.toml" "codex_config" "$repo_root/config.toml" "$local_root/config.toml" "never" "" "codex config.toml" "preserve_mcp_sensitive"
-    else
-      syncctl_add_task "$tasks_file" "$task_id" "$platform" "$direction" "config" "config.toml" "skip" "-" "-" "never" "" "codex config.toml" "local_to_repo_forbidden"
-    fi
+    syncctl_add_task "$tasks_file" "$task_id" "$platform" "$direction" "config" "config.toml" "skip" "-" "-" "never" "" "codex config.toml" "local_managed"
   fi
 }
 

@@ -27,8 +27,6 @@ skill_runtime_contract:
     - skill 级 runtime.yaml 只保留在 repo，不进入 ~/.claude/skills/<skill>/ 或 ~/.claude 根目录
 
 managed_root_paths:
-  - source: CLAUDE.md
-    target: ~/.claude/CLAUDE.md
   - source: agents/
     target: ~/.claude/agents/
   - source: hooks/
