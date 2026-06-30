@@ -17,23 +17,19 @@ from typing import Any
 MARK_START = "<!-- SESSION_SUMMARY_AUTO_START -->"
 MARK_END = "<!-- SESSION_SUMMARY_AUTO_END -->"
 
+# Vault 真实路径由环境变量 OBSIDIAN_VAULT_ROOT 注入；以下默认值仅为占位，不硬编码个人 Vault 名
 DEFAULT_VAULT_ROOT = os.environ.get(
     "OBSIDIAN_VAULT_ROOT",
-    str(Path.home() / "Library/Mobile Documents/iCloud~md~obsidian/Documents/Sam's"),
+    str(Path.home() / "Library/Mobile Documents/iCloud~md~obsidian/Documents/ObsidianVault"),
 )
 DEFAULT_DIARY_DIR = "01_日记"
 DEFAULT_TEMPLATE_NAME = "_日记模板.md"
 DEFAULT_SECTION_TITLE = "会话总结（自动）"
 DEFAULT_SOURCES = ("codex", "claude")
 
-DEFAULT_EXCLUDE_CWD = ["rag-flow", "rag-recall", "ragflow", "ragrecall"]
-DEFAULT_EXCLUDE_PATH = [
-    "rag-flow",
-    "rag-recall",
-    "ragflow",
-    "ragrecall",
-    "/subagents/",
-]
+# 真实项目排除名不硬编码进公开仓库；由 references/excludes.json 或 --exclude-config 注入，以下仅留通用兜底
+DEFAULT_EXCLUDE_CWD = []
+DEFAULT_EXCLUDE_PATH = ["/subagents/"]
 DEFAULT_LIMITS = {
     "max_user_messages_per_session": 60,
     "max_commands_per_session": 80,

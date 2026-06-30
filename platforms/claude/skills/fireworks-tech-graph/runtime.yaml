@@ -24,7 +24,7 @@ origin:
   ref: 8925283897d1281e3f12d68b67ad5f9ac7db1820
   license: MIT
   local_adaptations:
-    - Claude runtime install keeps platform behavior from platforms/claude/setup/core.sh, including skipping skill-local agents/ when syncing to ~/.claude/skills.
+    - Claude runtime install skips the skill-local agents/ directory when syncing to ~/.claude/skills.
 
 dependencies:
   commands:

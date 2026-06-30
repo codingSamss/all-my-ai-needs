@@ -2,33 +2,22 @@
 
 `platforms/codex` 是 Codex 平台专属真源。这个 README 负责展示当前 Codex agent 的完整能力与同步方式。仓库按 `platform-first` 维护：Codex 只关心 `platforms/codex` 下的内容，不再依赖 `shared/skills/`。
 
-## 同步入口
+## 同步方式
 
-```bash
-./scripts/syncctl.sh check --direction repo-to-local --platform codex --scope all
-./scripts/syncctl.sh apply --plan-id <plan_id> --approve-token <token>
-./scripts/sync_to_codex.sh
-./scripts/sync_to_codex.sh --dry-run
-./scripts/sync_to_codex.sh --sync-config
-```
+仓库不提供同步脚本；由 AI agent 拉仓库后执行：
 
-说明：
-
-- `syncctl` 是日常入口：默认最小同步口径，支持 `check -> apply` 两阶段令牌审批
-- 处理同步/提交/推送请求时，若用户只给目标未明确授权写入（例如“看下本地跟仓库有什么内容需要同步的”），默认先执行 `check` 并汇总，待用户审批后再执行 `apply` / `commit` / `push`
-- 默认同步 `platforms/codex/skills/` 与受管 root 配置到 `~/.codex`
-- `syncctl --scope all` 不包含 `config.toml`；只有显式 `--scope config` 才会检查 config 差异
-- `config.toml` 默认不覆盖本机，仅在显式 `--sync-config` 或 `syncctl --scope config` apply 时同步
-- `--sync-config` 覆盖 `config.toml` 时会保留本地 MCP 敏感配置
+- 读 `platforms/codex/skills.meta.yaml` 与 `skills/` 真源，与 `~/.codex/skills` 做最小差异 diff 后落盘
+- 处理同步/提交/推送请求时，若用户只给目标未明确授权写入（例如“看下本地跟仓库有什么需要同步的”），默认先汇总差异，待用户审批后再写入
+- 只下发 skill 最小文件集，不下发 `runtime.yaml`、`skills.meta.yaml` 等治理元数据
+- `config.toml`、`agents`/`hooks`/`scripts`/`bin` 等运行件由各设备本地自管，不入仓也不由仓库回写
 - `~/.codex/skills` 保留 `.system` 与本地未托管技能
-- 日常同步优先由 AI 做最小差异落盘，不直接跑脚本镜像
 
 ## Skill 同步分层
 
 `platforms/codex/skills.meta.yaml` 为每个 skill 标注 `scope`（core / project / manual-only）与项目类型 `profile`，供 agent 决定下发范围。该 manifest 是 repo-only 治理元数据，不下发到 `~/.codex`。
 
 - scope / profile 定义、成员清单与 agent 同步剧本见根目录 [PROFILES.md](../../PROFILES.md)
-- 改动 skill（新增 / 删除 / 重命名）后，先更新 `skills.meta.yaml`，再运行 `bash scripts/skills_meta_audit.sh` 校验 manifest 与目录一致
+- 改动 skill（新增 / 删除 / 重命名）后，先更新 `skills.meta.yaml`，再由 agent 核对 manifest 与目录一致
 
 ## 当前 Skills
 
@@ -58,9 +47,9 @@
 
 ## 平台能力资产
 
-- 受管 root 配置：`AGENTS.md`、`agents/`、`bin/`、`hooks/`、`scripts/`、`rules/`
-- `./scripts/sync_to_codex.sh` 负责在 bootstrap / 灾备场景下把 `platforms/codex` 应用到 `~/.codex`
-- `platforms/codex/config.toml` 默认不自动覆盖本机 `~/.codex/config.toml`，日常全量 `syncctl --scope all` 也不会隐式覆盖
+- 运行件（`agents`/`bin`/`hooks`/`scripts`、`AGENTS.md`、`config.toml`）由各设备本地自管，不入仓
+- skill 同步由 AI agent 拉仓库后做最小差异 diff 落到 `~/.codex/skills`
+- `platforms/codex/config.toml` 仅作去敏参考，由各设备本地自管，仓库不覆盖本机
 - `platforms/codex/config.toml` 已启用 Codex Chrome 插件；`playwright-ext` 保留配置但默认 `enabled = false`
 - skill 若需要依赖、手动步骤、验证命令，统一写入 repo 中对应 skill 目录下的 `runtime.yaml`
 - 平台级 `platforms/codex/runtime.yaml` 仅用于仓库内 AI 理解迁移规则，不会同步到 `~/.codex` 根目录

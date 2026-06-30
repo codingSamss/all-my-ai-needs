@@ -4,7 +4,7 @@ plan_mode_reasoning_effort = "xhigh"
 sandbox = "danger-full-access"
 personality = "pragmatic"
 sandbox_mode = "danger-full-access"
-notify = ["/bin/zsh", "-lc", "CODEX_NOTIFY_DEBUG=1 /usr/bin/python3 \"$HOME/.codex/bin/codex-notify.py\""]
+# notify 脚本由各设备本地维护，仓库不提供；本机如需启用，在本地 config.toml 自行配置 notify
 
 [model_providers.openai]
 # 30 minutes (1800000 ms) stream idle timeout for long-running sessions.

@@ -1,6 +1,6 @@
 ---
 name: orbit-session-diary
-description: "Use local Codex/Claude JSONL logs as evidence, then produce a human-written daily diary summary and write it into Obsidian. Keep directory filtering (for example rag-flow/rag-recall) and avoid mechanical script-style output."
+description: "Use local Codex/Claude JSONL logs as evidence, then produce a human-written daily diary summary and write it into Obsidian. Keep directory filtering (configurable per-project exclude list) and avoid mechanical script-style output."
 ---
 
 # Orbit Session Diary Skill
@@ -19,7 +19,7 @@ SCRIPT="$CODEX_HOME/skills/orbit-session-diary/scripts/session_diary.py"
 1. 自动读取当天会话：
    - `~/.codex/sessions/YYYY/MM/DD/*.jsonl`
    - `~/.claude/projects/**/*.jsonl`
-2. 默认排除 `rag-flow` / `rag-recall`（可在 `references/excludes.json` 扩展）。
+2. 排除目录在 `references/excludes.json` 配置（真实项目名由本地填写，不入仓）。
 3. 默认日记路径为：`01_日记/YYYY-MM/YYYY-MM-DD.md`（按月份归档）。
 4. 若用户未显式提供路径，默认写入上述配置路径，不需要二次询问路径确认。
 5. 先运行脚本提取“原始会话索引”（`output-mode=evidence`），索引里必须包含 `session_id / cwd / jsonl 文件路径 / 原话片段`。
@@ -106,7 +106,7 @@ python3 "$SCRIPT" --date 2026-02-26
 
 ```bash
 python3 "$SCRIPT" \
-  --vault-root "$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Sam's" \
+  --vault-root "$OBSIDIAN_VAULT_ROOT" \
   --date 2026-02-26
 ```
 

@@ -26,15 +26,8 @@ skill_runtime_contract:
     - platform 必须固定为 codex，避免跨平台说明混入
     - skill 级 runtime.yaml 只保留在 repo，不进入 ~/.codex/skills/<skill>/ 或 ~/.codex 根目录
 
-managed_root_paths:
-  - source: agents/
-    target: ~/.codex/agents/
-  - source: hooks/
-    target: ~/.codex/hooks/
-  - source: scripts/
-    target: ~/.codex/scripts/
-  - source: bin/
-    target: ~/.codex/bin/
+# 仓库只管 skill；agents/hooks/scripts/bin 等运行件与 config.toml 由各设备本地自管，不入仓
+managed_root_paths: []
 
 global_files:
   - source: config.toml
@@ -50,8 +43,8 @@ dependencies:
     - MCP 配置由仓库维护，但真实 token、headers、登录态仍需本机手动补齐
 
 manual_steps:
-  - 执行同步、提交、推送前，由读取仓库的 AI 比较 ~/.codex 与仓库受管全局配置的差异
+  - 提交、推送前，由读取仓库的 AI 比较 ~/.codex/skills 与仓库 skill 真源的差异
   - 若本地有值得保留的新内容，先同步回仓库再继续；忽略 secrets、占位符和运行态噪音
 
 verify:
-  - ./scripts/sync_to_codex.sh --dry-run
+  - 由 AI 比对 platforms/codex/skills 与 ~/.codex/skills 差异，确认最小文件集一致

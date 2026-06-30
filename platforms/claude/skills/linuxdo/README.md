@@ -24,24 +24,6 @@
 | 搜索 | RSS 关键词匹配 | search.json 全文搜索 |
 | 受限内容 | 无法访问 | Chrome Cookie 可访问 |
 
-## 配置命令
-
-```bash
-./setup.sh linuxdo
-# 或直接执行
-platforms/claude/skills/linuxdo/setup.sh
-```
-
-## 配置脚本行为
-
-- 退出码：`0` 自动完成，`2` 需手动补齐，`1` 执行失败
-- 自动检查项：
-  - Python3 是否可用（缺失时尝试 `brew install python3`）
-  - scripts/ 同步到 `~/.claude/skills/linuxdo/scripts/`
-  - Chrome Cookies 数据库是否存在
-  - linux.do API 可达性（含代理回退）
-  - Chrome Cookie 认证测试（非阻塞，失败仍允许访问公开内容）
-
 ## 验证命令
 
 ```bash

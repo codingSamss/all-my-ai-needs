@@ -12,27 +12,6 @@
 2. 走 Discourse JSON API（`latest.json` / `top.json` / `search.json` / `t/{id}.json` / `categories.json`）
 3. 自动降级 `urllib + curl` 双通道请求并处理 Cloudflare challenge
 
-## 配置命令
-
-```bash
-./setup.sh linuxdo
-# 或直接执行
-platforms/codex/skills/linuxdo/setup.sh
-```
-
-## 配置脚本行为
-
-- 退出码：`0` 自动完成，`2` 需手动补齐，`1` 执行失败
-- 自动检查项：
-  - Python3 可用性
-  - `linuxdo.py` 存在与可执行
-  - `linux.do` API 可达性（含代理）
-  - Chrome Cookie 认证（非阻塞检查）
-- 需手动补齐项：
-  - 无 Homebrew 且缺少 Python3
-  - 无 Chrome Cookie 数据库（未登录或未安装 Chrome）
-  - 网络不可达（需修复代理或网络）
-
 ## 验证命令
 
 ```bash

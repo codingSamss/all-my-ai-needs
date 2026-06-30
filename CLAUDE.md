@@ -18,25 +18,19 @@ all-my-ai-needs/
 ├── AGENTS.md
 ├── CLAUDE.md
 ├── README.md
-├── setup.sh
-├── scripts/
+├── PROFILES.md
 └── platforms/
     ├── claude/
     │   ├── .claude-plugin/plugin.json
     │   ├── .mcp.json
     │   ├── runtime.yaml
-    │   ├── skills/
-    │   ├── hooks/
-    │   └── agents/
+    │   ├── skills.meta.yaml
+    │   └── skills/
     └── codex/
         ├── config.toml
         ├── runtime.yaml
-        ├── skills/
-        ├── hooks/
-        ├── agents/
-        ├── bin/
-        ├── rules/
-        └── scripts/
+        ├── skills.meta.yaml
+        └── skills/
 ```
 
 ## Skill 文件格式
@@ -62,22 +56,19 @@ description: "包含触发关键词的描述"
 
 本项目按平台同步生效。GitHub 仓库、本地工作区与相关本地运行目录必须保持一致。
 
-同步入口：
-
-- Claude：`./setup.sh`，主要用于 bootstrap / 灾备；日常优先手工 diff
-- Codex：`./scripts/sync_to_codex.sh`，主要用于 bootstrap / 灾备；日常优先手工 diff
+同步方式：仓库不再提供同步脚本；由 AI agent 拉取仓库后，读取各平台 `runtime.yaml` / `skills.meta.yaml`，将 skill 真源手工 diff 后同步到对应运行目录（`~/.claude/skills`、`~/.codex/skills`），只落最小文件集。
 
 运行目录规则：
 
-- `runtime.yaml` 只保留在 repo，不下发到任何运行目录
-- `agents/openai.yaml` 仅在 Codex / OpenAI 风格运行目录确有必要时才保留
+- `runtime.yaml`、`skills.meta.yaml`、`PROFILES.md` 只保留在 repo，不下发到任何运行目录
+- `agents`/`hooks`/`scripts`/`bin`、`config.toml` 等运行件由各设备本地自管，不入仓也不由仓库回写
 
 ## 提交前必检清单
 
-当改动涉及 `platforms/` 下的文件时，禁止直接跳过平台同步检查：
+当改动涉及 `platforms/` 下的文件时：
 
-1. 涉及 `platforms/claude/` 的改动：先执行 `./setup.sh <skill>` 或 `./setup.sh core`
-2. 涉及 `platforms/codex/` 的改动：先执行 `./scripts/sync_to_codex.sh --dry-run`
+1. 由 AI 比对改动的 skill 真源与对应运行目录（`~/.claude/skills`、`~/.codex/skills`）的差异，确认一致
+2. 同名 skill 多平台存在时，确认各平台语义仍符合各自约定
 3. 推送前必须得到用户明确确认
 
 ## 隐私与一致性检查
@@ -102,7 +93,6 @@ description: "包含触发关键词的描述"
 - 默认按平台目录维护，不把“抽象去重”当作首要目标
 - 根 `README.md` 负责仓库级总览；平台 README 负责完整 skill 清单与同步说明
 - skill 简介默认以 `SKILL.md` frontmatter 的 `description` 为准
-- `scripts/` 下脚本应可重复执行、无副作用残留
 - 提交信息遵循 Conventional Commits
 - 每次提交信息正文必须包含 `[更新摘要]`
 - 每次 `git commit` 后必须创建并推送 annotated tag，tag 注释也必须包含 `[更新摘要]`

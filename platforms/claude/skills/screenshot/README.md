@@ -9,25 +9,6 @@
 ## 工作原理
 Skill 调用 `scripts/take_screenshot.py`（跨平台）与 macOS 权限辅助脚本完成截图。
 
-## 配置命令
-
-```bash
-platforms/claude/skills/screenshot/setup.sh
-```
-
-## 配置脚本行为
-
-- 退出码：`0` 自动完成，`2` 需手动补齐，`1` 执行失败
-- 自动检查项：
-  - Python3
-  - `take_screenshot.py --help` 可运行
-  - macOS 下 `screencapture`、`swift`、屏幕录制权限状态
-  - Linux 下 `scrot` / `gnome-screenshot` / `import` 至少一个可用
-- 需手动补齐项：
-  - 没有 Homebrew 且缺少 Python3
-  - macOS 未授予屏幕录制权限
-  - Linux 缺少截图命令
-
 ## 验证命令
 
 ```bash

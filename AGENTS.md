@@ -4,19 +4,18 @@
 
 本仓库采用 `platform-first` 模型：`platforms/claude/`、`platforms/codex/` 各自维护各自的平台真源；允许同名 skill 在不同平台目录并存，不强行去重。`shared/` 不再作为主要组织方式。
 
-- `platforms/claude/`：Claude 的 `skills/`、`agents/`、`hooks/`、`.claude-plugin/` 与安装脚本。
-- `platforms/codex/`：Codex 的 `skills/`、`agents/`、`hooks/`、`scripts/`、`rules/`、`bin/`。
-- 根脚本：`setup.sh`、`scripts/bootstrap.sh`、`scripts/sync_to_codex.sh`。
-- 平台级迁移说明：`platforms/{claude,codex}/runtime.yaml`。
+- `platforms/claude/`：Claude 的 `skills/`、`.claude-plugin/`、`.mcp.json` 模板。
+- `platforms/codex/`：Codex 的 `skills/`、`config.toml` 参考。
+- 治理元数据：`platforms/{claude,codex}/runtime.yaml`、`skills.meta.yaml`、根 `PROFILES.md`。
 - `runtime.yaml` 的字段约定以各平台 `skill_runtime_contract` 为准；平台固定为各自目录对应平台，不再使用 `platform: shared`。
 
-每个技能目录建议包含 `SKILL.md`、`runtime.yaml`；如有确定性脚本或检查，再补 `README.md`、`setup.sh`。其中 Codex 技能必须有 `SKILL.md`。
+每个技能目录建议包含 `SKILL.md`、`runtime.yaml`；如有确定性脚本或检查，再补 `README.md`。其中 Codex 技能必须有 `SKILL.md`。
 
 ## 平台同步策略
 
 - 日常同步默认采用“AI 人工同步 + 差异审阅”，不是直接跑脚本做目录镜像。
-- 差异核对前必须先明确口径并在输出中标注：默认使用“日常最小同步口径”（按平台脚本/运行目录规则过滤 repo-only 文件）；仅在用户明确要求“严格镜像/包含删除”时才使用镜像口径。
-- `setup.sh`、`scripts/sync_to_codex.sh`、`scripts/bootstrap.sh` 仅用于新机初始化、灾备恢复、整个平台重建。
+- 差异核对前必须先明确口径并在输出中标注：默认使用“日常最小同步口径”（按 runtime.yaml / skills.meta.yaml 规则过滤 repo-only 文件）；仅在用户明确要求“严格镜像/包含删除”时才使用镜像口径。
+- 同步由 AI agent 执行：拉仓库后读 `runtime.yaml` / `skills.meta.yaml`，将 skill 真源 diff 后落到运行目录；仓库不再提供同步脚本。
 - `runtime.yaml` 必须留在 repo，**不得**下发到 `~/.claude/skills`、`~/.codex/skills`。
 - `agents/openai.yaml` 仅在 Codex / OpenAI 风格运行目录确有必要时才下发；Claude 默认不带。
 - 内部路由与映射数据不得入仓：本地内部配置（`*.local.*`）、内部系统到集群/索引的映射明细、真实服务路由与端点、集群别名、实例 ID、region/zone 组合、容量类内部表都只能留在本地 ignored 文件中；repo 只允许提交占位符模板（如 `env-config.example.yaml`）。
@@ -30,17 +29,14 @@
 - skill 简介默认以对应 `SKILL.md` frontmatter 的 `description` 为准；README 只做压缩，不另写脱离源文案。
 - 当新增、删除、重命名 skill，修改 `SKILL.md` 的 `description` 或平台归属，调整平台能力资产、同步入口、用户可见行为时，提交或推送前必须检查并同步更新相关 README。
 
-## 构建、测试与开发命令
+## 同步与验证操作
 
-- `./setup.sh list`：列出 Claude 平台可执行配置的技能。
-- `./setup.sh all`：执行 Claude 的核心配置与全部技能配置（bootstrap / 灾备 fallback）。
-- `./setup.sh <skill...>`：仅配置指定 Claude 技能。
-- `./scripts/sync_to_codex.sh --dry-run`：预览 Codex 配置同步结果。
-- `./scripts/sync_to_codex.sh`：同步 `platforms/codex/skills` 与受管 root 配置到 `~/.codex`（bootstrap / 灾备 fallback，默认不覆盖本机 `config.toml`）。
-- `./scripts/sync_to_codex.sh --sync-config`：显式同步 `platforms/codex/config.toml` 到 `~/.codex/config.toml`。
-- `./scripts/syncctl.sh check --direction repo-to-local --platform codex --scope skills`：统一入口做日常最小同步口径检查；Codex `--scope all` 不包含 `config.toml`，config 必须显式 `--scope config`。
-- `./scripts/syncctl.sh apply --plan-id <plan_id> --approve-token <token>`：统一入口执行计划（两阶段审批，`local->repo` 删除默认禁用）。
-- `./scripts/bootstrap.sh all`：新机一次执行 Claude 配置 + Codex 同步。
+仓库不提供同步脚本；下列动作由 AI agent 拉仓库后执行：
+
+- 列出可同步技能：读 `platforms/<platform>/skills.meta.yaml` 与 `skills/` 目录。
+- 同步指定技能：将 `platforms/<platform>/skills/<skill>` 的最小文件集 diff 后落到 `~/.claude/skills` 或 `~/.codex/skills`，不下发 `runtime.yaml` 等治理元数据。
+- 新机初始化 / 灾备：AI 按 `runtime.yaml` 把全部 skill 真源铺到对应运行目录，并按 `.mcp.json` 模板合并 MCP 配置（不覆盖本机鉴权）。
+- 日常优先增量 diff，不做整目录镜像；删除类同步必须用户明确确认。
 
 ## 代码风格与命名约定
 
@@ -72,9 +68,9 @@
 
 仓库未统一使用单一测试框架，变更主要通过可执行校验完成：
 
-- 直接运行受影响的 `setup.sh` 或 `sync_to_codex.sh`。
+- 由 AI 比对受影响 skill 的仓库真源与运行目录差异，确认一致。
 - 用 `codex mcp list` 或 `claude mcp list` 验证 MCP 状态。
-- 涉及同步逻辑时，默认先做 repo 与本地运行目录 diff；只有在 bootstrap / 灾备场景下，才优先跑脚本。
+- 涉及同步逻辑时，由 AI 做 repo 与本地运行目录的 diff，确认最小文件集一致。
 - 执行同步、提交、推送前，先让读取本仓库的 AI 比较本地 `~/.codex`、`~/.claude` 与仓库受管全局配置的差异。
 - 忽略 secrets、占位符和运行态噪音；若本地有值得保留的新内容，先回写仓库。
 
@@ -128,14 +124,11 @@
   - 本地项目目录（仓库工作区）
   - 本地 CLI 根目录（`~/.claude`、`~/.codex`）
 - Claude 平台 skill 日常同步链路：`platforms/claude/skills/<skill>` -> AI 手工 diff -> `~/.claude/skills/<skill>`（最小文件集）。
-- Claude 平台 skill 脚本链路：通过 `./setup.sh` 将 `platforms/claude/skills` 应用到本地 Claude 根目录。
 - Codex 平台 skill 日常同步链路：`platforms/codex/skills/<skill>` -> AI 手工 diff -> `~/.codex/skills/<skill>`（最小文件集）。
-- Codex 平台 skill 脚本链路：`platforms/codex/skills` -> `~/.codex/skills`（`./scripts/sync_to_codex.sh`，主要用于 bootstrap / 灾备）。
-- Codex root 受管配置同步链路：`platforms/codex/{agents,bin,hooks,scripts,rules}` -> `~/.codex/...`（个人全局指令走私有配置叠加，不入公开仓库）。
-- Codex `config.toml` 为显式 opt-in 同步项，不包含在日常 `syncctl --scope all` 中。
+- `agents`/`hooks`/`scripts`/`bin`、`config.toml` 等运行件由各设备本地自管，不入仓也不由仓库回写。
 - 推送 GitHub 前必须获得用户明确确认，不允许自动推送。
-- 当用户要求“同步仓库内容”“提交”“推送”或说“看下本地跟仓库有什么内容需要同步的”时：默认先执行同步检查（`syncctl check` 或对应 check 命令）并输出汇总；若本地有值得保留的新内容，先提示同步回仓库，再等待用户审批后继续执行写入动作。
-- 未获得用户明确审批前，禁止执行会产生写入副作用的命令（例如：`syncctl apply`、`sync_to_codex.sh`、`git add/commit/push`）。
+- 当用户要求“同步仓库内容”“提交”“推送”或说“看下本地跟仓库有什么内容需要同步的”时：默认先由 AI 做差异检查并输出汇总；若本地有值得保留的新内容，先提示同步回仓库，再等待用户审批后继续执行写入动作。
+- 未获得用户明确审批前，禁止执行会产生写入副作用的动作（例如：向运行目录写入同步结果、`git add/commit/push`）。
 - 当处理 `all-my-ai-needs` 的同步任务时，无论方向是“本地运行目录 -> 仓库”还是“仓库 -> 本地运行目录”，任务结束时都必须向用户明确列出同步内容清单；至少包含：新增、更新、删除、跳过/未同步项。
 - 当本次改动触发 README 维护条件时：先检查根 `README.md` 与受影响平台 README 是否需要同步更新；若无需更新，需明确说明原因后再继续提交或推送。
 

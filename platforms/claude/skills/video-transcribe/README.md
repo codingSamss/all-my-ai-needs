@@ -41,31 +41,6 @@
 
 默认使用 Groq API（在线模式），也支持本地 whisper-cpp 作为备选（离线/隐私场景）。
 
-## 配置命令
-
-```bash
-# 默认在线模式（Groq API）
-./setup.sh video-transcribe
-
-# 本地模式
-TRANSCRIBE_MODE=local ./setup.sh video-transcribe
-```
-
-## 配置脚本行为
-
-- 退出码：`0` 自动完成，`2` 需手动补齐，`1` 执行失败
-- 模式选择：通过 `TRANSCRIBE_MODE` 环境变量控制，默认 `groq`
-
-### Groq 模式（默认）
-- 自动检查项：yt-dlp、ffmpeg、`GROQ_API_KEY` 环境变量、Groq API 连通性
-- 需手动补齐项：
-  - 未设置 `GROQ_API_KEY` 时提示申请
-  - 直连 Groq 返回 `403` 且仅代理可通时，需配置代理环境变量
-
-### Local 模式
-- 自动检查项：yt-dlp、ffmpeg、whisper-cpp、Whisper 模型文件
-- 自动处理：缺少模型时自动下载 small 模型（~465MB）
-
 ## 验证命令
 
 ```bash

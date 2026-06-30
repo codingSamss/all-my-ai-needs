@@ -30,10 +30,9 @@ claude mcp list | rg "playwright-ext"
 command -v npx >/dev/null 2>&1
 ```
 
-If `playwright-ext` is missing, sync Claude MCP template first:
+If `playwright-ext` is missing, have the AI merge the MCP template into `~/.claude.json`, then re-check:
 
 ```bash
-./setup.sh core
 claude mcp list | rg "playwright-ext"
 ```
 

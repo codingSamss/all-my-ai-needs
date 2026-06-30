@@ -1,15 +1,6 @@
 {
-  "exclude_cwd_keywords": [
-    "rag-flow",
-    "rag-recall",
-    "ragflow",
-    "ragrecall"
-  ],
+  "exclude_cwd_keywords": [],
   "exclude_path_keywords": [
-    "rag-flow",
-    "rag-recall",
-    "ragflow",
-    "ragrecall",
     "/subagents/"
   ],
   "skip_subagents": true,

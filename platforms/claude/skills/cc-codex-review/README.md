@@ -18,7 +18,7 @@ CC×Codex 交叉讨论技能。不确定性强的问题(事实核查、有争议
 
 ## 前置依赖
 
-- 已配置 `codex` MCP Server(setup.sh 会检查;未配置时给出添加命令)。
+- 已配置 `codex` MCP Server(未配置时需先用 `claude mcp add` / `codex mcp add` 添加)。
 
 ## 设计沿革
 

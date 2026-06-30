@@ -2,34 +2,22 @@
 
 `platforms/claude` 是 Claude 平台专属真源。这个 README 负责展示当前 Claude agent 的完整能力与同步方式。仓库按 `platform-first` 维护：Claude 只关心 `platforms/claude` 下的内容，不再依赖 `shared/skills/`。
 
-## 同步入口
+## 同步方式
 
-```bash
-./scripts/syncctl.sh check --direction repo-to-local --platform claude --scope all
-./scripts/syncctl.sh apply --plan-id <plan_id> --approve-token <token>
-./setup.sh
-./setup.sh list
-./setup.sh <skill-name>
-```
+仓库不提供同步脚本；由 AI agent 拉仓库后执行：
 
-退出码：
-
-- `0`：自动完成
-- `2`：需手动补齐
-- `1`：失败
-
-说明：
-
-- `syncctl` 是日常一致性检查与执行入口（最小同步口径 + 两阶段审批）
-- 处理同步/提交/推送请求时，若用户只说“看下本地跟仓库有什么内容需要同步的”等未授权写入请求，默认先执行 `check` 并汇总，再等待用户审批后执行 `apply` / `commit` / `push`
-- `setup.sh` 主要用于 bootstrap / 灾备 fallback
+- 读 `platforms/claude/skills.meta.yaml` 与 `skills/` 真源，与 `~/.claude/skills` 做最小差异 diff 后落盘
+- 处理同步/提交/推送请求时，若用户只说“看下本地跟仓库有什么需要同步的”等未授权写入请求，默认先汇总差异，待用户审批后再写入
+- 只下发 skill 最小文件集，不下发 `runtime.yaml`、`skills.meta.yaml` 等治理元数据
+- `.mcp.json` 作为 MCP 模板，由 agent 合并缺失项到 `~/.claude.json`，不覆盖本机已有鉴权
+- `agents`/`hooks`/`scripts` 等运行件由各设备本地自管，不入仓也不由仓库回写
 
 ## Skill 同步分层
 
 `platforms/claude/skills.meta.yaml` 为每个 skill 标注 `scope`（core / project / manual-only）与项目类型 `profile`，供 agent 决定下发范围。该 manifest 是 repo-only 治理元数据，不下发到 `~/.claude`。
 
 - scope / profile 定义、成员清单与 agent 同步剧本见根目录 [PROFILES.md](../../PROFILES.md)
-- 改动 skill（新增 / 删除 / 重命名）后，先更新 `skills.meta.yaml`，再运行 `bash scripts/skills_meta_audit.sh` 校验 manifest 与目录一致
+- 改动 skill（新增 / 删除 / 重命名）后，先更新 `skills.meta.yaml`，再由 agent 核对 manifest 与目录一致
 
 ## 当前 Skills
 
@@ -59,8 +47,8 @@
 
 ## 平台能力资产
 
-- 受管内容：`CLAUDE.md`、`skills/`、`agents/`、`hooks/`、`.mcp.json`、`.claude-plugin/`
-- `./setup.sh` 负责在 bootstrap / 灾备场景下把 `platforms/claude` 应用到 `~/.claude`
+- 受管内容：`skills/`、`.mcp.json` 模板、`.claude-plugin/`
+- skill 同步由 AI agent 拉仓库后做最小差异 diff 落到 `~/.claude/skills`；`agents`/`hooks`/`scripts` 等运行件由各设备本地自管，不入仓
 - `platforms/claude/.mcp.json` 已内置 MCP：`playwright-ext`、`chrome-devtools`、`playwright`、`context7`、`tavily`
 - skill 若需要依赖、手动步骤、验证命令，统一写入 repo 中对应 skill 目录下的 `runtime.yaml`
 - 平台级 `platforms/claude/runtime.yaml` 仅用于仓库内 AI 理解迁移规则，不会同步到 `~/.claude` 根目录

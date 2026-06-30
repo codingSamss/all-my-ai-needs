@@ -2,12 +2,12 @@
 
 本文件定义"哪些 skill 该下发到本地运行目录"的策略，供 **agent 解析后驱动同步**、供 **人审校决策**。
 
-机读真源是各平台的 `platforms/<platform>/skills.meta.yaml`；本文件是它的人读视图与操作剧本。两者冲突时，**以 manifest 为准**，并运行 `scripts/skills_meta_audit.sh` 校验。
+机读真源是各平台的 `platforms/<platform>/skills.meta.yaml`；本文件是它的人读视图与操作剧本。两者冲突时，**以 manifest 为准**，由 agent 核对 manifest 与目录一致。
 
 ## 安全铁律
 
 1. **只做正向选择（additive）。** scope / profile 只回答"这次带哪些下发"，绝不用于"不在清单里就删本地 skill"。
-2. **保护本地私有 skill。** 本地可能存在 repo 之外的私有 skill（如 `mx-*`、`midea-*`），它们**永不删除、永不回流仓库**。
+2. **保护本地私有 skill。** 本地可能存在 repo 之外的私有 skill（带私有前缀，不公开），它们**永不删除、永不回流仓库**。
 3. **治理元数据不下发。** `skills.meta.yaml`、`PROFILES.md`、`runtime.yaml` 只留在仓库，**永不进入** `~/.claude`、`~/.codex`。
 4. **分类不含敏感信息。** scope / profile 只用通用分类名，不含任何内网地址、端点、token、集群 / 索引信息。
 
@@ -74,8 +74,8 @@ macos-local       macOS 本地维护
 ```text
 真源     platforms/<platform>/skills.meta.yaml(机读，唯一权威)
 派生      PROFILES.md 成员表(冲突以 manifest 为准)
-校验      bash scripts/skills_meta_audit.sh   # 只读；目录<->manifest 一一对应、scope 合法、profile 已定义
+校验      由 agent 核对：目录<->manifest 一一对应、scope 合法、profile 已定义
 边界      上述文件均 repo-only，永不进入 ~/.claude、~/.codex
 ```
 
-新增 / 删除 / 重命名 skill 时，先改对应平台的 `skills.meta.yaml`，再跑审计确认无漂移，最后同步本文件成员表。
+新增 / 删除 / 重命名 skill 时，先改对应平台的 `skills.meta.yaml`，再由 agent 核对无漂移，最后同步本文件成员表。
