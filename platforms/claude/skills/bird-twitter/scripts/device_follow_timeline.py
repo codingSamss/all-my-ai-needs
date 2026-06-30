@@ -25,6 +25,7 @@ from typing import Any
 
 
 DEFAULT_ENDPOINT = "https://x.com/i/api/2/notifications/device_follow.json"
+# Twitter/X web 端公开 guest bearer（所有匿名访客共用的固定值，非私有凭据），可用 BIRD_BEARER_TOKEN 覆盖
 DEFAULT_BEARER_TOKEN = (
     "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D"
     "1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"

@@ -16,7 +16,6 @@ MANAGED_ROOT_DIRS=(
   "agents"
   "hooks"
   "scripts"
-  "rules"
   "bin"
 )
 # 个人全局指令 AGENTS.md 不纳入仓库同步（各设备本地维护）

@@ -91,7 +91,7 @@ syncctl_adapter_codex_collect_tasks() {
 
   if syncctl_scope_includes "$scope" "root"; then
     local rel src dst task_id
-    for rel in agents hooks scripts rules bin; do
+    for rel in agents hooks scripts bin; do
       if [ "$direction" = "repo-to-local" ]; then
         src="$repo_root/$rel"
         dst="$local_root/$rel"

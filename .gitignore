@@ -15,3 +15,6 @@ __pycache__/
 
 # 本地私有敏感模式规则（供提交前扫描使用），不入公开仓库
 .secrets-patterns.local
+
+# Codex 本机命令审批规则（含本机端点/路径等运行态），各设备本地维护，不入公开仓库
+platforms/codex/rules/

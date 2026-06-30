@@ -33,8 +33,6 @@ managed_root_paths:
     target: ~/.codex/hooks/
   - source: scripts/
     target: ~/.codex/scripts/
-  - source: rules/
-    target: ~/.codex/rules/
   - source: bin/
     target: ~/.codex/bin/
 
