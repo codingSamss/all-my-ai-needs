@@ -1,0 +1,53 @@
+platform: claude
+runtime_version: 1
+
+official_layout:
+  skills_root: platforms/claude/skills
+  runtime_root: ~/.claude
+  notes:
+    - 平台专属 skill 放到 platforms/claude/skills/<skill-name>
+    - repo 中可保留 runtime.yaml，但运行目录不下发
+    - 平台级 runtime.yaml 仅供仓库内 AI 理解迁移规则，不同步到 ~/.claude 根目录
+
+skill_runtime_contract:
+  required_fields:
+    - runtime_version
+    - skill
+    - platform
+    - sync_paths
+    - dependencies
+    - manual_steps
+    - verify
+  optional_fields:
+    - services
+  notes:
+    - 平台 skill 以 platforms/claude/skills 为准，不再单独维护 shared skill 真源
+    - sync_paths 仅声明真正需要进入 ~/.claude/skills/<skill> 的文件或目录，保持最小同步面
+    - platform 必须固定为 claude，避免把 Codex 命令或布局误写到 Claude skill 中
+    - skill 级 runtime.yaml 只保留在 repo，不进入 ~/.claude/skills/<skill>/ 或 ~/.claude 根目录
+
+managed_root_paths:
+  - source: CLAUDE.md
+    target: ~/.claude/CLAUDE.md
+  - source: agents/
+    target: ~/.claude/agents/
+  - source: hooks/
+    target: ~/.claude/hooks/
+  - source: scripts/
+    target: ~/.claude/scripts/
+  - source: .mcp.json
+    target: ~/.claude.json
+    mode: merge-template
+
+dependencies:
+  commands:
+    - python3
+  notes:
+    - MCP server 模板由仓库维护，本机真实鉴权与登录态仍需人工补齐
+
+manual_steps:
+  - 执行 ./setup.sh、提交、推送前，由读取仓库的 AI 比较 ~/.claude 与仓库受管全局配置的差异
+  - 若本地有值得保留的新内容，先同步回仓库再继续；忽略 secrets、占位符和运行态噪音
+
+verify:
+  - ./setup.sh core

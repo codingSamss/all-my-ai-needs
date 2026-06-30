@@ -1,0 +1,6 @@
+interface:
+  display_name: "Playwright MCP Skill"
+  short_description: "Explicit Playwright fallback that requires manually enabled playwright-ext"
+  icon_small: "./assets/playwright-small.svg"
+  icon_large: "./assets/playwright.png"
+  default_prompt: "Use $playwright only when the user explicitly asks for Playwright Extension or when HTTP, Codex Browser, and Codex Chrome plugin cannot complete the workflow. Verify playwright-ext is manually enabled before use, then drive the workflow with fresh snapshots, stable refs, and explicit post-action verification. State why Playwright is required now and report the final layer used."

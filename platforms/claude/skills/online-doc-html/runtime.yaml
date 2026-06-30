@@ -1,0 +1,24 @@
+runtime_version: 1
+skill: online-doc-html
+platform: claude
+
+sync_paths:
+  - SKILL.md
+  - runtime.yaml
+  - scripts/
+
+dependencies:
+  commands:
+    - bash
+    - pandoc
+    - rsvg-convert
+    - perl
+
+manual_steps:
+  - 安装 pandoc 与 librsvg（macOS: brew install pandoc librsvg）
+  - 默认只生成 HTML，不生成 DOCX；线上文档覆盖或保存必须另行确认
+
+verify:
+  - bash scripts/export_online_doc_html.sh --help
+  - pandoc --version
+  - rsvg-convert --version

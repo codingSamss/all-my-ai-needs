@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mole Mac Cleanup"
+  short_description: "Safely scan and clean macOS with Mole"
+  default_prompt: "Use $mole-mac-cleanup to preview Mac cleanup candidates safely before deleting anything."

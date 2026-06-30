@@ -1,0 +1,5 @@
+{
+  "name": "orbit-os",
+  "targets": ["claude", "codex"],
+  "entry": "SKILL.md"
+}

@@ -1,0 +1,5 @@
+{
+  "name": "linuxdo",
+  "targets": ["claude"],
+  "entry": "SKILL.md"
+}

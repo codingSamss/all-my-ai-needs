@@ -1,0 +1,5 @@
+{
+  "name": "xiaohongshu",
+  "targets": ["claude"],
+  "entry": "SKILL.md"
+}

@@ -1,0 +1,44 @@
+runtime_version: 1
+skill: fireworks-tech-graph
+platform: claude
+
+sync_paths:
+  - SKILL.md
+  - README.md
+  - README.zh.md
+  - LICENSE
+  - package.json
+  - .npmignore
+  - agentloop-core.svg
+  - agents/openai.yaml
+  - runtime.yaml
+  - references/
+  - scripts/
+  - templates/
+  - fixtures/
+  - assets/
+
+origin:
+  repo: https://github.com/yizhiyanhua-ai/fireworks-tech-graph
+  branch: main
+  ref: 8925283897d1281e3f12d68b67ad5f9ac7db1820
+  license: MIT
+  local_adaptations:
+    - Claude runtime install keeps platform behavior from platforms/claude/setup/core.sh, including skipping skill-local agents/ when syncing to ~/.claude/skills.
+
+dependencies:
+  commands:
+    - python3
+    - rsvg-convert
+
+manual_steps:
+  - 安装 librsvg 以提供 rsvg-convert（macOS: brew install librsvg）
+  - 复杂图优先使用 scripts/generate-from-template.py 生成骨架，再迭代细节
+
+verify:
+  - python3 --version
+  - rsvg-convert --version
+  - bash scripts/validate-svg.sh templates/architecture.svg
+  - test -f references/style-8-dark-luxury.md
+  - test -f assets/samples/sample-style8-dark-luxury.png
+  - test -f agents/openai.yaml

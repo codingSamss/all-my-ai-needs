@@ -1,0 +1,26 @@
+runtime_version: 1
+skill: reddit
+platform: claude
+
+sync_paths:
+  - SKILL.md
+
+dependencies:
+  commands:
+    - node
+    - npm
+    - opencli
+
+manual_steps:
+  - npm install -g @jackwener/opencli
+  - Install the OpenCLI Chrome extension manually from the Chrome Web Store.
+  - Log into reddit.com in Chrome.
+
+verify:
+  - command -v opencli || true
+  - opencli daemon status
+
+notes:
+  - This skill is read-only.
+  - Do not use opencli doctor for routine checks because it may start the daemon.
+  - rdt-cli is a manual fallback for non-desktop or legacy environments.

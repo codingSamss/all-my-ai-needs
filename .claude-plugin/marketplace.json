@@ -1,0 +1,12 @@
+{
+  "name": "codingSamss-all-my-ai-needs",
+  "description": "个人 All My AI Needs 配置合集（Claude + Codex）",
+  "plugins": [
+    {
+      "name": "all-my-ai-needs",
+      "description": "Claude 平台配置集合",
+      "version": "1.0.0",
+      "source": "./platforms/claude"
+    }
+  ]
+}

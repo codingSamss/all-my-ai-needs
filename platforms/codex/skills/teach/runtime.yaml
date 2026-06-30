@@ -1,0 +1,38 @@
+runtime_version: 1
+skill: teach
+platform: codex
+
+origin:
+  repo: https://github.com/mattpocock/skills
+  path: skills/productivity/teach
+  ref: 694fa30311e02c2639942308513555e61ee84a6f
+  license: MIT
+
+sync_paths:
+  - SKILL.md
+  - MISSION-FORMAT.md
+  - RESOURCES-FORMAT.md
+  - LEARNING-RECORD-FORMAT.md
+  - GLOSSARY-FORMAT.md
+  - agents/openai.yaml
+  - LICENSE
+  - NOTICE.md
+  - runtime.yaml
+  - skill.config.json
+
+dependencies:
+  commands: []
+  notes:
+    - 纯指令型 teaching workspace skill，无运行时依赖。
+
+manual_steps:
+  - 使用前建议在独立学习目录中触发，避免在项目根目录或 Obsidian 根目录生成学习文件。
+  - 新增或同步后需重启 Codex 才能加载最新 skill 列表。
+
+verify:
+  - test -f SKILL.md
+  - test -f MISSION-FORMAT.md
+  - test -f RESOURCES-FORMAT.md
+  - test -f LEARNING-RECORD-FORMAT.md
+  - test -f GLOSSARY-FORMAT.md
+  - test -f agents/openai.yaml

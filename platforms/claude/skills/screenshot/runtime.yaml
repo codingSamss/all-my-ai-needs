@@ -1,0 +1,25 @@
+runtime_version: 1
+skill: screenshot
+platform: claude
+
+sync_paths:
+  - SKILL.md
+  - scripts/
+  - assets/
+
+dependencies:
+  commands:
+    - python3
+  macos:
+    - screencapture
+    - swift
+  linux:
+    - scrot 或 gnome-screenshot 或 import
+  notes:
+    - macOS 窗口/区域截图需要 Screen Recording 权限。
+
+manual_steps:
+  - 首次使用 macOS 窗口截图前运行 scripts/ensure_macos_permissions.sh 检查权限。
+
+verify:
+  - python3 scripts/take_screenshot.py --help

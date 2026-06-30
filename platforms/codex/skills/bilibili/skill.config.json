@@ -1,0 +1,5 @@
+{
+  "name": "bilibili",
+  "targets": ["codex"],
+  "entry": "SKILL.md"
+}

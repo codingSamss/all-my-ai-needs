@@ -1,0 +1,14 @@
+.idea/
+.claude/
+.cc-codex/
+.serena/
+.DS_Store
+__pycache__/
+*.pyc
+*.swp
+.playwright-cli/
+
+# Local/private internal data files (real infra routes / internal mapping
+# tables stay local; repo keeps placeholder templates only).
+**/references/*.local.*
+**/references/*.xlsx

@@ -1,0 +1,5 @@
+{
+  "name": "bilibili",
+  "targets": ["claude"],
+  "entry": "SKILL.md"
+}

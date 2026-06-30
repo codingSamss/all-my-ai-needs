@@ -1,0 +1,5 @@
+{
+  "name": "orbit-session-diary",
+  "targets": ["claude", "codex"],
+  "entry": "SKILL.md"
+}

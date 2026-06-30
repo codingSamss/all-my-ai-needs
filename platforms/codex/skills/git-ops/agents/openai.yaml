@@ -1,0 +1,4 @@
+interface:
+  display_name: "Git Ops"
+  short_description: "按 Sam 习惯安全执行 Git 分支提交合并推送"
+  default_prompt: "Use $git-ops to handle Git branch, commit, push, merge, rename, or comparison tasks using Sam rules."

@@ -1,0 +1,47 @@
+runtime_version: 1
+skill: gsap
+platform: codex
+
+sync_paths:
+  - SKILL.md
+  - LICENSE
+  - README.md
+  - references/
+  - runtime.yaml
+
+origin:
+  repo: https://github.com/greensock/gsap-skills
+  paths:
+    - skills/llms.txt
+    - skills/gsap-core/SKILL.md
+    - skills/gsap-timeline/SKILL.md
+    - skills/gsap-scrolltrigger/SKILL.md
+    - skills/gsap-plugins/SKILL.md
+    - skills/gsap-utils/SKILL.md
+    - skills/gsap-react/SKILL.md
+    - skills/gsap-performance/SKILL.md
+    - skills/gsap-frameworks/SKILL.md
+  license: MIT
+
+dependencies:
+  npm:
+    - gsap
+    - "@gsap/react"
+
+manual_steps:
+  - 普通 JS / Vue / Svelte / vanilla 项目安装 gsap 即可：npm install gsap
+  - React / Next 项目如使用 useGSAP，额外安装 @gsap/react：npm install @gsap/react
+  - 不需要 GreenSock 私有 registry、.npmrc、auth token 或 Club GSAP 会员。
+
+verify:
+  - test -f SKILL.md
+  - test -f LICENSE
+  - test -f references/llms.txt
+  - test -f references/gsap-core.md
+  - test -f references/gsap-timeline.md
+  - test -f references/gsap-scrolltrigger.md
+  - test -f references/gsap-plugins.md
+  - test -f references/gsap-utils.md
+  - test -f references/gsap-react.md
+  - test -f references/gsap-performance.md
+  - test -f references/gsap-frameworks.md

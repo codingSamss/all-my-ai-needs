@@ -1,0 +1,70 @@
+{
+  "mcpServers": {
+    "amap": {
+      "type": "sse",
+      "url": "https://mcp.amap.com/sse?key=<AMAP_KEY>"
+    },
+    "codex": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["--from", "git+https://github.com/codingSamss/codexmcp.git", "codexmcp"]
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "env": {}
+    },
+    "chrome-devtools": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["chrome-devtools-mcp@latest", "--autoConnect"]
+    },
+    "magic": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@21st-dev/magic"]
+    },
+    "morphllm-fast-apply": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@morph-llm/morph-fast-apply"]
+    },
+    "sequential-thinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "serena": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--from", "git+https://github.com/oraios/serena",
+        "serena", "start-mcp-server",
+        "--context", "ide-assistant",
+        "--enable-web-dashboard", "false",
+        "--enable-gui-log-window", "false"
+      ]
+    },
+    "playwright-ext": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@playwright/mcp@latest", "--extension"],
+      "env": {
+        "PLAYWRIGHT_MCP_EXTENSION_TOKEN": "<PLAYWRIGHT_EXT_TOKEN>"
+      }
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"],
+      "env": {}
+    },
+    "tavily": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "tavily-mcp@0.1.2"],
+      "env": {}
+    }
+  }
+}

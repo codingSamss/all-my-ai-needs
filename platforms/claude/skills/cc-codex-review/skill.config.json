@@ -1,0 +1,5 @@
+{
+  "name": "cc-codex-review",
+  "targets": ["claude"],
+  "entry": "SKILL.md"
+}

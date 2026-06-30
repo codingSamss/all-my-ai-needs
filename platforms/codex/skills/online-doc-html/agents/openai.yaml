@@ -1,0 +1,4 @@
+interface:
+  display_name: "Online Doc HTML"
+  short_description: "Export Markdown as paste-friendly online-doc HTML."
+  default_prompt: "Export Markdown to paste-friendly HTML for online documents, converting SVG diagrams to embedded PNG images."

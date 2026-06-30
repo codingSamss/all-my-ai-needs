@@ -1,0 +1,24 @@
+runtime_version: 1
+skill: mole-mac-cleanup
+platform: codex
+
+sync_paths:
+  - SKILL.md
+  - runtime.yaml
+  - agents/openai.yaml
+
+dependencies:
+  commands:
+    - mo
+    - brew
+
+manual_steps:
+  - 推荐通过 Homebrew 安装或升级 Mole：brew install mole / brew upgrade mole
+  - 清理类命令必须先 dry-run；非 dry-run 的 mo clean、mo uninstall、mo purge、mo installer、mo remove 都需要当前轮明确确认
+  - `mo analyze` 可用于探索磁盘占用；删除动作仍需单独确认
+
+verify:
+  - test -f SKILL.md
+  - test -f agents/openai.yaml
+  - command -v mo
+  - mo --version

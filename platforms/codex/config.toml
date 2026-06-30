@@ -1,0 +1,96 @@
+model = "gpt-5.5"
+model_reasoning_effort = "xhigh"
+plan_mode_reasoning_effort = "xhigh"
+sandbox = "danger-full-access"
+personality = "pragmatic"
+sandbox_mode = "danger-full-access"
+notify = ["/bin/zsh", "-lc", "CODEX_NOTIFY_DEBUG=1 /usr/bin/python3 \"$HOME/.codex/bin/codex-notify.py\""]
+
+[model_providers.openai]
+# 30 minutes (1800000 ms) stream idle timeout for long-running sessions.
+stream_idle_timeout_ms = 1800000
+
+# 使用 $HOME 变量，跨机器迁移时无需替换用户名。
+[projects."$HOME/IdeaProjects/rag-recall"]
+trust_level = "trusted"
+
+[projects."$HOME/PycharmProjects/rag-recall-agentic"]
+trust_level = "trusted"
+
+[projects."$HOME"]
+trust_level = "untrusted"
+
+[projects."$HOME/.codex"]
+trust_level = "untrusted"
+
+[projects."$HOME/Documents/personal project"]
+trust_level = "trusted"
+
+[projects."$HOME/Documents/Meowar"]
+trust_level = "trusted"
+
+[projects."$HOME/Documents/STT"]
+trust_level = "trusted"
+
+[projects."$HOME/Documents/技术委员会例会"]
+trust_level = "trusted"
+
+[projects."$HOME/IdeaProjects/rag-flow"]
+trust_level = "trusted"
+
+[projects."$HOME/Library/Mobile Documents/iCloud~md~obsidian/Documents/Sam's"]
+trust_level = "trusted"
+
+[projects."$HOME/IdeaProjects/all-my-ai-needs"]
+trust_level = "trusted"
+
+[notice]
+hide_rate_limit_model_nudge = true
+
+[features]
+shell_snapshot = true
+apps = true
+personality = true
+guardian_approval = true
+prevent_idle_sleep = true
+hooks = true
+terminal_resize_reflow = true
+memories = true
+goals = true
+
+[mcp_servers.openaiDeveloperDocs]
+url = "https://developers.openai.com/mcp"
+
+[mcp_servers.playwright-ext]
+enabled = false
+command = "npx"
+args = ["@playwright/mcp@latest", "--extension"]
+startup_timeout_sec = 45.0
+env = { PLAYWRIGHT_MCP_EXTENSION_TOKEN = "<PLAYWRIGHT_EXT_TOKEN>" }
+
+[mcp_servers.playwright-ext.tools.browser_evaluate]
+approval_mode = "approve"
+
+[mcp_servers.playwright-ext.tools.browser_navigate]
+approval_mode = "approve"
+
+[mcp_servers.chrome-devtools]
+command = "npx"
+args = ["chrome-devtools-mcp@latest", "--autoConnect"]
+startup_timeout_sec = 60.0
+
+[tui]
+terminal_title = []
+notifications = ["agent-turn-complete", "approval-requested"]
+notification_method = "auto"
+status_line = ["model-with-reasoning", "context-remaining", "project-name", "five-hour-limit", "weekly-limit", "context-window-size", "fast-mode"]
+status_line_use_colors = true
+
+[plugins."browser-use@openai-bundled"]
+enabled = true
+
+[plugins."chrome@openai-bundled"]
+enabled = true
+
+[plugins."openai-developers@openai-curated"]
+enabled = true

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Handoff"
+  short_description: "生成临时或跨机器持久交接文档"
+  default_prompt: "Use $handoff 生成中文交接文档：普通换线程默认写 OS 临时目录；涉及多机器、远程 Codex/Claude Code、Obsidian 或知识库交接台时，写入 Obsidian `08_交接台`，并把大型产物索引到 iCloud `AgentArtifacts`。"

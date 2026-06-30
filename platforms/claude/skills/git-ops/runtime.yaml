@@ -1,0 +1,20 @@
+runtime_version: 1
+skill: git-ops
+platform: claude
+
+sync_paths:
+  - SKILL.md
+
+dependencies:
+  commands:
+    - git
+    - rg
+
+manual_steps:
+  - 该 skill 只沉淀 Git 操作规则，不自动执行危险命令
+  - 仓库特定构建、测试、发布策略仍保留在对应项目的 AGENTS.md
+
+verify:
+  - git --version
+  - rg --version
+  - test -f SKILL.md

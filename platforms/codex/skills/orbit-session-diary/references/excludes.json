@@ -1,0 +1,21 @@
+{
+  "exclude_cwd_keywords": [
+    "rag-flow",
+    "rag-recall",
+    "ragflow",
+    "ragrecall"
+  ],
+  "exclude_path_keywords": [
+    "rag-flow",
+    "rag-recall",
+    "ragflow",
+    "ragrecall",
+    "/subagents/"
+  ],
+  "skip_subagents": true,
+  "max_user_messages_per_session": 8,
+  "max_commands_per_session": 12,
+  "max_dirs_in_report": 12,
+  "max_commands_in_report": 15,
+  "claude_mtime_window_days": 2
+}

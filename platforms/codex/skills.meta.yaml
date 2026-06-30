@@ -1,0 +1,52 @@
+# skills.meta.yaml — Codex 平台 skill 同步策略真源（repo-only）
+#
+# 用途：供 agent 解析，决定哪些 skill 该下发到 ~/.codex/skills。
+# 本仓库所有写入由 agent 执行，人只审校与决策；本文件不是给一键脚本喂参数的。
+#
+# 安全铁律（任何 agent 读到本文件即受约束）：
+#   1. 本文件是 repo-only 治理元数据，永不下发到 ~/.codex 运行目录。
+#   2. scope / profile 只做正向选择（additive）：只回答"这次带哪些"，
+#      绝不用于"不在清单里就删本地 skill"。
+#   3. 本地可能存在 repo 之外的私有 skill（如 mx-*、midea-*），永不删除、永不回流仓库。
+#   4. 分类只用通用名，不含任何内网地址、端点、token、集群 / 索引信息。
+#
+# scope：
+#   core         始终下发，跨项目通用（git / 交接 / 教学这类基础设施）。
+#   project      仅当对应 profile 激活时下发，绑定特定项目类型。
+#   manual-only  仓库留存，默认不下发，只能由 agent 按名点取。
+#
+# profiles：仅 project 档携带的项目类型标签（可多值）；core / manual-only 不带。
+# skill 的用途说明不在此复述，以各自 SKILL.md 的 description 为准，避免漂移。
+
+meta_version: 1
+platform: codex
+
+profiles:
+  obsidian-kb: "Obsidian 知识库写作与收录"
+  frontend-design: "前端设计、动效与出图"
+  social-reading: "社交平台只读采集"
+  web-automation: "浏览器与截图自动化"
+  macos-local: "macOS 本地维护"
+
+skills:
+  bilibili: { scope: project, profiles: [social-reading] }
+  bird-twitter: { scope: project, profiles: [social-reading] }
+  fireworks-tech-graph: { scope: project, profiles: [frontend-design] }
+  git-ops: { scope: core }
+  gsap: { scope: project, profiles: [frontend-design] }
+  handoff: { scope: core }
+  ian-xiaohei-illustrations: { scope: project, profiles: [frontend-design] }
+  linuxdo: { scope: project, profiles: [social-reading] }
+  mole-mac-cleanup: { scope: project, profiles: [macos-local] }
+  official-article-ingest: { scope: project, profiles: [obsidian-kb] }
+  online-doc-html: { scope: project, profiles: [obsidian-kb] }
+  openai-docs: { scope: manual-only }
+  orbit-os: { scope: project, profiles: [obsidian-kb] }
+  orbit-session-diary: { scope: project, profiles: [obsidian-kb] }
+  playwright: { scope: project, profiles: [web-automation] }
+  reddit: { scope: project, profiles: [social-reading] }
+  screenshot: { scope: project, profiles: [web-automation, macos-local] }
+  taste-design: { scope: project, profiles: [frontend-design] }
+  teach: { scope: core }
+  video-transcribe: { scope: project, profiles: [obsidian-kb] }
+  xiaohongshu: { scope: project, profiles: [social-reading] }

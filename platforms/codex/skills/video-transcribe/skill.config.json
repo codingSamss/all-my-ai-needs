@@ -1,0 +1,5 @@
+{
+  "name": "video-transcribe",
+  "targets": ["claude", "codex"],
+  "entry": "SKILL.md"
+}

@@ -1,0 +1,26 @@
+runtime_version: 1
+skill: bilibili
+platform: claude
+
+sync_paths:
+  - SKILL.md
+
+dependencies:
+  commands:
+    - bili-cli
+    - opencli
+
+manual_steps:
+  - pipx install bilibili-cli
+  - npm install -g @jackwener/opencli
+  - Install the OpenCLI Chrome extension manually for subtitle support.
+
+verify:
+  - command -v bili || true
+  - command -v opencli || true
+  - curl -s -A "Mozilla/5.0" "https://api.bilibili.com/x/web-interface/search/all/v2?keyword=test&page=1"
+
+notes:
+  - This skill is read-only.
+  - Use video-transcribe for full transcripts, frames, or Obsidian notes.
+  - Do not use yt-dlp as the default Bilibili reader.

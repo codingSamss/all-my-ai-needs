@@ -1,0 +1,32 @@
+runtime_version: 1
+skill: handoff
+platform: claude
+
+origin:
+  repo: https://github.com/mattpocock/skills
+  path: skills/productivity/handoff
+  ref: bddb833cbaa322ff89d07e490530860aa73a4293
+  license: MIT
+
+sync_paths:
+  - SKILL.md
+  - LICENSE
+  - NOTICE.md
+
+dependencies:
+  commands: []
+  notes:
+    - 纯指令型 handoff skill，无运行时依赖。
+    - 本地版本保留 upstream 的 OS 临时目录交接能力，同时扩展 Obsidian `08_交接台` 与 iCloud `AgentArtifacts` 持久接力规范。
+
+manual_steps:
+  - 普通换线程默认把交接文档写入 OS 临时目录，避免污染当前 workspace。
+  - 涉及多机器、远程 Codex/Claude Code、Obsidian 或知识库交接台时，按 `08_交接台` 任务父目录写入，并把大型产物放到 `AgentArtifacts`。
+  - 新增或同步后需重启 Claude Code 才能加载最新 skill 列表。
+
+verify:
+  - test -f SKILL.md
+  - test -f NOTICE.md
+  - test -f LICENSE
+  - grep -q "08_交接台" SKILL.md
+  - grep -q "AgentArtifacts" SKILL.md

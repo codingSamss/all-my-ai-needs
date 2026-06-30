@@ -1,0 +1,34 @@
+runtime_version: 1
+skill: ian-xiaohei-illustrations
+platform: codex
+
+sync_paths:
+  - SKILL.md
+  - agents/openai.yaml
+  - assets/
+  - references/
+  - LICENSE
+  - NOTICE.md
+  - README.md
+  - runtime.yaml
+
+origin:
+  repo: https://github.com/helloianneo/ian-xiaohei-scenes
+  path: ian-xiaohei-scenes
+  license: MIT
+  notice: 保留 Ian Xiaohei Scenes 名称与 Ian attribution；本仓库沿用 ian-xiaohei-illustrations 入口名作为 2.0 覆盖升级。
+
+dependencies:
+  codex_capabilities:
+    - image_gen
+
+manual_steps:
+  - 需要生成图片时，直接调用 Codex 内置 image_gen；只做配图规划时无需额外依赖。
+  - 标准模式生成 16:9 正文配图；彩蛋模式生成超横版长卷故事图。
+  - 图内中文标注优先控制在短词，错字严重时减少文字并重生成。
+
+verify:
+  - test -f SKILL.md
+  - test -d references
+  - test -d assets/examples
+  - test -f assets/examples/07-long-scroll-story-master.png

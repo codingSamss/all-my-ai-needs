@@ -1,0 +1,8 @@
+{
+  "name": "all-my-ai-needs",
+  "description": "个人 Claude Code 配置集合：Twitter阅读、安全提交、截图分析、UI/UX设计、Codex协作审查等",
+  "version": "1.0.0",
+  "author": { "name": "codingSamss" },
+  "repository": "https://github.com/codingSamss/all-my-ai-needs",
+  "license": "MIT"
+}

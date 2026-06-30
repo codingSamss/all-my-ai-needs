@@ -1,0 +1,5 @@
+{
+  "name": "reddit",
+  "targets": ["claude"],
+  "entry": "SKILL.md"
+}

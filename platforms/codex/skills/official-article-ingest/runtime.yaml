@@ -1,0 +1,23 @@
+runtime_version: 1
+skill: official-article-ingest
+platform: codex
+
+sync_paths:
+  - SKILL.md
+  - runtime.yaml
+
+dependencies:
+  commands:
+    - rg
+    - find
+    - test
+    - touch
+
+manual_steps:
+  - 收录官方文章前先确认模式：原文 1:1 或英文中文对照 1:1
+  - 写入 Obsidian Vault 后必须执行带引号的 touch 刷新时间戳
+  - 媒体本地化后必须校验预期、下载和文内引用数量一致
+
+verify:
+  - test -f SKILL.md
+  - rg -n "原文 1:1|英文中文对照 1:1|Obsidian Reading/Preview" SKILL.md

@@ -1,0 +1,26 @@
+runtime_version: 1
+skill: xiaohongshu
+platform: claude
+
+sync_paths:
+  - SKILL.md
+
+dependencies:
+  commands:
+    - node
+    - npm
+    - opencli
+
+manual_steps:
+  - npm install -g @jackwener/opencli
+  - Install the OpenCLI Chrome extension manually from the Chrome Web Store.
+  - Log into Xiaohongshu in Chrome.
+
+verify:
+  - command -v opencli || true
+  - opencli daemon status
+
+notes:
+  - This skill is read-only.
+  - HTTP/API and Chrome Cookie DB extraction are intentionally not supported.
+  - Do not use opencli doctor for routine checks because it may start the daemon.
