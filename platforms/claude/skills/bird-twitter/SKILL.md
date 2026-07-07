@@ -1,6 +1,6 @@
 ---
 name: bird-twitter
-description: "Read X/Twitter content via Bird CLI. Actions: read tweets, search, view bookmarks, trending, news, timeline, mentions, lists. Keywords: twitter, x, tweet, trending, bookmarks, timeline."
+description: "Read X/Twitter content via Bird CLI. Actions: read tweets, search, view all bookmarks or bookmark folders, trending, news, timeline, mentions, lists. Keywords: twitter, x, tweet, trending, bookmarks, bookmark folder, 收藏夹, timeline."
 ---
 
 # Bird Twitter Skill (Read-Only)
@@ -13,6 +13,7 @@ Triggered by:
 - "read tweet [id/url]", "show tweet [id/url]"
 - "search twitter [query]", "search x [query]"
 - "my bookmarks", "twitter bookmarks"
+- "bookmark folder", "收藏夹文件夹", "待办收藏夹", "推特收藏夹中的[folder name]"
 - "trending", "twitter trends", "what's trending"
 - "twitter news", "x news"
 - "timeline", "i/timeline", "通知时间线", "device follow"
@@ -126,6 +127,29 @@ HTTP_PROXY=http://127.0.0.1:7897 HTTPS_PROXY=http://127.0.0.1:7897 bird --cookie
 ```bash
 HTTP_PROXY=http://127.0.0.1:7897 HTTPS_PROXY=http://127.0.0.1:7897 bird --cookie-source chrome --timeout 15000 bookmarks -n 20
 ```
+Notes:
+- `bookmarks` without `--folder-id` reads **All Bookmarks**, not a user-created bookmark folder.
+- If the user names a folder such as `待办`, do not summarize All Bookmarks as a substitute. Resolve the folder id first, then read that folder.
+
+### 6b. View Bookmark Folder
+**Triggers:** "bookmark folder [name/id]", "收藏夹文件夹", "待办收藏夹", "推特收藏夹中的代办/待办"
+
+If the folder URL or numeric id is known:
+```bash
+HTTP_PROXY=http://127.0.0.1:7897 HTTPS_PROXY=http://127.0.0.1:7897 bird --cookie-source chrome --timeout 15000 bookmarks --folder-id <folder-id-or-url> -n 20
+```
+
+For a complete folder read:
+```bash
+HTTP_PROXY=http://127.0.0.1:7897 HTTPS_PROXY=http://127.0.0.1:7897 bird --cookie-source chrome --timeout 15000 bookmarks --folder-id <folder-id-or-url> --all --max-pages 5 --json
+```
+
+Folder-id workflow:
+1. Prefer a visible folder URL such as `https://x.com/i/bookmarks/<id>`; `bird` accepts either the numeric id or the full URL.
+2. If only the folder name is known, try `opencli twitter bookmark-folders` to list folder ids. This command is read-only, but it may fail with HTTP 404 when X rotates the GraphQL operation.
+3. If `opencli twitter bookmark-folders` fails, do not fall back to All Bookmarks. Get candidate ids from an already-open Chrome/X URL, browser history/cache, or by inspecting X frontend bundles for `BookmarkFoldersSlice`; then validate candidates with `bird ... bookmarks --folder-id <id> -n 3 --plain`.
+4. Match the candidate folder by comparing the first returned tweets with the user's screenshot or named folder context before producing a summary.
+5. After `--all --max-pages N --json`, inspect `nextCursor`; if it is non-empty and the user asked for exhaustive results, increase `--max-pages`.
 
 ### 7. View Trending/News
 **Triggers:** "trending", "twitter trends", "what's trending", "twitter news", "x news"
