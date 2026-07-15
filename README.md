@@ -23,7 +23,7 @@ all-my-ai-needs/
     └── codex/                      # Codex 平台真源 → ~/.codex
         ├── README.md  runtime.yaml  config.toml
         ├── skills.meta.yaml         # repo-only 同步分层真源
-        └── skills/ (21)
+        └── skills/ (22)
 ```
 
 ## 核心模型
@@ -44,7 +44,7 @@ all-my-ai-needs/
 | 社交只读 `social-reading` | `bilibili` `bird-twitter` `reddit` `linuxdo` `xiaohongshu` |
 | 浏览器自动化 `web-automation` | `playwright` `screenshot` |
 | macOS 维护 `macos-local` | `mole-mac-cleanup` `screenshot` |
-| 点名 `manual-only` | `openai-docs`（Codex） |
+| 点名 `manual-only` | `aihot` `openai-docs`（Codex） |
 
 ## 同步模型
 

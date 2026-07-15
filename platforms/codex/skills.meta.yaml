@@ -29,6 +29,7 @@ profiles:
   macos-local: "macOS 本地维护"
 
 skills:
+  aihot: { scope: manual-only }
   bilibili: { scope: project, profiles: [social-reading] }
   bird-twitter: { scope: project, profiles: [social-reading] }
   fireworks-tech-graph: { scope: project, profiles: [frontend-design] }

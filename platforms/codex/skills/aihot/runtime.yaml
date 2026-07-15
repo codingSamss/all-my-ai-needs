@@ -1,0 +1,35 @@
+runtime_version: 1
+skill: aihot
+platform: codex
+
+sync_paths:
+  - SKILL.md
+  - README.md
+  - LICENSE
+
+origin:
+  repo: https://github.com/KKKKhazix/khazix-skills
+  path: aihot
+  ref: 5a963d91f772e0d4f6659c43a36876a74c468143
+  version: 0.3.6
+  license: MIT
+
+dependencies:
+  commands:
+    - curl
+    - rg
+  notes:
+    - 仅访问 https://aihot.virxact.com/api/public/* 匿名只读 GET 接口，不需要 API Key、cookie 或 MCP server。
+    - 请求必须使用 SKILL.md 定义的可识别非浏览器 User-Agent，避免触发边缘安全拦截。
+
+manual_steps:
+  - 新增或更新后需开启新的 Codex 会话，确保运行时重新扫描 Skill。
+  - 重要数字、政策和原话必须回第三方原文核对，AI HOT 摘要不作为唯一事实来源。
+
+verify:
+  - test -f SKILL.md
+  - test -f README.md
+  - test -f LICENSE
+  - rg -q '^name: aihot$' SKILL.md
+  - rg -q 'aihot-skill/0.3.6' SKILL.md
+  - curl -fsS --max-time 10 -H 'User-Agent: aihot-skill/0.3.6 (+https://aihot.virxact.com/aihot-skill/)' https://aihot.virxact.com/api/public/version | rg -q '"apiVersion"|"skillVersion"'
