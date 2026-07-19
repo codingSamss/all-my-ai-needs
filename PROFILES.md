@@ -45,9 +45,9 @@ macos-local       macOS 本地维护
 | `social-reading` | profile | bilibili · bird-twitter · linuxdo · reddit · xiaohongshu | bilibili · bird-twitter · linuxdo · reddit · xiaohongshu |
 | `web-automation` | profile | playwright · screenshot | playwright · screenshot |
 | `macos-local` | profile | mole-mac-cleanup · screenshot | mole-mac-cleanup · screenshot |
-| `manual-only` | scope·点名 | aihot · openai-docs | — |
+| `manual-only` | scope·点名 | aihot · openai-docs | aihot |
 
-平台差异是预期的：`aihot`、`taste-design`、`openai-docs` 仅 Codex；`cc-codex-review`、`skill-creator` 仅 Claude。
+平台差异是预期的：`taste-design`、`openai-docs` 仅 Codex；`cc-codex-review`、`skill-creator` 仅 Claude。
 
 ## Agent 同步剧本
 

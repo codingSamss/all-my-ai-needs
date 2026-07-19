@@ -23,6 +23,7 @@
 
 | Skill | 能力 | 运行说明 |
 | --- | --- | --- |
+| `aihot` | 查询中文 AI 资讯、精选、当前热点与日报 | 匿名只读 REST API；无需 API Key 或 MCP；按点名方式下发 |
 | `bilibili` | B站搜索、热门、排行、视频详情、音频入口与字幕读取 | 依赖 bili-cli + opencli（缺失时降级到 search API） |
 | `bird-twitter` | 只读访问 X/Twitter 内容 | 依赖 Bird CLI（仓库内置包优先） |
 | `cc-codex-review` | Claude / Codex 协作讨论与 Battle Loop | 依赖 CodexMCP 与 topic-manager |
