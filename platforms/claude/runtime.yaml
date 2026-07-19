@@ -19,6 +19,8 @@ skill_runtime_contract:
     - manual_steps
     - verify
   optional_fields:
+    - origin
+    - notes
     - services
   notes:
     - 平台 skill 以 platforms/claude/skills 为准，不再单独维护 shared skill 真源

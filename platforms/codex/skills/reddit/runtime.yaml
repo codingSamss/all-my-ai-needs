@@ -1,25 +1,28 @@
+runtime_version: 1
+skill: reddit
 platform: codex
-kind: skill
-name: reddit
-entry: SKILL.md
-runtime:
-  dependencies:
+
+sync_paths:
+  - SKILL.md
+  - README.md
+  - skill.config.json
+
+dependencies:
+  commands:
     - node
     - npm
     - opencli
-    - chrome-opencli-extension
-  install:
-    manual:
-      - npm install -g @jackwener/opencli
-      - Install the OpenCLI Chrome extension manually.
-      - Log into reddit.com in Chrome.
-  verification:
-    - command -v opencli || true
-    - opencli daemon status
-  notes:
-    - This skill is read-only.
-    - Do not use opencli doctor for routine checks because it may start the daemon.
-    - rdt-cli is a manual fallback for non-desktop or legacy environments.
-sync:
-  repo_only:
-    - runtime.yaml
+
+manual_steps:
+  - npm install -g @jackwener/opencli
+  - Install the OpenCLI Chrome extension manually.
+  - Log into reddit.com in Chrome.
+
+verify:
+  - command -v opencli || true
+  - opencli daemon status
+
+notes:
+  - This skill is read-only.
+  - Do not use opencli doctor for routine checks because it may start the daemon.
+  - rdt-cli is a manual fallback for non-desktop or legacy environments.

@@ -4,7 +4,6 @@ platform: claude
 
 sync_paths:
   - SKILL.md
-  - runtime.yaml
   - scripts/
 
 dependencies:

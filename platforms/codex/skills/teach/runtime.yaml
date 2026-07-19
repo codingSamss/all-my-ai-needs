@@ -17,7 +17,6 @@ sync_paths:
   - agents/openai.yaml
   - LICENSE
   - NOTICE.md
-  - runtime.yaml
   - skill.config.json
 
 dependencies:

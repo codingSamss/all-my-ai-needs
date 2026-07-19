@@ -7,7 +7,6 @@ sync_paths:
   - LICENSE
   - README.md
   - references/
-  - runtime.yaml
 
 origin:
   repo: https://github.com/greensock/gsap-skills

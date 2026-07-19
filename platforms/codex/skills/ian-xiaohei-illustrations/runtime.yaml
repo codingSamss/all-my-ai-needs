@@ -10,7 +10,6 @@ sync_paths:
   - LICENSE
   - NOTICE.md
   - README.md
-  - runtime.yaml
 
 origin:
   repo: https://github.com/helloianneo/ian-xiaohei-scenes

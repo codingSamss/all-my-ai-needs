@@ -13,7 +13,6 @@ sync_paths:
   - agents/openai.yaml
   - LICENSE
   - NOTICE.md
-  - runtime.yaml
 
 dependencies:
   commands: []
