@@ -7,20 +7,21 @@ sync_paths:
   - README.md
   - README.zh.md
   - LICENSE
+  - CHANGELOG.md
   - package.json
-  - .npmignore
-  - agentloop-core.svg
   - agents/openai.yaml
   - references/
   - scripts/
   - templates/
   - fixtures/
   - assets/
+  - schemas/
 
 origin:
   repo: https://github.com/yizhiyanhua-ai/fireworks-tech-graph
   branch: main
-  ref: 8925283897d1281e3f12d68b67ad5f9ac7db1820
+  path: skills/fireworks-tech-graph
+  ref: 50c819d68fd4fee330b3010988cd13e98b678d44
   license: MIT
   local_adaptations:
     - Codex SKILL.md keeps Sam Obsidian/Vault rendering defaults and non-focus PNG QA rules.
@@ -28,16 +29,22 @@ origin:
 dependencies:
   commands:
     - python3
-    - rsvg-convert
+  notes:
+    - Python 3.9+；PNG 导出优先使用 cairosvg，也可回退到 rsvg-convert。
+    - Node.js 18+ 仅用于可选的 Puppeteer/svg2png.js 路径，不是默认生成链路的硬依赖。
+    - 可选 GIF 动效还需要 FFmpeg/FFprobe、Chrome/Chromium，以及 puppeteer 或 puppeteer-core。
 
 manual_steps:
-  - 安装 librsvg 以提供 rsvg-convert（macOS: brew install librsvg）
-  - 复杂图优先使用 scripts/generate-from-template.py 生成骨架，再迭代细节
+  - 优先安装 cairosvg（python3 -m pip install cairosvg）；无法使用时安装 librsvg 提供 rsvg-convert。
+  - 复杂图优先使用 scripts/fireworks.py 或 scripts/generate-from-template.py 生成骨架，再迭代细节。
+  - Styles 9-12 先运行 semantic contract 校验，再进入布局与导出。
+  - GIF 动效仅接受受支持的生成器语义 SVG，并按 references/motion-effects.md 安装可选依赖。
 
 verify:
   - python3 --version
-  - rsvg-convert --version
   - bash scripts/validate-svg.sh templates/architecture.svg
-  - test -f references/style-8-dark-luxury.md
-  - test -f assets/samples/sample-style8-dark-luxury.png
+  - python3 -m unittest discover -s tests -v
+  - test -f references/style-12-ops-pulse.md
+  - test -f references/obsidian-vault.md
+  - test -f schemas/diagram-v1.schema.json
   - test -f agents/openai.yaml

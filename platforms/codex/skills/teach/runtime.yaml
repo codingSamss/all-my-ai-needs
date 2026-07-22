@@ -5,8 +5,10 @@ platform: codex
 origin:
   repo: https://github.com/mattpocock/skills
   path: skills/productivity/teach
-  ref: 694fa30311e02c2639942308513555e61ee84a6f
+  ref: ed37663cc5fbef691ddfecd080dff42f7e7e350d
   license: MIT
+  local_adaptations:
+    - SKILL.md 省略 upstream 的 disable-model-invocation 与 argument-hint frontmatter，以符合当前仓库的双平台 metadata 约束。
 
 sync_paths:
   - SKILL.md
@@ -35,3 +37,4 @@ verify:
   - test -f LEARNING-RECORD-FORMAT.md
   - test -f GLOSSARY-FORMAT.md
   - test -f agents/openai.yaml
+  - grep -q '^## Assets' SKILL.md

@@ -40,7 +40,8 @@
 
 ### 3. Arrow Label Placement
 - **Position**: midpoint of arrow path, offset by 5-10px perpendicular to arrow direction
-- **Background rect**: ALWAYS include, with:
+- **Offset first**: move the label 5-10px perpendicular to the arrow so it does not sit on the stroke
+- **Background rect fallback**: include only when offsetting cannot avoid another visual element, with:
   - Padding: 4px horizontal, 2px vertical
   - Fill: match background color
   - Opacity: 0.9-0.95
@@ -59,7 +60,7 @@ Before finalizing SVG, check:
 1. Background rect
 2. Grouping containers (dashed rects)
 3. Arrow paths
-4. Arrow label background rects
+4. Arrow label background rects when collision fallback is needed
 5. Components (boxes, cylinders, etc.)
 6. Component text
 7. Arrow label text
@@ -83,7 +84,7 @@ Before finalizing SVG, check:
 
 Before exporting PNG, verify:
 - [ ] No arrow-component overlaps (visual inspection)
-- [ ] All arrow labels have background rects
+- [ ] Arrow labels are offset from lines; fallback background rects are used only where needed
 - [ ] Minimum 60px clearance for all arrow paths
 - [ ] Component spacing ≥ 80px
 - [ ] Arrow connection points avoid corners (≥20px from corner)
@@ -96,7 +97,7 @@ Before exporting PNG, verify:
 | Anti-Pattern | Fix |
 |--------------|-----|
 | Arrow crosses component | Use orthogonal routing, increase control point distance |
-| Label overlaps component | Add background rect + increase offset |
+| Label overlaps component | Increase offset; add a matching-background rect if the collision remains |
 | Components too close | Increase spacing to 80px minimum |
 | Arrow connects to corner | Move connection point to edge midpoint offset |
 | No z-index planning | Follow render order: arrows -> components -> text |

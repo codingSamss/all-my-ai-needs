@@ -95,7 +95,7 @@ Arrow labels should be **technical and specific**, positioned mid-arrow:
 </text>
 ```
 
-Good lls: `query(text)`, `retrieve(top_k=5)`, `embed(768d)`, `POST /api/search`
+Good labels: `query(text)`, `retrieve(top_k=5)`, `embed(768d)`, `POST /api/search`
 Avoid vague labels: "Process", "Send", "Get"
 
 ## Node Content Guidelines
@@ -103,7 +103,7 @@ Avoid vague labels: "Process", "Send", "Get"
 Node content should include **technical details**, not just concepts:
 
 **Good examples:**
-- "Vector Store" → "Vector Sne)" + "• 768-dim embeddings" + "• Cosine s"
+- "Vector Store" → "Vector Store" + "• 768-dim embeddings" + "• Cosine similarity"
 - "LLM" → "GPT-4" + "• 8K context" + "• Temperature: 0.7"
 - "Memory" → "Redis Cache" + "• TTL: 5min" + "• Max: 4K tokens"
 
@@ -133,16 +133,17 @@ Position at the vertical center of each layer.
 
 When using 2+ arrow types or colors, include a legend in the bottom-right corner:
 
-```Legend box -->="720" y="520" width="220" height="8" ry="8"
+```xml
+<rect x="720" y="500" width="220" height="80" rx="8" ry="8"
       fill="#ffffff" stroke="#4a4a4a" stroke-width="1.5"/>
-<text x="735" y="540" fill="#1a1a1a" font-size="13" font-weight="600">Legend</text>
+<text x="735" y="522" fill="#1a1a1a" font-size="13" font-weight="600">Legend</text>
 
 <!-- Legend items -->
-<line x1="735" y1="555" x2="765" y2="555" stroke="#5a5a5a" stroke-width="2"/>
-<text x="775" y="560" fill="#6a6a6a" font-size="12">Read operation</text>
+<line x1="735" y1="540" x2="765" y2="540" stroke="#5a5a5a" stroke-width="2"/>
+<text x="775" y="545" fill="#6a6a6a" font-size="12">Read operation</text>
 
-<line x1="735" y1="570" x2="765" y2="570" stroke="#5a5a5a" stroke-width="2" stroke-dasharray="5,3"/>
-<text x="775" y="575" fill="#6a6a6a" font-size="12">Write operation</text>
+<line x1="735" y1="560" x2="765" y2="560" stroke="#5a5a5a" stroke-width="2" stroke-dasharray="5,3"/>
+<text x="775" y="565" fill="#6a6a6a" font-size="12">Write operation</text>
 ```
 
 Position: bottom-right, 20px margin from edges.

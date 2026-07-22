@@ -29,7 +29,7 @@
 | `bilibili` | B站搜索、热门、排行、视频详情、音频入口与字幕读取 | 依赖 bili-cli + opencli（缺失时降级到 search API） |
 | `bird-twitter` | 只读访问 X/Twitter 内容 | 依赖 Bird CLI（仓库内置包优先） |
 | `cc-codex-review` | Claude / Codex 协作讨论与 Battle Loop | 依赖 CodexMCP 与 topic-manager |
-| `fireworks-tech-graph` | 结构化技术图与图片生成（架构图/流程图/时序图/泳道图，SVG+PNG） | 依赖 `python3` 与 `rsvg-convert` |
+| `fireworks-tech-graph` | 生成带几何校验的技术图，覆盖 12 种风格、工程语义合同、SVG/PNG、语义 SVG→GIF 与离线 HTML | 依赖 Python 3.9+；PNG 优先 `cairosvg`；GIF 动效依赖可选的 Node/FFmpeg/Chromium 工具链 |
 | `git-ops` | 按 Sam 习惯安全执行 Git 分支、提交、合并、推送与对比 | 依赖 `git` 与 `rg` |
 | `gsap` | 前端动效实现辅助，覆盖 GSAP core、React、ScrollTrigger、插件与性能约束 | 依赖 `gsap`，React 项目可加 `@gsap/react` |
 | `handoff` | 为下一位 agent、新线程或跨机器任务生成临时/持久交接文档 | 纯指令型 skill；临时写入 OS 临时目录，跨机器长期接力写入 Obsidian `08_交接台` |
@@ -44,7 +44,7 @@
 | `reddit` | 只读访问 Reddit 搜索、帖子、评论与 subreddit/hot/popular | OpenCLI 复用 Chrome 登录态；不再依赖 Composio MCP |
 | `screenshot` | 系统级截图与区域捕获 | 使用 OS 级截图能力 |
 | `skill-creator` | 创建、优化、评估 skills | 用于 skill 设计与迭代 |
-| `teach` | 在当前 workspace 中进行跨会话、可沉淀的概念与技能教学 | 纯指令型 skill；建议在独立学习目录中使用 |
+| `teach` | 在当前 workspace 中进行跨会话、可沉淀的概念与技能教学，并复用课程样式、测验与模拟器组件 | 纯指令型 skill；建议在独立学习目录中使用 |
 | `video-transcribe` | 视频/音频全量转录、图文笔记与关键帧分析 | 依赖 yt-dlp / ffmpeg / Groq |
 | `xiaohongshu` | 只读访问小红书搜索、笔记、评论、feed 与用户公开笔记 | OpenCLI 复用 Chrome 登录态；不再保留 HTTP/API 直读路线 |
 
