@@ -1,0 +1,33 @@
+runtime_version: 1
+skill: apifox-cli
+platform: codex
+
+sync_paths:
+  - SKILL.md
+
+origin:
+  repo: https://apifox.com
+  path: .well-known/agent-skills/apifox-cli/SKILL.md
+  ref: sha256:a3518a5ea5dc111285babd17623615b3b18bb5fc73bc91ff369d35424114e56b
+  license: "not-declared"
+  local_adaptations:
+    - 移除 upstream frontmatter 的 metadata.requires / cliHelp；运行依赖与验证规则改由 repo-only runtime.yaml 承载。
+    - 将私有部署示例地址改为公开仓库统一占位符 <PRIVATE_APIFOX_BASE_URL>。
+
+dependencies:
+  commands:
+    - apifox
+  notes:
+    - 需要 Node.js 14+ 与 Apifox CLI 2.2.6+；接入时官网 npm latest 为 2.2.8。
+    - 登录凭据保存在 ~/.apifox/config.toml；token、projectId、私有部署地址与真实环境参数不得进入公开仓库或 skill 运行目录。
+
+manual_steps:
+  - 如未安装 CLI，执行 npm install -g apifox-cli@latest，再按当前 apifox auth --help 完成登录。
+  - 新增或同步后需开启新的 Codex 会话，确保运行时重新扫描 Skill。
+  - 涉及 create / update / delete / run 等外部写入或有副作用请求时，必须先确认项目、分支和非生产环境。
+
+verify:
+  - test -f SKILL.md
+  - rg -q '^name: apifox-cli$' SKILL.md
+  - apifox --version
+  - apifox --help
