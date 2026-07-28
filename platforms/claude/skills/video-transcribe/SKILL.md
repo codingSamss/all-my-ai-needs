@@ -29,7 +29,7 @@ When intent is unclear, default to transcript + keyframes for short videos and a
 
 1. Create a work directory under `/tmp/video-transcribe/<slug>`.
 2. Download media with `scripts/download_media.sh`.
-3. Transcribe with `scripts/transcribe_groq.py` when speech content is needed.
+3. Transcribe with `scripts/transcribe.py` when speech content is needed (defaults to the Groq backend; add `--backend moss` only when speaker labels are required — see "Speaker labels" below).
 4. Extract frames with `scripts/extract_frames.sh` when visual context or screenshots are needed.
 5. For Obsidian notes, read `references/obsidian-video-note.md` before writing.
 6. Validate deliverables with `scripts/verify_obsidian_note.sh` and run `touch <note>` after editing an Obsidian file externally.
@@ -46,7 +46,7 @@ SKILL_DIR="$HOME/.codex/skills/video-transcribe"
 
 VIDEO=$("$SKILL_DIR/scripts/download_media.sh" "$URL" "$WORK" full)
 
-"$SKILL_DIR/scripts/transcribe_groq.py" \
+"$SKILL_DIR/scripts/transcribe.py" \
   "$VIDEO" \
   --work-dir "$WORK" \
   --language en \
@@ -65,10 +65,45 @@ For a note intended to replace watching a video, use two layers:
 
 Avoid a single flat list of dozens of timestamps. It is technically complete but hard to read.
 
+## Speaker labels (`--backend moss`)
+
+Only reach for the moss backend when the material is multi-speaker (interview, podcast, two-host talk) and knowing *who said what* actually changes the note. Otherwise stay on Groq.
+
+Setup (one-time):
+
+```bash
+export MOSS_TRANSCRIBE_BIN="$HOME/tools/moss-transcribe.cpp/build/moss-transcribe"
+export MOSS_TRANSCRIBE_MODEL="$HOME/tools/moss-models/moss-transcribe-q5_k.gguf"
+```
+
+Build from https://github.com/localai-org/moss-transcribe.cpp (`cmake -B build -DMT_GGML_METAL=ON && cmake --build build -j`); weights from https://huggingface.co/mudler/moss-transcribe.cpp-gguf.
+
+```bash
+"$SKILL_DIR/scripts/transcribe.py" "$VIDEO" --work-dir "$WORK" --backend moss
+```
+
+What to expect, measured on an M3 Max (Metal, q5_k):
+
+| Audio | Wall clock | Note |
+| --- | --- | --- |
+| 26 s | 2 s | |
+| 180 s | 47 s | chunk size used by default |
+| 450 s | 103 s | 3 chunks, timestamps merge correctly |
+| 600 s **unchunked** | 967 s | slower than real time — never disable chunking |
+| 1487 s **unchunked** | fails | Metal tries to allocate 23.5 GiB |
+
+Cost is superlinear in clip length, so the script always chunks at 180 s (`--moss-chunk-seconds`). Expect the GPU to sit at ~100% and the fans to spin up for roughly a quarter of the audio duration.
+
+Two things to know before trusting the output:
+
+- **Speaker labels are chunk-local.** MOSS assigns `S01`, `S02` … in order of appearance *within each chunk*, so `S01` in chunk 0 is not guaranteed to be the same person as `S01` in chunk 2. `transcript_segments.json` carries a `chunk` field whenever the audio was split. Reconcile identities from context before naming speakers in a note.
+- **moss-transcribe exits non-zero on every successful run** on the Metal backend (a cleanup assertion in ggml). The script treats parseable stdout as the success signal and ignores the exit code; do not "fix" that by reinstating a returncode check.
+
 ## Bundled Resources
 
 - `scripts/download_media.sh`: yt-dlp wrapper with cookie retry and `uvx --from yt-dlp` fallback.
-- `scripts/transcribe_groq.py`: media-to-audio extraction, size-based segmentation, Groq transcription, and timestamp merge.
+- `scripts/transcribe.py`: media-to-audio extraction, segmentation, transcription, and timestamp merge. Two backends behind one artifact contract — `--backend groq` (default) and `--backend moss`.
+- `scripts/transcribe_groq.py`: the original Groq-only script, kept for compatibility; `transcribe.py --backend groq` supersedes it.
 - `scripts/extract_frames.sh`: uniform or timestamp-based keyframe extraction.
 - `scripts/verify_obsidian_note.sh`: Markdown image/timestamp/frontmatter checks.
 - `references/obsidian-video-note.md`: long-form Obsidian note structure and coverage standard.
