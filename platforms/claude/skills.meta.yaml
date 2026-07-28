@@ -25,7 +25,7 @@ profiles:
   obsidian-kb: "Obsidian 知识库写作与收录"
   frontend-design: "前端设计、动效与出图"
   api-testing: "API 设计与单接口测试用例维护"
-  social-reading: "社交平台只读采集"
+  social-reading: "社交平台采集与收藏整理"
   web-automation: "浏览器与截图自动化"
   macos-local: "macOS 本地维护"
 
@@ -34,6 +34,7 @@ skills:
   apifox-cli: { scope: project, profiles: [api-testing] }
   apifox-test-case: { scope: project, profiles: [api-testing] }
   bilibili: { scope: project, profiles: [social-reading] }
+  bird-bookmark-folders: { scope: project, profiles: [social-reading] }
   bird-twitter: { scope: project, profiles: [social-reading] }
   cc-codex-review: { scope: core }
   fireworks-tech-graph: { scope: project, profiles: [frontend-design] }

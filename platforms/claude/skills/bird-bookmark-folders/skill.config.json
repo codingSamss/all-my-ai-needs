@@ -1,0 +1,5 @@
+{
+  "name": "bird-bookmark-folders",
+  "targets": ["claude", "codex"],
+  "entry": "SKILL.md"
+}

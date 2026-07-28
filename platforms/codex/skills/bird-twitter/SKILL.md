@@ -147,7 +147,7 @@ HTTP_PROXY=http://127.0.0.1:7897 HTTPS_PROXY=http://127.0.0.1:7897 bird --cookie
 Folder-id workflow:
 1. Prefer a visible folder URL such as `https://x.com/i/bookmarks/<id>`; `bird` accepts either the numeric id or the full URL.
 2. If only the folder name is known, try `opencli twitter bookmark-folders` to list folder ids. This command is read-only, but it may fail with HTTP 404 when X rotates the GraphQL operation.
-3. If `opencli twitter bookmark-folders` fails, do not fall back to All Bookmarks. Get candidate ids from an already-open Chrome/X URL, browser history/cache, or by inspecting X frontend bundles for `BookmarkFoldersSlice`; then validate candidates with `bird ... bookmarks --folder-id <id> -n 3 --plain`.
+3. If `opencli twitter bookmark-folders` fails, do not fall back to All Bookmarks. The reliable way to list folder ids is the `bird-bookmark-folders` skill (`python3 scripts/bookmark_folders.py list`), which calls `BookmarkFoldersSlice` directly. Failing that, get candidate ids from an already-open Chrome/X URL or browser history, then validate with `bird ... bookmarks --folder-id <id> -n 3 --plain`.
 4. Match the candidate folder by comparing the first returned tweets with the user's screenshot or named folder context before producing a summary.
 5. After `--all --max-pages N --json`, inspect `nextCursor`; if it is non-empty and the user asked for exhaustive results, increase `--max-pages`.
 
@@ -264,6 +264,8 @@ HTTP_PROXY=http://127.0.0.1:7897 HTTPS_PROXY=http://127.0.0.1:7897 bird --cookie
 - Uses unofficial X GraphQL API - may break without notice
 - Requires browser login to X for cookie authentication
 - If authentication fails, log into X in your browser and try again
+- 若要自己发 GraphQL 请求，bearer token 一律引用 `device_follow_timeline.DEFAULT_BEARER_TOKEN`，不要手抄：它在 `device_follow_timeline.py:29-31` 是跨两行的字符串拼接，`grep` 单行只会拿到前半截，用半截 token 会稳定返回 `401 code 32 Could not authenticate you`
+- 收藏夹的**写操作**（新建收藏夹、把书签在收藏夹间移动）见 `bird-bookmark-folders` skill；本 skill 只做读取
 
 ## Excluded Commands (High Risk)
 
