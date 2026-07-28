@@ -7,9 +7,13 @@ Backends:
         but saturates the GPU — see MOSS_CHUNK_SECONDS for the measured cost curve)
 
 Artifacts written to --work-dir are identical across backends:
-  transcript.txt              plain text
+  transcript.txt              plain text, one segment per line
   transcript_segments.json    [{start, end, text, speaker?, chunk?}]
   transcript_global.md        timestamped markdown list
+
+Note: transcribe_groq.py wrote transcript.txt as continuous prose (paragraphs split
+on upload-chunk boundaries). This script writes one line per segment instead — the
+paragraph breaks there were an artifact of the upload slicing, not a real structure.
 """
 
 from __future__ import annotations

@@ -8,7 +8,7 @@
 
 ## Groq
 
-- `401`: `GROQ_API_KEY` is missing, invalid, or expired.
+- `401`: `GROQ_API_KEY` is missing, invalid, or expired — **but check how you loaded it first**. If the key is stored in `~/.zshrc` as `export GROQ_API_KEY="…"`, pulling it out with `export $(grep … | sed 's/^export //')` carries the literal double quotes into the value and yields a 401 that looks exactly like an expired key. Run the script under `zsh -ic '…'` so it inherits the real environment, or strip the quotes explicitly.
 - `403`: network path is blocked; retry with `HTTP_PROXY=http://127.0.0.1:7897 HTTPS_PROXY=http://127.0.0.1:7897`.
 - `413`: the audio chunk is too large; reduce `--segment-seconds`.
 - `429`: rate limit; retry after a short wait.

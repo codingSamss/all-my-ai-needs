@@ -98,6 +98,7 @@ Two things to know before trusting the output:
 
 - **Speaker labels are chunk-local.** MOSS assigns `S01`, `S02` … in order of appearance *within each chunk*, so `S01` in chunk 0 is not guaranteed to be the same person as `S01` in chunk 2. `transcript_segments.json` carries a `chunk` field whenever the audio was split. Reconcile identities from context before naming speakers in a note.
 - **moss-transcribe exits non-zero on every successful run** on the Metal backend (a cleanup assertion in ggml). The script treats parseable stdout as the success signal and ignores the exit code; do not "fix" that by reinstating a returncode check.
+- **Chunk boundaries cut on wall-clock time, not on speech.** Splitting uses `ffmpeg -f segment -segment_time` with a stream copy, so a sentence spanning a boundary is torn in two and each half is transcribed without the other's context. Expect a garbled or truncated line at every boundary (one per 180 s of audio). If a boundary lands badly, re-run that stretch on its own with a different `--moss-chunk-seconds` to shift the cut. Splitting on silence (via `silencedetect`) would fix this properly and is not implemented yet.
 
 ## Bundled Resources
 
