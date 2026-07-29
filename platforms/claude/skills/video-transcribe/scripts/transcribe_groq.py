@@ -186,13 +186,10 @@ def curl_transcribe(
 
 def merge_outputs(json_paths: list[pathlib.Path], offsets: list[float], work_dir: pathlib.Path) -> None:
     merged_segments: list[dict[str, Any]] = []
-    plain_text_parts: list[str] = []
 
     for json_path, offset in zip(json_paths, offsets):
         data = json.loads(json_path.read_text(encoding="utf-8"))
         text = (data.get("text") or "").strip()
-        if text:
-            plain_text_parts.append(text)
 
         segments = data.get("segments") or []
         if segments:
@@ -209,7 +206,12 @@ def merge_outputs(json_paths: list[pathlib.Path], offsets: list[float], work_dir
         elif text:
             merged_segments.append({"start": offset, "end": offset, "text": text})
 
-    (work_dir / "transcript.txt").write_text("\n\n".join(plain_text_parts).strip() + "\n", encoding="utf-8")
+    # One segment per line. The old behaviour joined each upload chunk's full text with
+    # blank lines, but those paragraph breaks tracked upload slicing, not real structure.
+    (work_dir / "transcript.txt").write_text(
+        "\n".join(seg["text"] for seg in merged_segments if seg["text"]).strip() + "\n",
+        encoding="utf-8",
+    )
     (work_dir / "transcript_segments.json").write_text(
         json.dumps(merged_segments, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
