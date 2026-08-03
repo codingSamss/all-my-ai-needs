@@ -13,8 +13,15 @@ sync_paths:
 origin:
   repo: https://github.com/helloianneo/ian-xiaohei-scenes
   path: ian-xiaohei-scenes
+  ref: 3555bcb9ecaba284aec77ee492fdfd21c52faae3
   license: MIT
   notice: 保留 Ian Xiaohei Scenes 名称与 Ian attribution；本仓库沿用 ian-xiaohei-illustrations 入口名作为 2.0 覆盖升级。
+  local_adaptations:
+    - SKILL.md 的 name 由 ian-xiaohei-scenes 改为 ian-xiaohei-illustrations，作为 1.0 旧入口的 2.0 覆盖升级。
+    - 省略 upstream frontmatter 的 when-to-use / allowed-tools / context，触发说明并入 description。
+    - 改写 upstream 中"手绘图走 ian-xiaohei-illustrations、实物图走本 skill"的分流描述，改为本 skill 默认按 2.0 执行、仅在用户明确要求时降级为 1.0 兼容模式。
+    - 补充图片生成能力缺失时只输出提示词与 QA 清单的降级说明。
+    - references/ 与 assets/examples/ 与 upstream 逐字节一致；upstream 顶层的 examples/ 与 assets/ian-wechat-qr.jpg 不落地。
 
 dependencies:
   notes:

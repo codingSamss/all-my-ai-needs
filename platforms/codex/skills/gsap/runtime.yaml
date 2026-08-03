@@ -20,7 +20,12 @@ origin:
     - skills/gsap-react/SKILL.md
     - skills/gsap-performance/SKILL.md
     - skills/gsap-frameworks/SKILL.md
+  ref: aed9cfd3277740755f6bfc1155c7aa645403b760
   license: MIT
+  local_adaptations:
+    - upstream 的 skills/gsap-<topic>/SKILL.md 在本仓库扁平化为 references/gsap-<topic>.md，llms.txt 落到 references/llms.txt。
+    - 本 skill 的 SKILL.md 是自写的聚合入口（`$gsap` 单入口 + reference 路由），不对应 upstream 任何单一文件。
+    - references 内容与 upstream 逐字一致，仅清理了行尾空格。
 
 dependencies:
   npm:
