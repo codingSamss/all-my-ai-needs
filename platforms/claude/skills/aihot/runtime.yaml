@@ -4,22 +4,27 @@ platform: claude
 
 sync_paths:
   - SKILL.md
-  - README.md
+  - references/api.md
+  - references/errors.md
+  - references/sync.md
   - LICENSE
 
 origin:
   repo: https://github.com/KKKKhazix/khazix-skills
   path: aihot
-  ref: 5a963d91f772e0d4f6659c43a36876a74c468143
-  version: 0.3.6
+  ref: 17573491cf2ff70582d2ae0018ca39e571d35f53
+  version: 1.3.0
   license: MIT
+  local_adaptations:
+    - 不下发 upstream 的 install.sh 与 manifest.sha256；本仓库由 AI 直接同步文件，不走远端安装器。
+    - README.md 只保留在 repo 供人阅读，按 upstream 约定不进入运行目录。
 
 dependencies:
   commands:
     - curl
     - rg
   notes:
-    - 仅访问 https://aihot.virxact.com/api/public/* 匿名只读 GET 接口，不需要 API Key、cookie 或 MCP server。
+    - 仅访问 https://aihot.virxact.com/api/v1/* 匿名只读 GET 接口，不需要 API Key、cookie 或 MCP server。
     - 请求必须使用 SKILL.md 定义的可识别非浏览器 User-Agent，避免触发边缘安全拦截。
 
 manual_steps:
@@ -28,8 +33,10 @@ manual_steps:
 
 verify:
   - test -f SKILL.md
-  - test -f README.md
   - test -f LICENSE
+  - test -f references/api.md
+  - test -f references/errors.md
+  - test -f references/sync.md
   - rg -q '^name: aihot$' SKILL.md
-  - rg -q 'aihot-skill/0.3.6' SKILL.md
-  - curl -fsS --max-time 10 -H 'User-Agent: aihot-skill/0.3.6 (+https://aihot.virxact.com/aihot-skill/)' https://aihot.virxact.com/api/public/version | rg -q '"apiVersion"|"skillVersion"'
+  - rg -q 'aihot-skill/1.3.0' SKILL.md
+  - curl -fsS --max-time 10 -H 'User-Agent: aihot-skill/1.3.0 (+https://aihot.virxact.com/aihot-skill/)' 'https://aihot.virxact.com/api/v1/items?mode=selected&window=24h&limit=1' | rg -q '"schemaVersion"'

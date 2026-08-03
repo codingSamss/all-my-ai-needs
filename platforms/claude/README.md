@@ -23,7 +23,7 @@
 
 | Skill | 能力 | 运行说明 |
 | --- | --- | --- |
-| `aihot` | 查询中文 AI 资讯、精选、当前热点与日报 | 匿名只读 REST API；无需 API Key 或 MCP；按点名方式下发 |
+| `aihot` | 查询中文 AI 资讯、精选、当前热点、事件时间线、日报与完整精选同步 | 匿名只读 `/api/v1/*`；无需 API Key 或 MCP；按点名方式下发 |
 | `apifox-cli` | 通过 CLI 管理 Apifox 接口、Schema、环境、Mock 与项目资源 | 依赖 Apifox CLI 2.2.6+；登录凭据仅保存在本机 |
 | `apifox-test-case` | 维护单接口测试用例、请求参数、Body、断言、变量提取与测试数据 | 依赖 `apifox-cli`；写入前校验 schema，写入后回读并运行验证 |
 | `bilibili` | B站搜索、热门、排行、视频详情、音频入口与字幕读取 | 依赖 bili-cli + opencli（缺失时降级到 search API） |
