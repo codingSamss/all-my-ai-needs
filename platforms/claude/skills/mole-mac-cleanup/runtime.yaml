@@ -2,8 +2,21 @@ runtime_version: 1
 skill: mole-mac-cleanup
 platform: claude
 
+origin:
+  repo: https://github.com/tw93/Mole
+  path: .claude/skills/mole
+  ref: ad82a47b157c289a0feb52a414d4515a83ea7aaf
+  version: V1.49.2
+  license: GPL-3.0-or-later
+  local_adaptations:
+    - 保留 mole-mac-cleanup 名称与更宽的用户触发描述，正文以 upstream agent skill 的命令语义与 machine-readable surfaces 为基线。
+    - 增加当前轮二次确认、默认无 sudo、不自动关闭应用、项目与运行态数据独立审批等本地安全边界。
+    - Homebrew 管理状态以 brew list / brew info 为准，避免只依赖 mo --version 的 Install 字段。
+    - analyze 的路径参数采用 `mo analyze --json <path>` flag-first 顺序，兼容 V1.43.1 等旧版并继续适用于当前 upstream。
+
 sync_paths:
   - SKILL.md
+  - LICENSE
 
 dependencies:
   commands:
@@ -12,10 +25,16 @@ dependencies:
 
 manual_steps:
   - 推荐通过 Homebrew 安装或升级 Mole：brew install mole / brew upgrade mole
-  - 清理类命令必须先 dry-run；非 dry-run 的 mo clean、mo uninstall、mo purge、mo installer、mo remove 都需要当前轮明确确认
-  - "`mo analyze` 可用于探索磁盘占用；删除动作仍需单独确认"
+  - 同步后新开 Claude Code 会话，确保运行时重新加载最新版 skill 正文
+  - 清理类命令必须先 dry-run 并汇总候选；非 dry-run 的 clean、uninstall、purge、installer、optimize 需要当前轮二次确认
+  - 使用 mo analyze --json、mo status --json 与 mo history --json 等 agent-facing surface，避免解析 TUI 帧
+  - update、remove、nightly、sudo、关闭应用及项目/容器数据清理必须单独获得明确授权
 
 verify:
   - test -f SKILL.md
+  - test -f LICENSE
+  - rg -q 'mo analyze --json' SKILL.md
+  - rg -q 'mo history --json --limit' SKILL.md
+  - rg -q 'ad82a47b157c289a0feb52a414d4515a83ea7aaf' runtime.yaml
   - command -v mo
   - mo --version

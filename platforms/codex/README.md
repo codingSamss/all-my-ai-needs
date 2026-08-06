@@ -34,7 +34,7 @@
 | `handoff` | 为下一位 agent、新线程或跨机器任务生成临时/持久交接文档 | 纯指令型 skill；临时写入 OS 临时目录，跨机器长期接力写入 Obsidian `08_交接台` |
 | `ian-xiaohei-illustrations` | 为中文内容生成小黑 2.0 实物场景正文图与长卷故事图 | 依赖 Codex `image_gen` 能力 |
 | `linuxdo` | 只读访问 LINUX DO 论坛 | 依赖 Chrome Cookie |
-| `mole-mac-cleanup` | 安全使用 Mole (`mo`) 预览和清理 macOS 磁盘空间 | 依赖 Mole CLI，推荐 Homebrew 安装 |
+| `mole-mac-cleanup` | 基于 Mole 官方 agent skill 安全检查状态、分析磁盘、审计历史并预览/执行 macOS 清理 | 依赖 Mole CLI，优先使用 JSON/dry-run surface，推荐 Homebrew 管理 |
 | `official-article-ingest` | 官方文章收录到 Obsidian，区分原文 1:1 与英文中文对照 1:1，并保持源站排版美感 | 依赖目标 Vault、源站页面与本地媒体校验 |
 | `openai-docs` | OpenAI 官方文档与 API 实现指引 | 依赖官方 docs MCP |
 | `online-doc-html` | Markdown 导出为适合在线文档粘贴的 HTML | 依赖 `pandoc` / `rsvg-convert` |
