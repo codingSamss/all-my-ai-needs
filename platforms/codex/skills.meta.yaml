@@ -47,7 +47,6 @@ skills:
   orbit-os: { scope: project, profiles: [obsidian-kb] }
   orbit-session-diary: { scope: project, profiles: [obsidian-kb] }
   reddit: { scope: project, profiles: [social-reading] }
-  taste-design: { scope: project, profiles: [frontend-design] }
   teach: { scope: core }
   video-transcribe: { scope: project, profiles: [obsidian-kb] }
   xiaohongshu: { scope: project, profiles: [social-reading] }

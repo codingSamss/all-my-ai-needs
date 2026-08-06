@@ -40,7 +40,6 @@
 | `orbit-os` | OrbitOS Obsidian Vault 共享配置与规范 | 供 orbit-* 系列 skill 引用；含 `07_交接台` 与 iCloud `AgentArtifacts` 规范 |
 | `orbit-session-diary` | 基于本地会话日志生成 Obsidian 日记 | 依赖本地 jsonl 与目标 Vault |
 | `reddit` | 只读访问 Reddit 内容 | OpenCLI 复用 Chrome 登录态；`rdt-cli` 仅作手动备用 |
-| `taste-design` | Taste 设计统一入口，按任务路由到前端设计、改版、图到代码、品牌视觉、参考图或 Stitch 子模块 | 运行时只暴露单入口；细分模块保留在 `references/skills/` |
 | `teach` | 在当前 workspace 中进行跨会话、可沉淀的概念与技能教学，并复用课程样式、测验与模拟器组件 | 纯指令型 skill；建议在独立学习目录中使用 |
 | `video-transcribe` | 视频/音频全量转录、图文笔记与关键帧分析 | 依赖 yt-dlp / ffmpeg / Groq |
 | `xiaohongshu` | 只读访问小红书搜索、笔记、评论、feed 与用户公开笔记 | OpenCLI 复用 Chrome 登录态；不再保留 HTTP/API 直读路线 |
@@ -54,4 +53,3 @@
 - skill 若需要依赖、手动步骤、验证命令，统一写入 repo 中对应 skill 目录下的 `runtime.yaml`
 - 平台级 `platforms/codex/runtime.yaml` 仅用于仓库内 AI 理解迁移规则，不会同步到 `~/.codex` 根目录
 - skill 级 `runtime.yaml` 仅保留在 repo，不同步到 `~/.codex/skills/<skill>/`
-- Taste 细分模块不再作为平铺 skill 暴露；统一由 `taste-design` 入口按任务读取 `references/skills/` 下的对应模块

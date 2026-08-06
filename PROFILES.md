@@ -41,13 +41,13 @@ macos-local       macOS 本地维护
 | --- | --- | --- | --- |
 | `core` | scope·常驻 | git-ops · handoff · teach | cc-codex-review · git-ops · handoff · skill-creator · teach |
 | `obsidian-kb` | profile | official-article-ingest · online-doc-html · orbit-os · orbit-session-diary · video-transcribe | official-article-ingest · online-doc-html · orbit-os · orbit-session-diary · video-transcribe |
-| `frontend-design` | profile | fireworks-tech-graph · gsap · ian-xiaohei-illustrations · taste-design | fireworks-tech-graph · gsap · ian-xiaohei-illustrations |
+| `frontend-design` | profile | fireworks-tech-graph · gsap · ian-xiaohei-illustrations | fireworks-tech-graph · gsap · ian-xiaohei-illustrations |
 | `api-testing` | profile | apifox-cli · apifox-test-case | apifox-cli · apifox-test-case |
 | `social-reading` | profile | bilibili · bird-twitter · linuxdo · reddit · xiaohongshu | bilibili · bird-twitter · linuxdo · reddit · xiaohongshu |
 | `macos-local` | profile | mole-mac-cleanup | mole-mac-cleanup |
 | `manual-only` | scope·点名 | aihot | aihot |
 
-平台差异是预期的：`taste-design` 仅 Codex；`cc-codex-review`、`skill-creator` 仅 Claude。
+平台差异是预期的：`cc-codex-review`、`skill-creator` 仅 Claude。
 
 ## Agent 同步剧本
 
