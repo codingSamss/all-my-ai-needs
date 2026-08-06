@@ -31,18 +31,15 @@
 | `fireworks-tech-graph` | 生成带几何校验的技术图，覆盖 12 种风格、工程语义合同、SVG/PNG、语义 SVG→GIF 与离线 HTML | 依赖 Python 3.9+；PNG 优先 `cairosvg`；GIF 动效依赖可选的 Node/FFmpeg/Chromium 工具链 |
 | `git-ops` | 按 Sam 习惯安全执行 Git 分支、提交、合并、推送与对比 | 依赖 `git` 与 `rg` |
 | `gsap` | 前端动效实现辅助，覆盖 GSAP core、React、ScrollTrigger、插件与性能约束 | 依赖 `gsap`，React 项目可加 `@gsap/react` |
-| `handoff` | 为下一位 agent、新线程或跨机器任务生成临时/持久交接文档 | 纯指令型 skill；临时写入 OS 临时目录，跨机器长期接力写入 Obsidian `08_交接台` |
+| `handoff` | 为下一位 agent、新线程或跨机器任务生成临时/持久交接文档 | 纯指令型 skill；临时写入 OS 临时目录，跨机器长期接力写入 Obsidian `07_交接台` |
 | `ian-xiaohei-illustrations` | 为中文内容生成小黑 2.0 实物场景正文图与长卷故事图 | 依赖 Codex `image_gen` 能力 |
 | `linuxdo` | 只读访问 LINUX DO 论坛 | 依赖 Chrome Cookie |
 | `mole-mac-cleanup` | 基于 Mole 官方 agent skill 安全检查状态、分析磁盘、审计历史并预览/执行 macOS 清理 | 依赖 Mole CLI，优先使用 JSON/dry-run surface，推荐 Homebrew 管理 |
 | `official-article-ingest` | 官方文章收录到 Obsidian，区分原文 1:1 与英文中文对照 1:1，并保持源站排版美感 | 依赖目标 Vault、源站页面与本地媒体校验 |
-| `openai-docs` | OpenAI 官方文档与 API 实现指引 | 依赖官方 docs MCP |
 | `online-doc-html` | Markdown 导出为适合在线文档粘贴的 HTML | 依赖 `pandoc` / `rsvg-convert` |
-| `orbit-os` | OrbitOS Obsidian Vault 共享配置与规范 | 供 orbit-* 系列 skill 引用；含 `08_交接台` 与 iCloud `AgentArtifacts` 规范 |
+| `orbit-os` | OrbitOS Obsidian Vault 共享配置与规范 | 供 orbit-* 系列 skill 引用；含 `07_交接台` 与 iCloud `AgentArtifacts` 规范 |
 | `orbit-session-diary` | 基于本地会话日志生成 Obsidian 日记 | 依赖本地 jsonl 与目标 Vault |
-| `playwright` | MCP-only 真实浏览器自动化 | 仅在手动启用 `playwright-ext` 后使用 |
 | `reddit` | 只读访问 Reddit 内容 | OpenCLI 复用 Chrome 登录态；`rdt-cli` 仅作手动备用 |
-| `screenshot` | 系统级截图与区域捕获 | 使用 OS 级截图能力 |
 | `taste-design` | Taste 设计统一入口，按任务路由到前端设计、改版、图到代码、品牌视觉、参考图或 Stitch 子模块 | 运行时只暴露单入口；细分模块保留在 `references/skills/` |
 | `teach` | 在当前 workspace 中进行跨会话、可沉淀的概念与技能教学，并复用课程样式、测验与模拟器组件 | 纯指令型 skill；建议在独立学习目录中使用 |
 | `video-transcribe` | 视频/音频全量转录、图文笔记与关键帧分析 | 依赖 yt-dlp / ffmpeg / Groq |
@@ -53,7 +50,7 @@
 - 运行件（`agents`/`bin`/`hooks`/`scripts`、`AGENTS.md`、`config.toml`）由各设备本地自管，不入仓
 - skill 同步由 AI agent 拉仓库后做最小差异 diff 落到 `~/.codex/skills`
 - `platforms/codex/config.toml` 仅作去敏参考，由各设备本地自管，仓库不覆盖本机
-- `platforms/codex/config.toml` 已启用 Codex Chrome 插件；`playwright-ext` 保留配置但默认 `enabled = false`
+- `platforms/codex/config.toml` 已启用 Codex Chrome 插件；浏览器自动化统一走 Codex 内置浏览器与官方 Chrome 插件，不再自维护 playwright skill
 - skill 若需要依赖、手动步骤、验证命令，统一写入 repo 中对应 skill 目录下的 `runtime.yaml`
 - 平台级 `platforms/codex/runtime.yaml` 仅用于仓库内 AI 理解迁移规则，不会同步到 `~/.codex` 根目录
 - skill 级 `runtime.yaml` 仅保留在 repo，不同步到 `~/.codex/skills/<skill>/`

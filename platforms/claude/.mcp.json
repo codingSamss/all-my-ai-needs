@@ -46,20 +46,6 @@
         "--enable-gui-log-window", "false"
       ]
     },
-    "playwright-ext": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["@playwright/mcp@latest", "--extension"],
-      "env": {
-        "PLAYWRIGHT_MCP_EXTENSION_TOKEN": "<PLAYWRIGHT_EXT_TOKEN>"
-      }
-    },
-    "playwright": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest"],
-      "env": {}
-    },
     "tavily": {
       "type": "stdio",
       "command": "npx",

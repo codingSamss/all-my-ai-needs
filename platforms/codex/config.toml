@@ -29,19 +29,6 @@ goals = true
 [mcp_servers.openaiDeveloperDocs]
 url = "https://developers.openai.com/mcp"
 
-[mcp_servers.playwright-ext]
-enabled = false
-command = "npx"
-args = ["@playwright/mcp@latest", "--extension"]
-startup_timeout_sec = 45.0
-env = { PLAYWRIGHT_MCP_EXTENSION_TOKEN = "<PLAYWRIGHT_EXT_TOKEN>" }
-
-[mcp_servers.playwright-ext.tools.browser_evaluate]
-approval_mode = "approve"
-
-[mcp_servers.playwright-ext.tools.browser_navigate]
-approval_mode = "approve"
-
 [mcp_servers.chrome-devtools]
 command = "npx"
 args = ["chrome-devtools-mcp@latest", "--autoConnect"]

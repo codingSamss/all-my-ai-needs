@@ -42,7 +42,7 @@
 
 - Shell 脚本统一使用 Bash，并默认开启 `set -euo pipefail`。
 - 退出码语义保持一致：`0` 成功，`1` 失败，`2` 需人工补齐。
-- 技能目录名使用小写短横线风格，例如 `openai-docs`、`bird-twitter`。
+- 技能目录名使用小写短横线风格，例如 `bird-twitter`、`online-doc-html`。
 - 文档优先给出可执行命令、路径与验证步骤，避免空泛描述。
 
 ## 输出引用规范
@@ -106,7 +106,8 @@
 - diff 完整性检查：
   - `git diff --check && git diff --cached --check`
 - 删除后残留引用检查：
-  - `git grep -nE "playwright/scripts/playwright_cli\\.sh|playwright/references/cli\\.md|playwright/references/workflows\\.md|\\$PWCLI\\b|@playwright/cli\\b" || true`
+  - 用被删对象的名称全仓 grep，确认 README、PROFILES、`skills.meta.yaml`、MCP 配置与其他 skill 正文中均无残留引用
+  - 删除 skill 后确认所属 profile 是否已空；成员清零的 profile 需一并从两平台 `skills.meta.yaml` 与文档中摘除
 - 平台一致性检查（同名 skill 多端存在时）：
   - 同名 skill 允许分叉，但必须确认差异是否属于平台约束，而不是误改。
 

@@ -1,0 +1,32 @@
+runtime_version: 1
+skill: bird-twitter
+platform: codex
+
+sync_paths:
+  - SKILL.md
+  - scripts/
+
+dependencies:
+  commands:
+    - bird
+    - python3
+  python_packages:
+    - certifi
+  notes:
+    - Bird CLI 上游已下架：github.com/steipete/bird 返回 404，steipete/homebrew-tap 中 bird.rb 已移除，`brew install steipete/tap/bird` 不再可用。
+    - 因此 vendor/bird-macos-universal-v0.8.0.tar.gz 是本仓库刻意保留的唯一安装源，不要以“体积大”为由清理。
+    - 认证走 Chrome Cookie（--cookie-source chrome），只读，不提供发帖/评论等写操作。
+    - 非国内站点默认走本地 7897 代理。
+
+manual_steps:
+  - 从 vendor/bird-macos-universal-v0.8.0.tar.gz 解包安装 bird 到 PATH（校验 sha256 见 vendor/README.md）。
+  - Chrome 登录 x.com 后再调用，否则只能拿到公开内容。
+  - vendor/ 只留在 repo，不进入运行目录。
+
+verify:
+  - command -v bird
+  - HTTP_PROXY=http://127.0.0.1:7897 HTTPS_PROXY=http://127.0.0.1:7897 bird --cookie-source chrome --timeout 15000 whoami
+  - python3 scripts/device_follow_timeline.py --count 1 --plain
+
+notes:
+  - 书签分类目录的增删移动由 bird-bookmark-folders 承担，本 skill 只读书签列表。

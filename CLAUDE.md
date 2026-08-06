@@ -80,7 +80,8 @@ description: "包含触发关键词的描述"
 2. 完整性检查：
    - `git diff --check && git diff --cached --check`
 3. 删除引用检查：
-   - `git grep -nE "playwright/scripts/playwright_cli\\.sh|playwright/references/cli\\.md|playwright/references/workflows\\.md|\\$PWCLI\\b|@playwright/cli\\b" || true`
+   - 本次改动若删除了 skill、脚本或配置，用被删对象的名称全仓 grep，确认 README、PROFILES、`skills.meta.yaml`、MCP 配置与其他 skill 正文中均无残留引用
+   - 删除 skill 后还需确认所属 profile 是否已空；profile 成员清零时一并从两平台 `skills.meta.yaml` 与文档中摘除
 4. 平台一致性检查：
    - 同名 skill 若在多个平台都存在，必须确认语义是否仍然符合各自平台约定
 

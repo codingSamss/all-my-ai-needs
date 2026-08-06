@@ -43,9 +43,8 @@ all-my-ai-needs/
 | 前端设计 `frontend-design` | `gsap` `fireworks-tech-graph` `ian-xiaohei-illustrations`；Codex 另含 `taste-design` |
 | API 测试 `api-testing` | `apifox-cli` `apifox-test-case` |
 | 社交只读 `social-reading` | `bilibili` `bird-twitter` `reddit` `linuxdo` `xiaohongshu` |
-| 浏览器自动化 `web-automation` | `playwright` `screenshot` |
-| macOS 维护 `macos-local` | `mole-mac-cleanup` `screenshot` |
-| 点名 `manual-only` | `aihot`；Codex 另含 `openai-docs` |
+| macOS 维护 `macos-local` | `mole-mac-cleanup` |
+| 点名 `manual-only` | `aihot` |
 
 ## 同步模型
 

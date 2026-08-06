@@ -1,0 +1,22 @@
+runtime_version: 1
+skill: linuxdo
+platform: codex
+
+sync_paths:
+  - SKILL.md
+  - scripts/
+
+dependencies:
+  commands:
+    - python3
+  notes:
+    - 零 pip 依赖，只用 Python 标准库。
+    - Chrome Cookie 提取依赖 macOS Keychain + CommonCrypto，其他平台不可用。
+    - 走 Discourse JSON API，只读。
+
+manual_steps:
+  - Chrome 登录 linux.do 后可读需登录内容；未登录仍可访问公开区。
+
+verify:
+  - python3 scripts/linuxdo.py whoami
+  - python3 scripts/linuxdo.py latest --limit 3

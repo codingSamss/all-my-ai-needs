@@ -1,0 +1,55 @@
+runtime_version: 1
+skill: taste-design
+platform: codex
+
+origin:
+  repo: https://github.com/Leonxlnx/taste-skill
+  path: skills
+  ref: 0d0aca956ce8c6d268b30ad74e5d93ff829f819b
+  license: MIT
+  notes:
+    - 每个子模块目录内随附 upstream 的 MIT LICENSE（Copyright (c) 2026 Leonxlnx），同步时必须一并保留。
+    - upstream 后续 commit（至 e988add2 / 2026-07-23）只动 README 赞助位，未改 skills/，因此内容锚点停在 0d0aca95。
+  local_adaptations:
+    - 本 skill 的 SKILL.md 是自写的聚合入口（单入口 + 子模块路由），不对应 upstream 任何单一文件。
+    - upstream 的 skills/<name>/ 在本仓库收编为 references/skills/taste-<name>/，目录名统一加 taste- 前缀。
+    - 各子模块 SKILL.md 正文与 upstream 逐字节一致，仅改写 frontmatter 的 name（加 taste- 前缀）与 description（译为中文）。
+    - upstream 顶层的 assets/、examples/、research/、scripts/、skill.sh、.claude-plugin/ 不落地。
+  name_map:
+    taste-brandkit: brandkit
+    taste-design-frontend: taste-skill
+    taste-design-frontend-v1: taste-skill-v1
+    taste-full-output-enforcement: output-skill
+    taste-gpt: gpt-tasteskill
+    taste-high-end-visual-design: soft-skill
+    taste-image-to-code: image-to-code-skill
+    taste-imagegen-frontend-mobile: imagegen-frontend-mobile
+    taste-imagegen-frontend-web: imagegen-frontend-web
+    taste-industrial-brutalist-ui: brutalist-skill
+    taste-minimalist-ui: minimalist-skill
+    taste-redesign-existing-projects: redesign-skill
+    taste-stitch-design: stitch-skill
+
+sync_paths:
+  - SKILL.md
+  - references/
+
+dependencies:
+  commands: []
+  notes:
+    - 纯规范型 skill，无脚本、无 MCP 依赖。
+    - 13 个子模块作为 references 随本 skill 一起下发，不单独注册为运行目录 skill。
+
+manual_steps:
+  - 收编语义要求 ~/.codex/skills 下不再保留独立的 taste-* 目录，只保留 taste-design 一个入口。
+  - 子模块只按任务路由读取一个，跨阶段任务最多再读一个辅助模块。
+
+verify:
+  - test -f SKILL.md
+  - test "$(ls references/skills | wc -l | tr -d ' ')" = "13"
+  - ls references/skills/*/LICENSE | wc -l
+
+notes:
+  - 2026-08-06 核对：~/.codex/skills 下仍并存 13 个独立 taste-* 目录，与本 skill「不要把子模块作为
+    独立 skill 暴露给 agent」的约定冲突，收编实际未生效；清理这些目录后本 skill 才起作用。
+  - 该收编不在 Claude 平台落地，Claude 侧无同名 skill。

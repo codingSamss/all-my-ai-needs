@@ -1,0 +1,36 @@
+runtime_version: 1
+skill: video-transcribe
+platform: codex
+
+sync_paths:
+  - SKILL.md
+  - references/
+  - scripts/
+
+dependencies:
+  commands:
+    - yt-dlp
+    - ffmpeg
+    - python3
+  optional_commands:
+    - whisper-cpp
+  env:
+    - GROQ_API_KEY
+  notes:
+    - 音频转录走 Groq Whisper，需要 GROQ_API_KEY；纯画面分析不需要。
+    - ffmpeg 同时承担音频切分与关键帧提取。
+    - Groq 直连可能返回 403，需要时走本地 7897 代理。
+
+manual_steps:
+  - brew install yt-dlp ffmpeg
+  - 在本机环境注入 GROQ_API_KEY（不入仓，不写进 skill 文件）。
+  - 输出到 Obsidian 时遵循 orbit-os 的排版与路径规范。
+
+verify:
+  - command -v yt-dlp
+  - command -v ffmpeg
+  - test -n "$GROQ_API_KEY"
+  - bash scripts/download_media.sh --help || true
+
+notes:
+  - 后端只保留单一 Groq 脚本，moss 分支已于 a19637e 回退，不要重新引入。

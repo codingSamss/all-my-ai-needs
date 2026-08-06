@@ -13,4 +13,4 @@ Local extensions maintained for Sam's workflow:
 
 - `temp` mode preserves the upstream behavior and writes short handoffs to the OS temporary directory.
 - `workspace` mode writes into the current workspace only when explicitly requested.
-- `vault` mode writes persistent multi-machine handoffs into the Obsidian `08_交接台` task structure and indexes large external artifacts under iCloud `AgentArtifacts`.
+- `vault` mode writes persistent multi-machine handoffs into the Obsidian `07_交接台` task structure and indexes large external artifacts under iCloud `AgentArtifacts`.

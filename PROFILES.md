@@ -30,7 +30,6 @@ obsidian-kb       Obsidian 知识库写作与收录
 frontend-design   前端设计、动效与出图
 api-testing       API 设计与单接口测试用例维护
 social-reading    社交平台只读采集
-web-automation    浏览器与截图自动化
 macos-local       macOS 本地维护
 ```
 
@@ -45,11 +44,10 @@ macos-local       macOS 本地维护
 | `frontend-design` | profile | fireworks-tech-graph · gsap · ian-xiaohei-illustrations · taste-design | fireworks-tech-graph · gsap · ian-xiaohei-illustrations |
 | `api-testing` | profile | apifox-cli · apifox-test-case | apifox-cli · apifox-test-case |
 | `social-reading` | profile | bilibili · bird-twitter · linuxdo · reddit · xiaohongshu | bilibili · bird-twitter · linuxdo · reddit · xiaohongshu |
-| `web-automation` | profile | playwright · screenshot | playwright · screenshot |
-| `macos-local` | profile | mole-mac-cleanup · screenshot | mole-mac-cleanup · screenshot |
-| `manual-only` | scope·点名 | aihot · openai-docs | aihot |
+| `macos-local` | profile | mole-mac-cleanup | mole-mac-cleanup |
+| `manual-only` | scope·点名 | aihot | aihot |
 
-平台差异是预期的：`taste-design`、`openai-docs` 仅 Codex；`cc-codex-review`、`skill-creator` 仅 Claude。
+平台差异是预期的：`taste-design` 仅 Codex；`cc-codex-review`、`skill-creator` 仅 Claude。
 
 ## Agent 同步剧本
 

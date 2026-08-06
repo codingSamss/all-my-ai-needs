@@ -1,0 +1,26 @@
+runtime_version: 1
+skill: cc-codex-review
+platform: claude
+
+sync_paths:
+  - SKILL.md
+
+dependencies:
+  commands:
+    - codex
+  notes:
+    - 薄 skill，无脚本、无 MCP 依赖；全部能力来自本机 codex CLI 的 codex exec 直调。
+    - 早期的 topic-manager.py 与 codex-battle-agent 已下线，不要重新引入。
+
+manual_steps:
+  - 本机安装并登录 codex CLI，确认 `codex exec` 可用。
+  - 会话文件位于 ~/.codex/sessions/，跨会话续接用 `resume <UUID>` 或 `resume --last`。
+  - 新增或同步后需重启 Claude Code 才能加载最新 skill 列表。
+
+verify:
+  - command -v codex
+  - codex exec -s read-only "reply with OK" | head -5
+
+notes:
+  - 仅 Claude 平台存在；Codex 侧无对应 skill（自己调自己无意义）。
+  - 推理档固定 xhigh，不降档。

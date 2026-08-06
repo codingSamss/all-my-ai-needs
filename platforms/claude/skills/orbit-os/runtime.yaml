@@ -1,0 +1,31 @@
+runtime_version: 1
+skill: orbit-os
+platform: claude
+
+sync_paths:
+  - SKILL.md
+
+dependencies:
+  commands: []
+  env:
+    - OBSIDIAN_VAULT_ROOT
+  notes:
+    - 纯规范型 skill，无脚本、无运行时命令依赖。
+    - 库路径由 $OBSIDIAN_VAULT_ROOT 注入，绝对路径不入仓。
+
+manual_steps:
+  - 在本机 shell 配置中导出 OBSIDIAN_VAULT_ROOT 指向 Obsidian Vault 根目录。
+  - 被 orbit-* 系列 skill 自动引用，改动本文件前先确认对 orbit-session-diary、handoff、official-article-ingest 的连带影响。
+
+verify:
+  - test -n "$OBSIDIAN_VAULT_ROOT"
+  - test -d "$OBSIDIAN_VAULT_ROOT"
+  - grep -q "^version:" SKILL.md
+  - grep -q "07_交接台" SKILL.md
+
+notes:
+  - 版本口径以 Vault 实际结构为准，不以仓库为准；升级前先 ls Vault 顶层目录核对。
+  - 2026-08-06 升级到 1.6.1：从 ~/.claude 回流 1.6.0（顶级目录重编号 + 受控字段词表），
+    并补入推特精选第 6 个分类 `06_学习与知识管理`、移除会过期的篇数快照。
+  - 本 skill 定义的目录编号被 handoff（交接台）与 orbit-session-diary（栏目路径）直接引用；
+    再次重编号时必须同步改这两个 skill，否则 skill 之间路径口径冲突。

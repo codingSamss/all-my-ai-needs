@@ -1,0 +1,25 @@
+runtime_version: 1
+skill: bird-bookmark-folders
+platform: claude
+
+sync_paths:
+  - SKILL.md
+  - scripts/
+
+dependencies:
+  commands:
+    - python3
+  skills:
+    - bird-twitter
+  notes:
+    - scripts/bookmark_folders.py 硬编码依赖 ~/.claude/skills/bird-twitter/scripts，因此 bird-twitter 必须同时下发到同一运行目录。
+    - 该硬编码路径是 claude/codex 两版脚本的唯一差异，跨平台复制时必须改 BIRD_SCRIPTS 常量。
+    - 走 X/Twitter GraphQL + Chrome Cookie 认证，含写操作（建目录、移动书签）。
+
+manual_steps:
+  - 先确认 bird-twitter 已下发且 `bird whoami` 通过，再使用本 skill。
+  - 写操作（创建目录、移动/删除书签）执行前需用户明确确认目标。
+
+verify:
+  - test -d ~/.claude/skills/bird-twitter/scripts
+  - python3 scripts/bookmark_folders.py --help

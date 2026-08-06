@@ -1,0 +1,35 @@
+runtime_version: 1
+skill: skill-creator
+platform: claude
+
+origin:
+  repo: https://github.com/anthropics/skills
+  path: skills/skill-creator
+  ref: b9e19e6f44773509fbdd7001d77ff41a49a486c1
+  license: Apache-2.0
+  notes:
+    - 仓库根未声明 SPDX license，许可以 skill 目录内随附的 LICENSE.txt（Apache-2.0）为准。
+    - 2026-08-06 核对：本地 SKILL.md 与 upstream 该路径 HEAD 逐字节一致，无本地改写。
+  local_adaptations: []
+
+sync_paths:
+  - SKILL.md
+  - references/
+  - scripts/
+  - assets/
+  - eval-viewer/
+
+dependencies:
+  commands:
+    - python3
+  notes:
+    - scripts/ 下的 eval / benchmark 脚本只用 Python 标准库运行入口，具体评测仍依赖 Claude Code 会话本身。
+    - LICENSE.txt 只留在 repo 供人阅读与合规存档，不进入运行目录。
+
+manual_steps:
+  - Claude Code 环境同时存在插件版 `anthropic-skills:skill-creator`，二者 description 高度重合；如出现触发歧义，按名点取本仓库版本。
+  - 新增或同步后需重启 Claude Code 才能加载最新 skill 列表。
+
+verify:
+  - test -f SKILL.md
+  - python3 scripts/quick_validate.py --help

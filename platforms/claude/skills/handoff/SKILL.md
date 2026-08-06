@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Create a compact handoff document for another agent, machine, or fresh session. Supports temporary handoff files and persistent Obsidian `08_交接台` task handoffs with external large artifacts under iCloud `AgentArtifacts/`.
+description: Create a compact handoff document for another agent, machine, or fresh session. Supports temporary handoff files and persistent Obsidian `07_交接台` task handoffs with external large artifacts under iCloud `AgentArtifacts/`.
 ---
 
 # Handoff
@@ -13,12 +13,12 @@ Write a concise Markdown handoff so a fresh agent can continue the work without 
 
 - 临时交接: 默认保存到 OS 临时目录，不写入当前 workspace；文件名为 `handoff-YYYYMMDD-HHMMSS-<short-topic>.md`
 - 项目制品: 只有当用户明确要求把 handoff 落到当前 workspace 时，才写入当前 workspace
-- 多机器长期接力: 当用户提到不同机器、家里机器、远程 Codex/Claude Code、Obsidian、知识库交接台、接着在另一台机器做时，默认写入 Obsidian Vault 的 `08_交接台`
+- 多机器长期接力: 当用户提到不同机器、家里机器、远程 Codex/Claude Code、Obsidian、知识库交接台、接着在另一台机器做时，默认写入 Obsidian Vault 的 `07_交接台`
 
 持久交接的标准结构:
 
 ```text
-08_交接台/
+07_交接台/
   01_Inbox/
   02_Active/<category>/<task_id>/
     00_Task.md
@@ -43,7 +43,7 @@ iCloud Drive/AgentArtifacts/
 ## 工作流程
 
 1. 从用户请求中识别下一轮会话的重点；如果用户没给重点，就根据当前任务推断最可能的继续方向。
-2. 判断 handoff 类型: 临时交接、当前 workspace 项目制品，或 `08_交接台` 持久接力。
+2. 判断 handoff 类型: 临时交接、当前 workspace 项目制品，或 `07_交接台` 持久接力。
 3. 若是持久接力，选择分类并使用稳定 `task_id`:
    - `project`: repo、app、产品推进
    - `research`: 调研、教程、资料分析

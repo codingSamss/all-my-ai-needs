@@ -1,0 +1,33 @@
+runtime_version: 1
+skill: orbit-session-diary
+platform: codex
+
+sync_paths:
+  - SKILL.md
+  - references/
+  - scripts/
+
+dependencies:
+  commands:
+    - python3
+  env:
+    - OBSIDIAN_VAULT_ROOT
+  skills:
+    - orbit-os
+  notes:
+    - 读取本机 Codex/Claude JSONL 会话日志作为证据，产出人写口吻的日记，不做机械脚本式罗列。
+    - 目录过滤清单来自 references/excludes.json。
+
+manual_steps:
+  - 按本机在跑的项目维护 references/excludes.json 的排除项。
+  - 写入 Vault 前遵循 orbit-os 的排版与路径规范。
+
+verify:
+  - test -n "$OBSIDIAN_VAULT_ROOT"
+  - python3 scripts/session_diary.py --help
+  - python3 -c "import json;json.load(open('references/excludes.json'))"
+
+notes:
+  - references/excludes.json 在仓库内刻意保持空清单：运行目录中的实际排除项含内网项目名，
+    按公开仓安全基线不回流。此处两侧不一致是预期状态，不是待同步的漂移，不要用运行目录版覆盖仓库版。
+  - 栏目路径口径来自 orbit-os；2026-08-06 随 1.6.1 已把示例中的 `05_资讯` 改为 `04_知识沉淀`。
