@@ -23,7 +23,7 @@
 
 | Skill | 能力 | 运行说明 |
 | --- | --- | --- |
-| `aihot` | 查询中文 AI 资讯、精选、当前热点、事件时间线、日报与完整精选同步 | 匿名只读 `/api/v1/*`；无需 API Key 或 MCP；按点名方式下发 |
+| `aihot` | 查询中文 AI 资讯、精选、当前热点、事件时间线、日报与完整精选同步 | 匿名只读 `/api/v1/*`；外部商业或公开再分发需书面授权；按点名方式下发 |
 | `apifox-cli` | 通过 CLI 管理 Apifox 接口、Schema、环境、Mock 与项目资源 | 依赖 Apifox CLI 2.2.6+；登录凭据仅保存在本机 |
 | `apifox-test-case` | 维护单接口测试用例、请求参数、Body、断言、变量提取与测试数据 | 依赖 `apifox-cli`；写入前校验 schema，写入后回读并运行验证 |
 | `bilibili` | B站搜索、热门、排行、视频详情、音频入口与字幕读取 | `bili-cli` 为主；OpenCLI 用于字幕；完整转录交给 `video-transcribe` |
@@ -31,13 +31,13 @@
 | `fireworks-tech-graph` | 生成带几何校验的技术图，覆盖 12 种风格、工程语义合同、SVG/PNG、语义 SVG→GIF 与离线 HTML | 依赖 Python 3.9+；PNG 优先 `cairosvg`；GIF 动效依赖可选的 Node/FFmpeg/Chromium 工具链 |
 | `git-ops` | 按 Sam 习惯安全执行 Git 分支、提交、合并、推送与对比 | 依赖 `git` 与 `rg` |
 | `gsap` | 前端动效实现辅助，覆盖 GSAP core、React、ScrollTrigger、插件与性能约束 | 依赖 `gsap`，React 项目可加 `@gsap/react` |
-| `handoff` | 为下一位 agent、新线程或跨机器任务生成临时/持久交接文档 | 纯指令型 skill；临时写入 OS 临时目录，跨机器长期接力写入 Obsidian `07_交接台` |
+| `handoff` | 为下一位 agent、新线程或跨机器任务生成临时/持久交接文档 | 纯指令型 skill；长期接力写入 Obsidian `07_交接台`，建议技能明确通过 Skill tool 调用 |
 | `ian-xiaohei-illustrations` | 为中文内容生成小黑 2.0 实物场景正文图与长卷故事图 | 依赖 Codex `image_gen` 能力 |
 | `linuxdo` | 只读访问 LINUX DO 论坛 | 依赖 Chrome Cookie |
-| `mole-mac-cleanup` | 基于 Mole 官方 agent skill 安全检查状态、分析磁盘、审计历史并预览/执行 macOS 清理 | 依赖 Mole CLI，优先使用 JSON/dry-run surface，推荐 Homebrew 管理 |
+| `mole-mac-cleanup` | 基于 Mole 官方 agent skill 安全检查状态、分析磁盘、审计历史并预览/执行 macOS 清理 | 依赖 Mole CLI；`purge` 候选须区分本地构建产物与需联网恢复的依赖目录 |
 | `official-article-ingest` | 官方文章收录到 Obsidian，区分原文 1:1 与英文中文对照 1:1，并保持源站排版美感 | 依赖目标 Vault、源站页面与本地媒体校验 |
 | `online-doc-html` | Markdown 导出为适合在线文档粘贴的 HTML | 依赖 `pandoc` / `rsvg-convert` |
-| `orbit-os` | OrbitOS Obsidian Vault 共享配置与规范 | 供 orbit-* 系列 skill 引用；含 `07_交接台` 与 iCloud `AgentArtifacts` 规范 |
+| `orbit-os` | OrbitOS Obsidian Vault 共享配置与规范 | 1.7.1；含 folder note、受控字段、`07_交接台` 与禁新增 `See Also` 规则 |
 | `orbit-session-diary` | 基于本地会话日志生成 Obsidian 日记 | 依赖本地 jsonl 与目标 Vault |
 | `reddit` | 只读访问 Reddit 内容 | OpenCLI 复用 Chrome 登录态；`rdt-cli` 仅作手动备用 |
 | `teach` | 在当前 workspace 中进行跨会话、可沉淀的概念与技能教学，并复用课程样式、测验与模拟器组件 | 纯指令型 skill；建议在独立学习目录中使用 |

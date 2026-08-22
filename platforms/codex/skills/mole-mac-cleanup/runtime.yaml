@@ -5,14 +5,15 @@ platform: codex
 origin:
   repo: https://github.com/tw93/Mole
   path: .claude/skills/mole
-  ref: ad82a47b157c289a0feb52a414d4515a83ea7aaf
-  version: V1.49.2
+  ref: b5c6eccb24f4727da850a1a454aa0df45bb51216
+  version: V1.51.0
   license: GPL-3.0-or-later
   local_adaptations:
     - 保留 mole-mac-cleanup 名称与更宽的用户触发描述，正文以 upstream agent skill 的命令语义与 machine-readable surfaces 为基线。
     - 增加当前轮二次确认、默认无 sudo、不自动关闭应用、项目与运行态数据独立审批等本地安全边界。
     - Homebrew 管理状态以 brew list / brew info 为准，避免只依赖 mo --version 的 Install 字段。
     - analyze 的路径参数采用 `mo analyze --json <path>` flag-first 顺序，兼容 V1.43.1 等旧版并继续适用于当前 upstream。
+    - V1.51.0 起 purge 同时覆盖本地构建产物与需联网恢复的依赖目录；确认前必须按恢复类型分类候选项。
 
 sync_paths:
   - SKILL.md
@@ -37,6 +38,6 @@ verify:
   - test -f LICENSE
   - rg -q 'mo analyze --json' SKILL.md
   - rg -q 'mo history --json --limit' SKILL.md
-  - rg -q 'ad82a47b157c289a0feb52a414d4515a83ea7aaf' runtime.yaml
+  - rg -q 'b5c6eccb24f4727da850a1a454aa0df45bb51216' runtime.yaml
   - command -v mo
   - mo --version

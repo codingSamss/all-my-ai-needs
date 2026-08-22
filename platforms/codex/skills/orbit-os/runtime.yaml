@@ -20,12 +20,15 @@ manual_steps:
 verify:
   - test -n "$OBSIDIAN_VAULT_ROOT"
   - test -d "$OBSIDIAN_VAULT_ROOT"
-  - grep -q "^version:" SKILL.md
+  - grep -q "^metadata:" SKILL.md
+  - grep -q '1.7.1' SKILL.md
   - grep -q "07_交接台" SKILL.md
+  - grep -q "06_学习与知识管理" SKILL.md
 
 notes:
   - 版本口径以 Vault 实际结构为准，不以仓库为准；升级前先 ls Vault 顶层目录核对。
-  - 2026-08-06 升级到 1.6.1：从 ~/.claude 回流 1.6.0（顶级目录重编号 + 受控字段词表），
-    并补入推特精选第 6 个分类 `06_学习与知识管理`、移除会过期的篇数快照。
+  - 2026-08-22 升级到 1.7.1：以当前 Vault 与 Claude 1.7.0 为主，保留新版排版、folder note、
+    `07_交接台` 和禁新增 See Also 规则，并整合 1.6.1 的受控字段词表与交接台生命周期纪律。
+  - 现场核验仍有少量旧 `status: archive` 与存量 See Also；规则要求触碰时迁移，不虚报已全量清理。
   - 本 skill 定义的目录编号被 handoff（交接台）与 orbit-session-diary（栏目路径）直接引用；
     再次重编号时必须同步改这两个 skill，否则 skill 之间路径口径冲突。

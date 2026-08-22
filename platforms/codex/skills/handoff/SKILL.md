@@ -148,6 +148,7 @@ created: 2026-06-29 14:51
 - 不重复已经沉淀在 PRD、计划、ADR、issue、commit 或 diff 里的内容；改用路径或 URL 引用。
 - handoff 要足够短，方便快速阅读；优先给指针，不粘贴大段内容。
 - 只要特定 skill 对下一位 agent 有帮助，就保留 `建议技能` 部分。
+- `建议技能` 必须使用实际 skill 名称，并明确提示下一位 agent 通过 Skill tool 调用；不要把 skill 只写成普通参考资料。
 - 如果用户给了 handoff 重点，围绕该重点写，不要总结所有事情。
 - 持久接力按任务父目录组织，不按机器平铺；单次 handoff 文件名用 `<时间>__<topic-slug>`（体现这次交接关于什么），机器和 agent 只写进 frontmatter，不进文件名。
 - 同一任务的 `00_Task.md` 是当前真相，最新 agent 接棒优先读它和最新一个 handoff。

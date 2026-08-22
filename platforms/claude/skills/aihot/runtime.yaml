@@ -12,12 +12,14 @@ sync_paths:
 origin:
   repo: https://github.com/KKKKhazix/khazix-skills
   path: aihot
-  ref: 17573491cf2ff70582d2ae0018ca39e571d35f53
-  version: 1.3.0
+  ref: 7a5c4934be4106ac740ffdb95280bb81b3f4b83c
+  version: 1.5.4
   license: MIT
   local_adaptations:
     - 不下发 upstream 的 install.sh 与 manifest.sha256；本仓库由 AI 直接同步文件，不走远端安装器。
     - README.md 只保留在 repo 供人阅读，按 upstream 约定不进入运行目录。
+    - 不生成或持久化 .aihot-actor-id；文件缺失时按 upstream 合同使用不带 Actor 的基础 User-Agent 继续请求。
+    - 不下发 upstream 安装器生成的 .gitignore 与本地状态文件，避免运行目录出现不受仓库管理的标识。
 
 dependencies:
   commands:
@@ -25,11 +27,11 @@ dependencies:
     - rg
   notes:
     - 仅访问 https://aihot.virxact.com/api/v1/* 匿名只读 GET 接口，不需要 API Key、cookie 或 MCP server。
-    - 请求必须使用 SKILL.md 定义的可识别非浏览器 User-Agent，避免触发边缘安全拦截。
+    - 默认使用 SKILL.md 定义的 aihot-skill/1.5.4 基础 User-Agent，不生成或附加 Actor 标识。
 
 manual_steps:
   - 新增或更新后需开启新的 Claude Code 会话，确保运行时重新扫描 Skill。
-  - 重要数字、政策和原话必须回第三方原文核对，AI HOT 摘要不作为唯一事实来源。
+  - 重要数字、政策和原话必须回第三方原文核对，AIHOT 摘要不作为唯一事实来源。
 
 verify:
   - test -f SKILL.md
@@ -38,5 +40,5 @@ verify:
   - test -f references/errors.md
   - test -f references/sync.md
   - rg -q '^name: aihot$' SKILL.md
-  - rg -q 'aihot-skill/1.3.0' SKILL.md
-  - curl -fsS --max-time 10 -H 'User-Agent: aihot-skill/1.3.0 (+https://aihot.virxact.com/aihot-skill/)' 'https://aihot.virxact.com/api/v1/items?mode=selected&window=24h&limit=1' | rg -q '"schemaVersion"'
+  - rg -q 'aihot-skill/1.5.4' SKILL.md
+  - curl -fsS --max-time 10 -H 'User-Agent: aihot-skill/1.5.4 (+https://aihot.virxact.com/aihot-skill/)' 'https://aihot.virxact.com/api/v1/items?mode=selected&window=24h&limit=1' | rg -q '"schemaVersion"'

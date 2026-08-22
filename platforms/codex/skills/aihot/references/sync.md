@@ -1,20 +1,20 @@
 # 当前全部精选同步
 
-只在用户明确要求拿到当前全部精选，或维护持久化精选镜像时读取本文件。普通资讯问答不要使用 snapshot。
+只在用户明确要求拿到当前全部精选，或维护持久化精选私有副本时读取本文件。普通资讯问答不要使用 snapshot。本文件只说明技术同步；公开镜像、代理接口、数据转售或面向外部的商业产品须先取得书面授权，完整规则见 `https://aihot.virxact.com/terms`。
 
-## 首次建立镜像
+## 首次建立私有副本
 
-snapshot 是分页的，一轮 bootstrap 需要多次请求。当前约 2900 条：`fields=minimal` 约 1.08MB（gzip 247KB），`fields=default` 约 3.1MB（gzip 1.05MB），且只增不减。
+snapshot 是分页的，一轮 bootstrap 需要多次请求；集合会持续增长，不能假设一次响应能够取完。
 
 1. 选择字段模式：
-   - 只维护 id、标题、站内链接和分类：`fields=minimal`（默认首选，省四倍流量）。
+   - 只维护 id、标题、站内链接和分类：`fields=minimal`（默认首选，传输字段更少）。
    - 需要摘要或第三方原文链接：`fields=default`。
 2. 请求 `/api/v1/selected/snapshot?fields=<模式>&limit=500`。
 3. 累积本页 `items`；记下响应里的 `cursor`（逐页恒定）。
 4. 只要 `hasMore=true`，就带 `page=<上一响应的 nextPage>` 继续请求下一页，`fields` 不必也不能改。
-5. `hasMore=false` 时本轮结束。把累积的完整集合与**第一页就拿到的那个 `cursor`** 作为一个原子状态写入；不能只保存其中一半，也不能中途保存半份镜像。
+5. `hasMore=false` 时本轮结束。把累积的完整集合与**第一页就拿到的那个 `cursor`** 作为一个原子状态写入；不能只保存其中一半，也不能中途保存半份副本。
 
-两个游标别搞混：`cursor` 是同步水位、翻页期间不变、翻完才用来调 changes；`nextPage` 只用于翻页。用 `nextPage` 去调 changes，或者翻页没翻完就开始调 changes，都会造成镜像缺条。
+两个游标别搞混：`cursor` 是同步水位、翻页期间不变、翻完才用来调 changes；`nextPage` 只用于翻页。用 `nextPage` 去调 changes，或者翻页没翻完就开始调 changes，都会造成副本缺条。
 
 翻页期间条目可能被编辑或撤选。不用处理——翻完之后第一次 `changes` 会用同一个水位把这些变化补齐：改过的条目再来一次 `upsert`（幂等），撤选的条目来一次 `remove`（本地没有就是空操作）。
 
@@ -48,7 +48,7 @@ snapshot 的 `page` 游标同样可能返回 `409 snapshot_required`（本轮快
 - cursor 不透明且绑定字段模式、同步端点和服务端水位。
 - 不解析、不递增、不修改、不跨端点复用 cursor。
 - snapshot 的 `cursor`（同步水位）与 `nextPage`（翻页）是两个东西，互相解不开，任何一方都不能替代另一方。
-- 镜像不完整（`hasMore=true` 还没翻完）时不要开始 changes 轮询，也不要对外声称已同步。
+- 副本不完整（`hasMore=true` 还没翻完）时不要开始 changes 轮询，也不要对外声称已同步。
 - `publishedAt` 和 `discoveredAt` 都不能表示编辑与撤选，不能充当完整同步水位。
 - 不使用重叠时间窗替代 changes；时间窗无法可靠表达 remove。
 - 不把 `/api/v1/items?mode=all` 当成“当前全部精选”。它是最近公开池，语义不同。

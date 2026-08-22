@@ -79,7 +79,7 @@ Use `mo status --json` for a single CPU, memory, disk, and network snapshot. `mo
 - `mo clean` permanently removes caches and also sweeps evidence-backed leftovers from already-uninstalled apps. It does not uninstall an installed app.
 - `mo uninstall` moves the app and matched leftovers to Trash by default, so they remain recoverable until Trash is emptied.
 - `mo clean --external <path>` cleans macOS metadata from an external volume; resolve and show the exact mounted path before asking for confirmation.
-- In current upstream Mole, `mo purge` targets locally rebuildable artifacts such as `target/`, `build/`, `dist/`, and `.next/`, while avoiding dependencies that require a network restore. On older Mole versions, rely on the actual dry-run list and treat any `node_modules`, `Pods`, `venv`, or `.venv` candidate as manual review.
+- In current upstream Mole, `mo purge` targets both local build output (`target/`, `build/`, `dist/`, `.next/`) and dependency directories that require a network to restore (`node_modules/`, `Pods/`, `venv/`, `vendor/`). A purge is therefore not always recoverable offline: classify the dry-run candidates by recovery type and show that distinction before requesting confirmation.
 - `mo optimize` refreshes caches and system services rather than only deleting files. Explain the planned effects before requesting approval.
 - Use `--debug` only to diagnose a command that did nothing or failed; normal runs should stay concise.
 
