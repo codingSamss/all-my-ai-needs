@@ -23,7 +23,7 @@ all-my-ai-needs/
     └── codex/                      # Codex 平台真源 → ~/.codex
         ├── README.md  runtime.yaml  config.toml
         ├── skills.meta.yaml         # repo-only 同步分层真源
-        └── skills/ (24)
+        └── skills/ (22)
 ```
 
 ## 核心模型
@@ -42,7 +42,7 @@ all-my-ai-needs/
 | 知识库 `obsidian-kb` | `orbit-os` `orbit-session-diary` `official-article-ingest` `online-doc-html` `video-transcribe` |
 | 前端设计 `frontend-design` | `gsap` `fireworks-tech-graph` `ian-xiaohei-illustrations` `mono-color` |
 | API 测试 `api-testing` | `apifox-cli` `apifox-test-case` |
-| 社交只读 `social-reading` | `bilibili` `bird-twitter` `reddit` `linuxdo` `xiaohongshu` |
+| 社交只读 `social-reading` | `bilibili` `bird-twitter` `bird-bookmark-folders` `reddit` `linuxdo` `xiaohongshu` |
 | macOS 维护 `macos-local` | `mole-mac-cleanup` |
 | 点名 `manual-only` | `aihot` |
 

@@ -23,7 +23,7 @@ manual-only  仓库留存，默认不下发，只能由 agent 按名点取。
 
 ## profile：按项目类型成组拉取
 
-仅 `project` 档的 skill 携带 profile，可多值。当前 6 个：
+仅 `project` 档的 skill 携带 profile，可多值。当前 5 个：
 
 ```text
 obsidian-kb       Obsidian 知识库写作与收录
@@ -35,7 +35,7 @@ macos-local       macOS 本地维护
 
 ## 成员清单
 
-派生自 `skills.meta.yaml`，改动以 manifest 为准。`core` / `manual-only` 是 scope，其余 6 行是 profile。
+派生自 `skills.meta.yaml`，改动以 manifest 为准。`core` / `manual-only` 是 scope，其余 5 行是 profile。
 
 | 分类 | 类型 | Codex 成员 | Claude 成员 |
 | --- | --- | --- | --- |
@@ -43,7 +43,7 @@ macos-local       macOS 本地维护
 | `obsidian-kb` | profile | official-article-ingest · online-doc-html · orbit-os · orbit-session-diary · video-transcribe | official-article-ingest · online-doc-html · orbit-os · orbit-session-diary · video-transcribe |
 | `frontend-design` | profile | fireworks-tech-graph · gsap · ian-xiaohei-illustrations · mono-color | fireworks-tech-graph · gsap · ian-xiaohei-illustrations · mono-color |
 | `api-testing` | profile | apifox-cli · apifox-test-case | apifox-cli · apifox-test-case |
-| `social-reading` | profile | bilibili · bird-twitter · linuxdo · reddit · xiaohongshu | bilibili · bird-twitter · linuxdo · reddit · xiaohongshu |
+| `social-reading` | profile | bilibili · bird-bookmark-folders · bird-twitter · linuxdo · reddit · xiaohongshu | bilibili · bird-bookmark-folders · bird-twitter · linuxdo · reddit · xiaohongshu |
 | `macos-local` | profile | mole-mac-cleanup | mole-mac-cleanup |
 | `manual-only` | scope·点名 | aihot | aihot |
 

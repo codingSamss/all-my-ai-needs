@@ -18,8 +18,9 @@ origin:
     本仓库是公开仓，只收录 MIT 覆盖的部分，并随附 upstream LICENSE 原文。
     锚定 ref 时 upstream CHANGELOG 顶部为 Unreleased，即 main 已在 v1.2.0 之后。
   local_adaptations:
-    - 只落地 SKILL.md、LICENSE 与 design-system/ 下 SKILL.md 实际引用的 6 个 catalog；三者与 upstream 逐字节一致，未作任何改写。
-    - examples/ 不落地：受 upstream ASSET-LICENSE.md 的 All Rights Reserved 约束，公开仓不得再分发。需要展示视觉效果请链接上游仓库。后续升级时禁止补入。
+    - 只落地 SKILL.md、LICENSE 与 design-system/ 下 SKILL.md 实际引用的 6 个 catalog；三者与 upstream 逐字节一致，未作任何改写，由 verify 段的 8 个 sha256 断言机械证明。
+    - examples/ 不落地：受 upstream ASSET-LICENSE.md 的 All Rights Reserved 约束，公开仓不得再分发。需要展示视觉效果请链接上游仓库。该约束已由 verify 段机械阻断（design-system 文件数断言 + 全目录图片/二进制断言），不再只是文字告警。
+    - SKILL.md 的 Reference-Derived Composition Grammar 一节是从上游参考图组提炼的抽象构图规则，非逐图描述；ASSET-LICENSE.md 只限制 examples/ 内的 artwork，skill instructions 明确指回 MIT，故该节属于可收录面。
     - design-system/BOARD-DIRECTION.md 与 design-system/reference-analysis.json 不落地：SKILL.md 均未引用；且 reference-analysis.json 的 file 字段指向未落地的 examples/，收录会留下悬空引用。
     - swatches/、scripts/、evals/、README.md、README.zh.md、CHANGELOG.md、.github/ 不落地：均为 upstream 自身的展示件与维护件，非运行时依赖。
     - SKILL.md 中 `~/Desktop/Claude skills/mono-color/` 的默认落盘路径保持 upstream 原样，未改写为 Codex 措辞，以维持与 upstream 逐字节一致；需要换位置时在会话里直接指定。
@@ -45,4 +46,19 @@ verify:
   - test -f design-system/imperfections.json
   - test -f design-system/rhythm.json
   - test -f design-system/typography.json
+  # 授权门禁：design-system/ 必须恰好是上面 6 个 catalog，多放任何文件都会失败
+  - test "$(find design-system -type f | wc -l | tr -d ' ')" = "6"
+  # 授权门禁：整个 skill 目录不得出现图片或二进制，杜绝 ARR 素材以任何形式回流
+  - test -z "$(find . -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.gif' -o -iname '*.webp' -o -iname '*.svg' -o -iname '*.pdf' \))"
   - test ! -e examples
+  - test ! -e design-system/reference-analysis.json
+  - test ! -e design-system/BOARD-DIRECTION.md
+  # 与 origin.ref 逐字节一致的机械证明；升级上游时必须同步更新这 8 个 sha256
+  - test "$(shasum -a 256 SKILL.md | cut -d' ' -f1)" = "8274bc1f30a92a9dc715c03c3fb9aeaa060fb5a12fd58dfe8d977ae98a26bd76"
+  - test "$(shasum -a 256 LICENSE | cut -d' ' -f1)" = "2025880f6441e121c76c01bc5996e84a7498d9d5aa7222a10400d303bdd043cb"
+  - test "$(shasum -a 256 design-system/carriers.json | cut -d' ' -f1)" = "32ad6bd5917c8d5ad4b0c8f78006848f941489649824f0857a7a94685914a8d7"
+  - test "$(shasum -a 256 design-system/colors.json | cut -d' ' -f1)" = "e299d6b4a2ec36e2e59b7095b85bae5f13609f505d21c9a83561088f7c446b48"
+  - test "$(shasum -a 256 design-system/compositions.json | cut -d' ' -f1)" = "8faec6d102a6dcf15a465123f00265609afe271dd2998baa0d56f0fb39105703"
+  - test "$(shasum -a 256 design-system/imperfections.json | cut -d' ' -f1)" = "e281a1c7fb183af973179a7588df5745527a231462681797850227e791372715"
+  - test "$(shasum -a 256 design-system/rhythm.json | cut -d' ' -f1)" = "02c8c4ca0bba218feeca7311b35b61362972bded129f050b288a384d61c0c920"
+  - test "$(shasum -a 256 design-system/typography.json | cut -d' ' -f1)" = "b20f558444aab2c93b6339b76aa3178ae9e04e25eed1059cd2db8044733db26f"
