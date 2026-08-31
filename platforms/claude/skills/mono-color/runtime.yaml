@@ -1,0 +1,46 @@
+runtime_version: 1
+skill: mono-color
+platform: claude
+
+sync_paths:
+  - SKILL.md
+  - LICENSE
+  - design-system/
+
+origin:
+  repo: https://github.com/yanliudesign/mono-color-skill
+  ref: 1c974047b176ede1d4c1398a5ef9ce5f231bc18f
+  license: MIT
+  notice: |
+    upstream 为双授权。LICENSE 是 MIT，覆盖 SKILL.md、design-system/ 与 scripts/；
+    ASSET-LICENSE.md 把 examples/ 单独划为 All Rights Reserved，逐条禁止 copy / modify /
+    redistribute / sell / sublicense，仅允许查看与转贴上游仓库链接。
+    本仓库是公开仓，只收录 MIT 覆盖的部分，并随附 upstream LICENSE 原文。
+    锚定 ref 时 upstream CHANGELOG 顶部为 Unreleased，即 main 已在 v1.2.0 之后。
+  local_adaptations:
+    - 只落地 SKILL.md、LICENSE 与 design-system/ 下 SKILL.md 实际引用的 6 个 catalog；三者与 upstream 逐字节一致，未作任何改写。
+    - examples/ 不落地：受 upstream ASSET-LICENSE.md 的 All Rights Reserved 约束，公开仓不得再分发。需要展示视觉效果请链接上游仓库。后续升级时禁止补入。
+    - design-system/BOARD-DIRECTION.md 与 design-system/reference-analysis.json 不落地：SKILL.md 均未引用；且 reference-analysis.json 的 file 字段指向未落地的 examples/，收录会留下悬空引用。
+    - swatches/、scripts/、evals/、README.md、README.zh.md、CHANGELOG.md、.github/ 不落地：均为 upstream 自身的展示件与维护件，非运行时依赖。
+    - SKILL.md 中 `~/Desktop/Claude skills/mono-color/` 的默认落盘路径保持 upstream 原样，不改写；需要换位置时在会话里直接指定。
+
+dependencies:
+  notes:
+    - 直接出图需要 Claude Code 当前环境有可用的图片生成工具或 MCP；没有时按 SKILL.md 的降级路径，只输出最终 prompt 与配方说明。
+    - design-system/ 下 6 个 catalog 是硬依赖：色值、留白区间、主体占比、层级比例与瑕疵参数都从中取值，缺失会让 skill 退化成纯文风描述。
+
+manual_steps:
+  - 需要成图时先确认当前环境的图片生成通道；无生图能力时本 skill 只交付 prompt，由人转投外部生图模型。
+  - 图内中文文案由生图模型渲染，字数越多越容易出错；按 SKILL.md 规定重试一次仍错字，就改出无文字底图，文字用排版工具叠加。
+  - 与 ian-xiaohei-illustrations 同属出图类且题材可能重叠（职场、共鸣图）；两者定位不同——ian-xiaohei 是插画加固定角色，mono-color 是无角色的单双色印刷海报。若出现误触发，再调整本 skill 的 description，不要改动 upstream 正文。
+
+verify:
+  - test -f SKILL.md
+  - test -f LICENSE
+  - test -f design-system/carriers.json
+  - test -f design-system/colors.json
+  - test -f design-system/compositions.json
+  - test -f design-system/imperfections.json
+  - test -f design-system/rhythm.json
+  - test -f design-system/typography.json
+  - test ! -e examples

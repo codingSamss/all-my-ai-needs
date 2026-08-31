@@ -42,6 +42,7 @@ skills:
   ian-xiaohei-illustrations: { scope: project, profiles: [frontend-design] }
   linuxdo: { scope: project, profiles: [social-reading] }
   mole-mac-cleanup: { scope: project, profiles: [macos-local] }
+  mono-color: { scope: project, profiles: [frontend-design] }
   official-article-ingest: { scope: project, profiles: [obsidian-kb] }
   online-doc-html: { scope: project, profiles: [obsidian-kb] }
   orbit-os: { scope: project, profiles: [obsidian-kb] }

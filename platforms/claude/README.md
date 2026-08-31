@@ -36,6 +36,7 @@
 | `ian-xiaohei-illustrations` | 为中文内容生成小黑 2.0 实物场景正文图与长卷故事图 | 直接出图依赖当前 Claude Code 环境的图片生成能力 |
 | `linuxdo` | 只读访问 LINUX DO 论坛 | 依赖 Chrome Cookie |
 | `mole-mac-cleanup` | 基于 Mole 官方 agent skill 安全检查状态、分析磁盘、审计历史并预览/执行 macOS 清理 | 依赖 Mole CLI；`purge` 候选须区分本地构建产物与需联网恢复的依赖目录 |
+| `mono-color` | 从主题、句子、物件或参考照片生成单色/受控双色的编辑印刷图，覆盖海报、zine、社媒封面与包装 | 直接出图依赖当前 Claude Code 环境的图片生成能力；无生图能力时只交付 prompt 与配方 |
 | `official-article-ingest` | 官方文章收录到 Obsidian，区分原文 1:1 与英文中文对照 1:1，并保持源站排版美感 | 依赖目标 Vault、源站页面与本地媒体校验 |
 | `online-doc-html` | Markdown 导出为适合在线文档粘贴的 HTML | 依赖 `pandoc` / `rsvg-convert` |
 | `orbit-os` | OrbitOS Obsidian Vault 共享配置与规范 | 1.7.1；含 folder note、受控字段、`07_交接台` 与禁新增 `See Also` 规则 |
