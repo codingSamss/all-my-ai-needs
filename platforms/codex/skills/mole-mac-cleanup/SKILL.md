@@ -36,7 +36,8 @@ Do not trust the `Install:` line from `mo --version` alone; a Homebrew-managed b
 |---|---|
 | Explain disk usage | `mo analyze --json` or `mo analyze --json <path>` |
 | Preview safe cleanup | `mo clean --dry-run` |
-| Remove one app completely | `mo uninstall --dry-run <app>` |
+| List installed apps with exact uninstall names | `mo uninstall --list` |
+| Remove one app completely | `mo uninstall --list` to read the exact name, then `mo uninstall --dry-run <app>` |
 | Preview bounded maintenance | `mo optimize --dry-run` |
 | Preview old project artifacts | `mo purge --dry-run` |
 | Preview downloaded installers | `mo installer --dry-run` |
@@ -70,6 +71,14 @@ Read that file when exact paths matter. `purge --dry-run` and `installer --dry-r
 
 `mo history --json --limit N` returns session summaries and the operation/deletion log paths. Use `actions.removed`, `trashed`, `skipped`, and `failed` to verify the outcome. When `failed` is nonzero, inspect only the matching session in the operations log and classify permission-protected or running-app paths separately from real cleanup failures.
 
+### Installed apps
+
+`mo uninstall --list` prints the app inventory as a JSON array when stdout is not a TTY. Each entry has `name`, `bundle_id`, `source`, `uninstall_name`, `path`, and `size`. Read `uninstall_name` for the exact argument `mo uninstall` accepts, so the app selector TUI never has to be opened.
+
+```bash
+mo uninstall --list
+```
+
 ### System status
 
 Use `mo status --json` for a single CPU, memory, disk, and network snapshot. `mo status --watch --interval 1s` emits NDJSON; collect only the number of samples needed, then terminate it.
@@ -79,7 +88,7 @@ Use `mo status --json` for a single CPU, memory, disk, and network snapshot. `mo
 - `mo clean` permanently removes caches and also sweeps evidence-backed leftovers from already-uninstalled apps. It does not uninstall an installed app.
 - `mo uninstall` moves the app and matched leftovers to Trash by default, so they remain recoverable until Trash is emptied.
 - `mo clean --external <path>` cleans macOS metadata from an external volume; resolve and show the exact mounted path before asking for confirmation.
-- In current upstream Mole, `mo purge` targets both local build output (`target/`, `build/`, `dist/`, `.next/`) and dependency directories that require a network to restore (`node_modules/`, `Pods/`, `venv/`, `vendor/`). A purge is therefore not always recoverable offline: classify the dry-run candidates by recovery type and show that distinction before requesting confirmation.
+- In current upstream Mole, `mo purge` targets both local build output (`target/`, `build/`, `dist/`, `.next/`) and dependency directories that require a network to restore (`node_modules/`, `Pods/`, `venv/`, `vendor/`). A purge is therefore not always recoverable offline: classify the dry-run candidates by recovery type and show that distinction before requesting confirmation. Add `--include-empty` to surface zero-size candidates. `mo purge --paths` opens an interactive editor for the scan directories; it is a human surface, so report that the user has to edit it themselves instead of entering it.
 - `mo optimize` refreshes caches and system services rather than only deleting files. Explain the planned effects before requesting approval.
 - Use `--debug` only to diagnose a command that did nothing or failed; normal runs should stay concise.
 

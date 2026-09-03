@@ -5,8 +5,8 @@ platform: claude
 origin:
   repo: https://github.com/tw93/Mole
   path: .claude/skills/mole
-  ref: b5c6eccb24f4727da850a1a454aa0df45bb51216
-  version: V1.51.0
+  ref: 2c0f11aa76a5291a09f1b95aaacd38c40bb43063
+  version: V1.53.0
   license: GPL-3.0-or-later
   local_adaptations:
     - 保留 mole-mac-cleanup 名称与更宽的用户触发描述，正文以 upstream agent skill 的命令语义与 machine-readable surfaces 为基线。
@@ -14,6 +14,10 @@ origin:
     - Homebrew 管理状态以 brew list / brew info 为准，避免只依赖 mo --version 的 Install 字段。
     - analyze 的路径参数采用 `mo analyze --json <path>` flag-first 顺序，兼容 V1.43.1 等旧版并继续适用于当前 upstream。
     - V1.51.0 起 purge 同时覆盖本地构建产物与需联网恢复的依赖目录；确认前必须按恢复类型分类候选项。
+    - 2026-09-04 核对 b5c6eccb→2c0f11aa 区间：upstream 改为规则式结构，安全语义弱于本地重写版，正文不整体回流。
+      只补齐本地此前漏写的两个命令面——`mo uninstall --list`（非 TTY 时输出 JSON 应用清单，用于免 TUI 取 uninstall_name）
+      与 `mo purge --include-empty`；字段与行为已在本机 mo 1.53.0 实测复核，含 upstream 未列出的 source 字段。
+    - purge 的 `--paths` 是交互式扫描目录编辑器，按本地「不进入 TUI」原则标注为人类面，只提示用户自行编辑，不由 agent 进入。
 
 sync_paths:
   - SKILL.md
