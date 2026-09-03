@@ -9,7 +9,7 @@ sync_paths:
 
 origin:
   repo: https://github.com/yanliudesign/mono-color-skill
-  ref: 1c974047b176ede1d4c1398a5ef9ce5f231bc18f
+  ref: c8ff70597ddedcd65f21a0b528f6a70c35690b0a
   license: MIT
   notice: |
     upstream 为双授权。LICENSE 是 MIT，覆盖 SKILL.md、design-system/ 与 scripts/；
@@ -23,6 +23,9 @@ origin:
     - SKILL.md 的 Reference-Derived Composition Grammar 一节是从上游参考图组提炼的抽象构图规则，非逐图描述；ASSET-LICENSE.md 只限制 examples/ 内的 artwork，skill instructions 明确指回 MIT，故该节属于可收录面。
     - design-system/BOARD-DIRECTION.md 与 design-system/reference-analysis.json 不落地：SKILL.md 均未引用；且 reference-analysis.json 的 file 字段指向未落地的 examples/，收录会留下悬空引用。
     - swatches/、scripts/、evals/、README.md、README.zh.md、CHANGELOG.md、.github/ 不落地：均为 upstream 自身的展示件与维护件，非运行时依赖。
+    - 2026-09-04 核对 1c974047→c8ff7059 区间共 12 个提交：全部落在 examples/、design system boards 与
+      Pinterest 参考链接等不收录面，收录的 SKILL.md、LICENSE 与 6 个 catalog 经 sha256 逐字节复核未变，
+      故只推进 ref 锚点，verify 段的 8 个断言与落地文件均不改动。
     - SKILL.md 中 `~/Desktop/Claude skills/mono-color/` 的默认落盘路径保持 upstream 原样，不改写；需要换位置时在会话里直接指定。
 
 dependencies:
