@@ -10,28 +10,7 @@
 - `platforms/claude`、`platforms/codex` 各自维护各自的平台真源
 - 同名 skill 允许在不同平台目录重复存在
 
-## 仓库结构
-
-```text
-all-my-ai-needs/
-├── .claude-plugin/marketplace.json
-├── AGENTS.md
-├── CLAUDE.md
-├── README.md
-├── PROFILES.md
-└── platforms/
-    ├── claude/
-    │   ├── .claude-plugin/plugin.json
-    │   ├── .mcp.json
-    │   ├── runtime.yaml
-    │   ├── skills.meta.yaml
-    │   └── skills/
-    └── codex/
-        ├── config.toml
-        ├── runtime.yaml
-        ├── skills.meta.yaml
-        └── skills/
-```
+目录结构与平台入口见 [README.md](README.md#仓库结构)。
 
 ## Skill 文件格式
 
@@ -62,6 +41,10 @@ description: "包含触发关键词的描述"
 
 - `runtime.yaml`、`skills.meta.yaml`、`PROFILES.md` 只保留在 repo，不下发到任何运行目录
 - `agents`/`hooks`/`scripts`/`bin`、`config.toml` 等运行件由各设备本地自管，不入仓也不由仓库回写
+
+授权边界：
+
+- 用户只说"同步/看差异"未明确授权写入时，先只读 `check` 汇总差异，审批后再 `apply`/`commit`/`push`。
 
 ## 提交前必检清单
 

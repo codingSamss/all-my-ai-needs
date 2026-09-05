@@ -10,21 +10,22 @@
 
 ## 工作原理
 
-默认使用 `bili-cli`，因为它覆盖搜索、热门、排行、视频详情和音频入口；搜索 API 作为无需安装的轻量兜底；OpenCLI 用于字幕和浏览器登录态增强。
+默认使用 `bilibili-cli` 包提供的 `bili` 命令，因为它覆盖搜索、热门、排行、视频详情和音频入口；搜索 API 作为无需安装的轻量兜底；OpenCLI 用于字幕和浏览器登录态增强。
 
 ## 前置条件
 
-- `bili-cli`：完整搜索/详情/热门/排行能力
+- `bili`（安装包为 `bilibili-cli`）：完整搜索/详情/热门/排行能力
 - OpenCLI：字幕能力
 - `video-transcribe`：完整转录、关键帧、图文笔记
 
-安装依赖需要用户单独确认；本仓库不自动安装 `bili-cli` 或 OpenCLI。
+安装依赖需要用户单独确认；本仓库不自动安装 `bilibili-cli` 或 OpenCLI。检查是否已安装时使用 `command -v bili`，不要把安装包名当作命令名。
 
 ## 验证命令
 
 ```bash
-command -v bili || true
-command -v opencli || true
+command -v bili
+bili --version
+command -v opencli
 curl -s -A "Mozilla/5.0" "https://api.bilibili.com/x/web-interface/search/all/v2?keyword=test&page=1"
 ```
 

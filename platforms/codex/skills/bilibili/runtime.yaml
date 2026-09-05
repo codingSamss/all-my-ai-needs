@@ -9,7 +9,7 @@ sync_paths:
 
 dependencies:
   commands:
-    - bili-cli
+    - bili
     - opencli
 
 manual_steps:
@@ -18,11 +18,13 @@ manual_steps:
   - Install the OpenCLI Chrome extension manually for subtitles.
 
 verify:
-  - command -v bili || true
-  - command -v opencli || true
+  - command -v bili
+  - bili --version
+  - command -v opencli
   - curl -s -A "Mozilla/5.0" "https://api.bilibili.com/x/web-interface/search/all/v2?keyword=test&page=1"
 
 notes:
+  - 安装包名为 bilibili-cli，实际入口命令为 bili；依赖检查以 command -v bili 为准。
   - This skill is read-only.
   - Use video-transcribe for full transcripts, frames, or Obsidian notes.
   - Do not use yt-dlp as the default Bilibili reader.

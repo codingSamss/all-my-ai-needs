@@ -26,7 +26,7 @@
 | `aihot` | 查询中文 AI 资讯、精选、当前热点、事件时间线、日报与完整精选同步 | 匿名只读 `/api/v1/*`；外部商业或公开再分发需书面授权；按点名方式下发 |
 | `apifox-cli` | 通过 CLI 管理 Apifox 接口、Schema、环境、Mock 与项目资源 | 依赖 Apifox CLI 2.2.6+；登录凭据仅保存在本机 |
 | `apifox-test-case` | 维护单接口测试用例、请求参数、Body、断言、变量提取与测试数据 | 依赖 `apifox-cli`；写入前校验 schema，写入后回读并运行验证 |
-| `bilibili` | B站搜索、热门、排行、视频详情、音频入口与字幕读取 | `bili-cli` 为主；OpenCLI 用于字幕；完整转录交给 `video-transcribe` |
+| `bilibili` | B站搜索、热门、排行、视频详情、音频入口与字幕读取 | `bilibili-cli` 包提供的 `bili` 命令为主；OpenCLI 用于字幕；完整转录交给 `video-transcribe` |
 | `bird-bookmark-folders` | 整理 X/Twitter 收藏夹：列目录、读目录内容、增删移书签、建目录 | 依赖 `python3`；必须与 `bird-twitter` 同时下发；走 GraphQL + Chrome Cookie，含写操作 |
 | `bird-twitter` | 只读访问 X/Twitter 内容 | 依赖 Bird CLI（仓库内置包优先） |
 | `fireworks-tech-graph` | 生成带几何校验的技术图，覆盖 12 种风格、工程语义合同、SVG/PNG、语义 SVG→GIF 与离线 HTML | 依赖 Python 3.9+；PNG 优先 `cairosvg`；GIF 动效依赖可选的 Node/FFmpeg/Chromium 工具链 |

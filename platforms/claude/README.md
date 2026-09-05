@@ -26,7 +26,7 @@
 | `aihot` | 查询中文 AI 资讯、精选、当前热点、事件时间线、日报与完整精选同步 | 匿名只读 `/api/v1/*`；外部商业或公开再分发需书面授权；按点名方式下发 |
 | `apifox-cli` | 通过 CLI 管理 Apifox 接口、Schema、环境、Mock 与项目资源 | 依赖 Apifox CLI 2.2.6+；登录凭据仅保存在本机 |
 | `apifox-test-case` | 维护单接口测试用例、请求参数、Body、断言、变量提取与测试数据 | 依赖 `apifox-cli`；写入前校验 schema，写入后回读并运行验证 |
-| `bilibili` | B站搜索、热门、排行、视频详情、音频入口与字幕读取 | 依赖 bili-cli + opencli（缺失时降级到 search API） |
+| `bilibili` | B站搜索、热门、排行、视频详情、音频入口与字幕读取 | 依赖 `bilibili-cli` 包提供的 `bili` 命令与 OpenCLI；`bili` 缺失时仅搜索可降级到 search API |
 | `bird-bookmark-folders` | 整理 X/Twitter 收藏夹：列目录、读目录内容、增删移书签、建目录 | 依赖 `python3`；必须与 `bird-twitter` 同时下发；走 GraphQL + Chrome Cookie，含写操作 |
 | `bird-twitter` | 只读访问 X/Twitter 内容 | 依赖 Bird CLI（仓库内置包优先） |
 | `cc-codex-review` | Claude / Codex 协作讨论与 Battle Loop | 依赖 CodexMCP 与 topic-manager |
@@ -52,7 +52,7 @@
 
 - 受管内容：`skills/`、`.mcp.json` 模板、`.claude-plugin/`
 - skill 同步由 AI agent 拉仓库后做最小差异 diff 落到 `~/.claude/skills`；`agents`/`hooks`/`scripts` 等运行件由各设备本地自管，不入仓
-- `platforms/claude/.mcp.json` 已内置 MCP：`chrome-devtools`、`context7`、`tavily`
+- `platforms/claude/.mcp.json` 已内置 9 个 MCP：`amap`、`codex`、`context7`、`chrome-devtools`、`magic`、`morphllm-fast-apply`、`sequential-thinking`、`serena`、`tavily`
 - 需要复用 Chrome 登录态的浏览器自动化，走 Claude Code 官方 Chrome 集成（安装 Claude in Chrome 扩展后 `claude --chrome` 或 `/chrome`），不再自维护 playwright skill
 - skill 若需要依赖、手动步骤、验证命令，统一写入 repo 中对应 skill 目录下的 `runtime.yaml`
 - 平台级 `platforms/claude/runtime.yaml` 仅用于仓库内 AI 理解迁移规则，不会同步到 `~/.claude` 根目录

@@ -18,7 +18,7 @@ Triggered by:
 
 ## Preferred Tools
 
-1. `bili-cli` for search, hot/rank, video detail, and audio.
+1. `bili` (provided by the `bilibili-cli` package) for search, hot/rank, video detail, and audio. Check availability with `command -v bili`.
 2. Bilibili web search API as a no-install search fallback.
 3. OpenCLI for subtitles and browser-session enhanced reads.
 4. `video-transcribe` for full transcript, screenshots, keyframes, or notes that replace watching the video.
@@ -69,4 +69,4 @@ curl -s -A "$UA" \
 - Read-only only.
 - Do not use `yt-dlp` as the default Bilibili extraction route.
 - For complete video understanding, transcription, visual frame analysis, or Obsidian notes, switch to `video-transcribe`.
-- If `bili-cli` is missing, use the search API only for search and report that full Bilibili support needs `bili-cli`.
+- If `bili` is missing, use the search API only for search and report that full Bilibili support needs the `bilibili-cli` package.
