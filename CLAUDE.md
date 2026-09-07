@@ -14,18 +14,7 @@
 
 ## Skill 文件格式
 
-每个 skill 通过 `SKILL.md` 定义。推荐结构：
-
-```markdown
----
-name: skill-name
-description: "包含触发关键词的描述"
----
-
-# Skill 标题
-
-给 agent 的执行指令...
-```
+每个 skill 通过 `SKILL.md` 定义，frontmatter 至少含 `name` 与 `description`。
 
 - `name` 与 `description` 决定发现与触发行为
 - `description` 建议包含中英文关键词
