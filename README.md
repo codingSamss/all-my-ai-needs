@@ -39,7 +39,7 @@ all-my-ai-needs/
 | 能力域 | Skills |
 | --- | --- |
 | 常驻 `core` | `git-ops` `handoff` `teach`；Claude 另含 `cc-codex-review` `skill-creator` |
-| 知识库 `obsidian-kb` | `orbit-os` `orbit-session-diary` `official-article-ingest` `online-doc-html` `video-transcribe` |
+| 知识库 `obsidian-kb` | `orbit-os` `official-article-ingest` `online-doc-html` `video-transcribe` |
 | 前端设计 `frontend-design` | `gsap` `fireworks-tech-graph` `ian-xiaohei-illustrations` `mono-color` |
 | API 测试 `api-testing` | `apifox-cli` `apifox-test-case` |
 | 社交只读 `social-reading` | `bilibili` `bird-twitter` `bird-bookmark-folders` `reddit` `linuxdo` `xiaohongshu` |

@@ -41,7 +41,6 @@
 | `official-article-ingest` | 官方文章收录到 Obsidian，区分原文 1:1 与英文中文对照 1:1，并保持源站排版美感 | 依赖目标 Vault、源站页面与本地媒体校验 |
 | `online-doc-html` | Markdown 导出为适合在线文档粘贴的 HTML | 依赖 `pandoc` / `rsvg-convert` |
 | `orbit-os` | OrbitOS Obsidian Vault 共享配置与规范 | 1.7.1；含 folder note、受控字段、`07_交接台` 与禁新增 `See Also` 规则 |
-| `orbit-session-diary` | 基于本地会话日志生成 Obsidian 日记 | 依赖本地 jsonl 与目标 Vault |
 | `reddit` | 只读访问 Reddit 搜索、帖子、评论与 subreddit/hot/popular | OpenCLI 复用 Chrome 登录态；不再依赖 Composio MCP |
 | `skill-creator` | 创建、优化、评估 skills | 用于 skill 设计与迭代 |
 | `teach` | 在当前 workspace 中进行跨会话、可沉淀的概念与技能教学，并复用课程样式、测验与模拟器组件 | 纯指令型 skill；建议在独立学习目录中使用 |

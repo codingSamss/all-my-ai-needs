@@ -15,7 +15,7 @@ dependencies:
 
 manual_steps:
   - 在本机 shell 配置中导出 OBSIDIAN_VAULT_ROOT 指向 Obsidian Vault 根目录。
-  - 被 orbit-* 系列 skill 自动引用，改动本文件前先确认对 orbit-session-diary、handoff、official-article-ingest 的连带影响。
+  - 被 orbit-* 系列 skill 自动引用，改动本文件前先确认对 handoff、official-article-ingest 的连带影响。
 
 verify:
   - test -n "$OBSIDIAN_VAULT_ROOT"
@@ -30,5 +30,5 @@ notes:
   - 2026-08-22 升级到 1.7.1：以当前 Vault 与 Claude 1.7.0 为主，保留新版排版、folder note、
     `07_交接台` 和禁新增 See Also 规则，并整合 1.6.1 的受控字段词表与交接台生命周期纪律。
   - 现场核验仍有少量旧 `status: archive` 与存量 See Also；规则要求触碰时迁移，不虚报已全量清理。
-  - 本 skill 定义的目录编号被 handoff（交接台）与 orbit-session-diary（栏目路径）直接引用；
-    再次重编号时必须同步改这两个 skill，否则 skill 之间路径口径冲突。
+  - 本 skill 定义的目录编号被 handoff（交接台）直接引用；
+    再次重编号时必须同步改该 skill，否则 skill 之间路径口径冲突。

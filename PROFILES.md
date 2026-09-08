@@ -40,7 +40,7 @@ macos-local       macOS 本地维护
 | 分类 | 类型 | Codex 成员 | Claude 成员 |
 | --- | --- | --- | --- |
 | `core` | scope·常驻 | git-ops · handoff · teach | cc-codex-review · git-ops · handoff · skill-creator · teach |
-| `obsidian-kb` | profile | official-article-ingest · online-doc-html · orbit-os · orbit-session-diary · video-transcribe | official-article-ingest · online-doc-html · orbit-os · orbit-session-diary · video-transcribe |
+| `obsidian-kb` | profile | official-article-ingest · online-doc-html · orbit-os · video-transcribe | official-article-ingest · online-doc-html · orbit-os · video-transcribe |
 | `frontend-design` | profile | fireworks-tech-graph · gsap · ian-xiaohei-illustrations · mono-color | fireworks-tech-graph · gsap · ian-xiaohei-illustrations · mono-color |
 | `api-testing` | profile | apifox-cli · apifox-test-case | apifox-cli · apifox-test-case |
 | `social-reading` | profile | bilibili · bird-bookmark-folders · bird-twitter · linuxdo · reddit · xiaohongshu | bilibili · bird-bookmark-folders · bird-twitter · linuxdo · reddit · xiaohongshu |
