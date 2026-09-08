@@ -67,6 +67,7 @@ def load_generator():
 
 
 generator = load_generator()
+QUALITY_SNAPSHOTS = json.loads((ROOT / "tests/snapshots/quality-upgrade.json").read_text())["styles"]
 
 
 def _imagemagick_command(*arguments: str) -> list[str]:
@@ -297,7 +298,7 @@ class MotionPlanTest(unittest.TestCase):
         stream = contract["persistent_data_flow"]
         self.assertEqual(plan["style_id"], style_id)
         self.assertEqual(plan["preset"], preset)
-        self.assertEqual(plan["source_sha256"], source_sha256)
+        self.assertEqual(plan["source_sha256"], QUALITY_SNAPSHOTS[str(style_id)]["sha256"])
         self.assertEqual(plan["review_reference_source_sha256"], source_sha256)
         self.assertEqual(plan["fixture_sha256"], fixture_sha256)
         self.assertEqual(plan["review_status"], "user-approved")
@@ -624,7 +625,8 @@ class MotionPlanTest(unittest.TestCase):
                     for attribute in ("data-motion-role", "data-motion-stage", "data-motion-order"):
                         element.attrib.pop(attribute, None)
                 normalized = ET.tostring(root, encoding="utf-8")
-                self.assertEqual(hashlib.sha256(normalized).hexdigest(), expected_hash)
+                self.assertEqual(hashlib.sha256(normalized).hexdigest(),
+                                 QUALITY_SNAPSHOTS[str(data["style"])]["without_motion_metadata_sha256"])
 
     def test_style_one_default_plan_matches_focused_gif_contract(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -667,7 +669,7 @@ class MotionPlanTest(unittest.TestCase):
             self.render_fixture("tool-call-style2.json", "agent", svg)
             self.assertEqual(
                 hashlib.sha256(svg.read_bytes()).hexdigest(),
-                "bbbb3720f6200279589a4b9626910f0122a3f0d0c8a48cfed0c798cbc40c4e04",
+                QUALITY_SNAPSHOTS["2"]["sha256"],
             )
             plan, safe_svg = build_motion_plan(svg)
 
@@ -800,7 +802,7 @@ class MotionPlanTest(unittest.TestCase):
             self.render_fixture("microservices-style3.json", "architecture", svg)
             self.assertEqual(
                 hashlib.sha256(svg.read_bytes()).hexdigest(),
-                "b8f55d9ea0c6111176d8ff50d2e844b2001ee5087a3940621e635e1b875d470d",
+                QUALITY_SNAPSHOTS["3"]["sha256"],
             )
             plan, safe_svg = build_motion_plan(svg)
 
@@ -897,7 +899,7 @@ class MotionPlanTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             svg = Path(directory) / "style-3.svg"
             self.render_fixture("microservices-style3.json", "architecture", svg)
-            reviewed_hash = hashlib.sha256(svg.read_bytes()).hexdigest()
+            reviewed_hash = build_motion_plan(svg)[0]["review_reference_source_sha256"]
             svg.write_text(svg.read_text(encoding="utf-8") + "\n", encoding="utf-8")
             plan, _ = build_motion_plan(svg)
             self.assertNotEqual(plan["source_sha256"], reviewed_hash)
@@ -913,7 +915,7 @@ class MotionPlanTest(unittest.TestCase):
             self.render_fixture("agent-memory-types-style4.json", "memory", svg)
             self.assertEqual(
                 hashlib.sha256(svg.read_bytes()).hexdigest(),
-                "04cf833659e82c3e1743db4042cacf839a6d784a99c32d076e36fd4776e70c1b",
+                QUALITY_SNAPSHOTS["4"]["sha256"],
             )
             plan, safe_svg = build_motion_plan(svg)
 
@@ -1024,7 +1026,7 @@ class MotionPlanTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             svg = Path(directory) / "style-4.svg"
             self.render_fixture("agent-memory-types-style4.json", "memory", svg)
-            reviewed_hash = hashlib.sha256(svg.read_bytes()).hexdigest()
+            reviewed_hash = build_motion_plan(svg)[0]["review_reference_source_sha256"]
             svg.write_text(svg.read_text(encoding="utf-8") + "\n", encoding="utf-8")
             plan, _ = build_motion_plan(svg)
             self.assertNotEqual(plan["source_sha256"], reviewed_hash)
@@ -1540,7 +1542,7 @@ class MotionPlanTest(unittest.TestCase):
             self.render_fixture("agent-memory-types-style4.json", "memory", style_four_svg)
             self.assertEqual(
                 hashlib.sha256(style_four_svg.read_bytes()).hexdigest(),
-                "04cf833659e82c3e1743db4042cacf839a6d784a99c32d076e36fd4776e70c1b",
+                QUALITY_SNAPSHOTS["4"]["sha256"],
             )
 
             probe = subprocess.run(

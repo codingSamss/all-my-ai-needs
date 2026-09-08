@@ -14,6 +14,18 @@
 [![14 种图类型](https://img.shields.io/badge/图类型-14种-green)]()
 [![UML 支持](https://img.shields.io/badge/UML-完整支持-orange)]()
 
+## 输出质量
+
+当前工作树增强了各主题的辅助文字可读性，并提供完整文字报告。在输入中设置 `"text_policy": "strict"`，可在写文件前拒绝可见文字截断；报告保留原文并提示调整方式。中文描述会使用可用的第二行。各风格的细节与测量边界见[视觉质量说明](references/visual-quality.md)。
+
+```bash
+python3 "$SKILL_ROOT/scripts/fireworks.py" version
+python3 "$SKILL_ROOT/scripts/fireworks.py" export-png diagram.svg diagram.png --width 1920
+```
+
+`version` 返回包版本、实际 Skill 路径和可用的 Git 状态；`doctor` 分别报告 SVG、HTML、PNG、GIF 的运行条件。PNG 导出校验根画布与图片尺寸，采用原子写入并回读实际像素宽高。需要 Chromium 还原效果时仍可使用浏览器 PNG 导出器。下方动图保留为已发布的 1.2.0 参考，本次未发布升级沿用其动效契约。
+
+
 ## 概述
 
 `fireworks-tech-graph` 是一份可由 **Codex 和 Claude Code 共用**的 Agent Skill。它将自然语言描述转化为经过几何校验的 SVG、高分辨率 PNG、经过媒体探测验证的 SVG 转 GIF 语义动效与离线交互 HTML。聚焦后的动效链路只接收生成器产出的语义 SVG，只输出一个紧凑、可验证的 GIF。项目内置 **11 种生成器风格** + **1 种 AI 手绘风格（Dark Luxury）**；新增的四种工程风格分别为 C4 评审、云部署、事件流和可靠性排查提供可执行语义契约，同时保留 AI/Agent Pattern 与全部 14 种 UML 图类型。
@@ -238,7 +250,7 @@ git -C ~/.local/share/agent-skills/fireworks-tech-graph pull
 
 首次安装后重启 Codex 和 Claude Code，让两端重新发现 Skill。后续修改 `SKILL.md` 会自动生效；如果改的是脚本或参考资料而运行时没有看到更新，重启对应运行时。
 
-以上 Shell 命令适用于 macOS、Linux、WSL 和 Git Bash。原生 Windows 请使用 `%USERPROFILE%\.agents\skills` 与 `%USERPROFILE%\.claude\skills` 对应路径。运行脚本需要 Python 3.9+；可选的 Puppeteer 路径需要 Node.js 18+。
+以上 Shell 命令适用于 macOS、Linux、WSL 和 Git Bash。原生 Windows 请使用 `%USERPROFILE%\.agents\skills` 与 `%USERPROFILE%\.claude\skills` 对应路径。运行脚本需要 Python 3.9+；可选的 Puppeteer 路径需要 Node.js 22.12+。
 
 ---
 

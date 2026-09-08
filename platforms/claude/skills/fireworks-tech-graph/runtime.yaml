@@ -20,10 +20,22 @@ origin:
   repo: https://github.com/yizhiyanhua-ai/fireworks-tech-graph
   branch: main
   path: skills/fireworks-tech-graph
-  ref: 50c819d68fd4fee330b3010988cd13e98b678d44
+  ref: 31fea364eda5f1852b1175f3d9e29ea31d22dcb4
   license: MIT
   local_adaptations:
     - Claude SKILL.md keeps Sam Obsidian/Vault rendering defaults and non-focus PNG QA rules.
+    - 2026-09-09 回流 50c819d6→31fea364（upstream CHANGELOG 记为 Unreleased quality upgrade）：
+      校验层加入非 SVG/非法 viewBox 拒绝与通用箭头节点碰撞、CJK 两行折行与 text_policy strict、
+      九个主题辅助文字对比度、新增 version/doctor 命令、重写 export-png（有界、原子写、尺寸回读）。
+      upstream 把 SKILL.md 由 500 行压到 99 行、正文拆入 references；本地两处定制已在新结构重新落位，
+      不是逐行搬运：Obsidian/Vault 与 _teach 输出的 references/obsidian-vault.md 加载点接在构图契约句之后，
+      非交互渲染器 QA 与「不动用户活跃浏览器标签页」的约束并入 Verify the requested outcome 段。
+    - 不收录 upstream 本次新增的赞助商推广：README.md 的 Sponsors 段、README.zh.md 的赞助商段与
+      assets/sponsors/*.png 均不落地。本仓库是公开仓，不代为分发第三方广告文案与带邀请码的推广链接。
+      CHANGELOG 中提及 sponsor assets 的一句变更描述属上游历史记录，无链接与广告，保留以维持与 upstream 一致。
+    - tests/ 与 examples/ 不在 sync_paths（不下发运行目录），但 verify 依赖二者：
+      upstream 同时刷新了快照与 CLI 输出基线，故随本次回流一并同步 repo 内副本，
+      否则 test_motion 的哈希断言与 test_cli 的 interactive-architecture.html 基线会与新脚本失配。
     - Claude runtime install skips the skill-local agents/ directory when syncing to ~/.claude/skills.
 
 dependencies:

@@ -1,6 +1,6 @@
 # PNG Export
 
-Load this reference only when the bundled `generate-diagram.sh` fallback is insufficient or a specific renderer must be selected.
+Load this reference when exporting PNG or choosing between native and Chromium rendering. The unified command validates the SVG root/canvas, limits output to 64 megapixels and 32768px per side, writes atomically, and reads PNG dimensions back.
 
 ## Renderer Choice
 
@@ -14,7 +14,7 @@ Prefer the bundled validation/export entry point:
 
 ```bash
 SKILL_ROOT="${CLAUDE_SKILL_DIR:-/absolute/path/from-codex-skill-metadata}"
-"$SKILL_ROOT/scripts/generate-diagram.sh" -t architecture -s 1 -o ./diagram.svg -w 1920
+python3 "$SKILL_ROOT/scripts/fireworks.py" export-png ./diagram.svg ./diagram.png --width 1920
 ```
 
 ## Manual CairoSVG
@@ -31,7 +31,9 @@ rsvg-convert -w 1920 input.svg -o output.png
 
 ## Puppeteer
 
-Install Puppeteer outside the user's project and run the bundled converter:
+Use Node.js 22.12+ and Puppeteer with Chrome/Chromium. The bundled converter exports intrinsic root-canvas dimensions at 2×; a viewBox-only SVG uses the root viewBox, never an inner shape. It blocks external network requests and uses an isolated headless browser. Sandbox disabling is explicit via `FIREWORKS_CHROME_NO_SANDBOX=1` only for a runtime that requires it.
+
+Install Puppeteer outside the user's project and run the converter:
 
 ```bash
 SKILL_ROOT="${CLAUDE_SKILL_DIR:-/absolute/path/from-codex-skill-metadata}"

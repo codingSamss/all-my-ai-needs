@@ -90,3 +90,7 @@ showcase keeps a distinct engineering scene for every style. The internal
 `fixtures/quality-baseline/` set applies one shared Agent Runtime Architecture
 topology to all 11 generator-backed styles; Style 8 remains the static,
 AI-authored exception.
+
+## Text and raster evidence
+
+Apply [visual-quality.md](visual-quality.md) after geometry passes. Use `text_policy: "strict"` when labels must remain visible in full, inspect `typography` and `palette` in the layout report, and verify the raster at its intended reading size.

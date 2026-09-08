@@ -147,38 +147,8 @@ if [ -f "$SVG_FILE" ]; then
     # Export PNG
     echo -e "\n${BLUE}Exporting PNG (width: ${WIDTH}px)...${NC}"
 
-    PNG_OK=false
+    python3 "${SKILL_DIR}/scripts/fireworks.py" export-png "$SVG_FILE" "$PNG_FILE" --width "$WIDTH"
 
-    # Method 1 (preferred): cairosvg — best CSS support, good fidelity
-    if python3 -c "import cairosvg" 2>/dev/null; then
-        echo -e "${BLUE}Using cairosvg (recommended)...${NC}"
-        if python3 -c "import sys, cairosvg; cairosvg.svg2png(url=sys.argv[1], write_to=sys.argv[2], output_width=int(sys.argv[3]))" "$SVG_FILE" "$PNG_FILE" "$WIDTH" 2>/dev/null; then
-            PNG_OK=true
-        else
-            echo -e "${YELLOW}cairosvg failed, falling back...${NC}"
-        fi
-    fi
-
-    # Method 2 (fallback): rsvg-convert — may drop CSS / foreignObject
-    if [ "$PNG_OK" = false ] && command -v rsvg-convert &> /dev/null; then
-        echo -e "${BLUE}Using rsvg-convert (fallback)...${NC}"
-        echo -e "${YELLOW}Warning: rsvg-convert may drop CSS styles or <foreignObject> — install cairosvg for better fidelity${NC}"
-        echo -e "${YELLOW}  python3 -m pip install cairosvg${NC}"
-        if rsvg-convert -w "$WIDTH" "$SVG_FILE" -o "$PNG_FILE" 2>/dev/null; then
-            PNG_OK=true
-        fi
-    fi
-
-    if [ "$PNG_OK" = true ]; then
-        PNG_SIZE=$(du -h "$PNG_FILE" | cut -f1)
-        echo -e "${GREEN}PNG exported: $PNG_FILE (${PNG_SIZE})${NC}"
-    else
-        echo -e "${RED}PNG export failed${NC}"
-        echo -e "${YELLOW}Install one of:${NC}"
-        echo -e "  ${YELLOW}python3 -m pip install cairosvg${NC} (recommended)"
-        echo -e "  ${YELLOW}brew install librsvg${NC}        (macOS)  /  apt install librsvg2-bin (Debian)"
-        exit 1
-    fi
 else
     echo -e "${YELLOW}SVG file not found. Generate it first with Codex or Claude Code.${NC}"
     exit 1

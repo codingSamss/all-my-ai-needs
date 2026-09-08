@@ -23,6 +23,7 @@ if str(SCRIPT_DIR) not in sys.path:
 
 import fireworks_geometry as geometry  # noqa: E402
 import composition_quality as quality  # noqa: E402
+from svg_canvas import parse_svg as parse_svg_source  # noqa: E402
 
 
 NUMBER_RE = re.compile(r"[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?")
@@ -914,13 +915,13 @@ def composition_check(root: ET.Element) -> list[str]:
 
 
 def parse_svg(path: Path) -> ET.Element:
-    return ET.parse(path).getroot()
+    return parse_svg_source(path.read_text(encoding="utf-8"))
 
 
 def run_check(path: Path, check: str) -> tuple[bool, list[str]]:
     try:
         root = parse_svg(path)
-    except (ET.ParseError, OSError) as error:
+    except (ET.ParseError, OSError, ValueError) as error:
         return False, [str(error)]
     if check == "xml":
         return True, []

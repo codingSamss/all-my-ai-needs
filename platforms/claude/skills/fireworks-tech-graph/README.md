@@ -16,6 +16,18 @@
 
 ---
 
+## Output quality
+
+The current checkout adds complete-text reporting and stronger supporting text across the default themes. Add `"text_policy": "strict"` to reject visible truncation before output is written; reports preserve the full source label and explain how to recover. Chinese descriptions use the available second line. See [visual quality](references/visual-quality.md) for theme-specific guidance and measurement limits.
+
+```bash
+python3 "$SKILL_ROOT/scripts/fireworks.py" version
+python3 "$SKILL_ROOT/scripts/fireworks.py" export-png diagram.svg diagram.png --width 1920
+```
+
+`version` reports the package, actual Skill root and Git state when available. `doctor` distinguishes SVG/HTML support from optional PNG/GIF dependencies. PNG export checks the root canvas, bounds image size, writes atomically and reads the resulting pixel dimensions back. The browser PNG exporter remains available for Chromium fidelity. The showcase GIFs below are the published 1.2.0 references; this unreleased upgrade preserves their motion contracts.
+
+
 ## Overview
 
 `fireworks-tech-graph` is one Agent Skill that works unchanged in **Codex and Claude Code**. It turns natural language descriptions into polished, geometry-checked SVG diagrams, high-resolution PNGs, validated SVG-to-GIF semantic motion, and offline interactive HTML. The focused animation path accepts a generated semantic SVG and emits one compact, probed GIF. It ships with **11 generator-backed styles** and **1 AI-authored style (Dark Luxury)**. Four engineering-first styles add executable contracts for C4 reviews, cloud deployments, event streams, and reliability investigations, alongside deep AI/Agent domain patterns and all 14 UML diagram types.
@@ -253,7 +265,7 @@ git -C ~/.local/share/agent-skills/fireworks-tech-graph pull
 
 After the first install, restart Codex and Claude Code so both discover the skill. Later `SKILL.md` edits are detected automatically; restart the runtime after changing bundled scripts or references if the update is not visible.
 
-The shell commands above target macOS, Linux, WSL, and Git Bash. On native Windows, use the equivalent `%USERPROFILE%\.agents\skills` and `%USERPROFILE%\.claude\skills` paths. Python 3.9+ is required; the optional Puppeteer path requires Node.js 18+.
+The shell commands above target macOS, Linux, WSL, and Git Bash. On native Windows, use the equivalent `%USERPROFILE%\.agents\skills` and `%USERPROFILE%\.claude\skills` paths. Python 3.9+ is required; the optional Puppeteer path requires Node.js 22.12+.
 
 ---
 

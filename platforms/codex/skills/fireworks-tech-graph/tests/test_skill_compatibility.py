@@ -93,7 +93,7 @@ class SkillCompatibilityTest(unittest.TestCase):
     def test_style_regression_exports_a_fixed_1920px_width(self) -> None:
         script = (ROOT / "scripts" / "test-all-styles.sh").read_text(encoding="utf-8")
         self.assertIn("PNG_WIDTH=1920", script)
-        self.assertIn("output_width=int(sys.argv[3])", script)
+        self.assertIn('export-png "$svg_file" "$png_file" --width "$PNG_WIDTH"', script)
         self.assertNotIn("scale=2", script)
 
     def test_workflows_pin_actions_and_never_persist_checkout_credentials(self) -> None:

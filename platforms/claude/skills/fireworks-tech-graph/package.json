@@ -44,6 +44,7 @@
     "LICENSE",
     "CHANGELOG.md",
     "CONTRIBUTING.md",
+    "SECURITY.md",
     "agents/",
     "docs/",
     "examples/",
@@ -58,6 +59,6 @@
     "!**/*.pyc"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.12.0"
   }
 }

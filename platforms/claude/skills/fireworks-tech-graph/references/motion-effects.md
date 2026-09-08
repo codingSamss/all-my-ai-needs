@@ -294,7 +294,7 @@ not exceed 600 million rendered pixels.
 
 ## Runtime
 
-SVG-to-GIF export needs Node.js 18+, FFmpeg/FFprobe, Chrome/Chromium, and either
+SVG-to-GIF export needs Node.js 22.12+, FFmpeg/FFprobe, Chrome/Chromium, and either
 `puppeteer` or `puppeteer-core`:
 
 ```bash

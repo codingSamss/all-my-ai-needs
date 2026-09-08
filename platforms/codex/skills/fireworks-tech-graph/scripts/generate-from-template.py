@@ -33,6 +33,8 @@ import fireworks_geometry as geometry  # noqa: E402
 import composition_quality as quality  # noqa: E402
 from diagram_ir import normalize_diagram  # noqa: E402
 from semantic_contracts import STYLE_NAMES, resolve_style_index  # noqa: E402
+from svg_canvas import parse_viewbox  # noqa: E402
+from style_quality import READABILITY_TOKENS, palette_report, text_quality_report  # noqa: E402
 
 Point = Tuple[float, float]
 Bounds = Tuple[float, float, float, float]
@@ -646,7 +648,10 @@ def parse_style(raw: object) -> Tuple[int, Dict[str, object]]:
         raise ValueError(_AI_AUTHORED_MSG.format(name=_AI_AUTHORED_STYLES[index]))
     if index not in STYLE_PROFILES:
         raise ValueError(f"Unsupported style: {raw}")
-    return index, copy.deepcopy(STYLE_PROFILES[index])
+    profile = copy.deepcopy(STYLE_PROFILES[index])
+    profile.update(READABILITY_TOKENS.get(index, {}))
+    profile["font_family"] = str(profile["font_family"]).replace("'Microsoft YaHei'", "'Noto Sans CJK SC', 'Microsoft YaHei'")
+    return index, profile
 
 
 def parse_template_viewbox(template_type: str) -> Tuple[float, float]:
@@ -775,7 +780,7 @@ def render_defs(style_index: int, style: Dict[str, object]) -> str:
         f"    .section {{ font-size: 13px; font-weight: 700; fill: {style_value(style, 'section_label_fill')}; letter-spacing: 1.4px; }}",
         f"    .section-sub {{ font-size: 12px; font-weight: 500; fill: {style_value(style, 'section_sub_fill')}; }}",
         f"    .node-title {{ font-weight: 700; fill: {style_value(style, 'text_primary')}; }}",
-        f"    .node-sub {{ font-size: 12px; font-weight: 500; fill: {style_value(style, 'text_secondary')}; }}",
+        f"    .node-sub {{ font-weight: 500; fill: {style_value(style, 'text_secondary')}; }}",
         f"    .node-type {{ font-size: {style_value(style, 'type_label_size')}px; font-weight: 700; fill: {style_value(style, 'type_label_fill')}; letter-spacing: 0.08em; }}",
         f"    .arrow-label {{ font-size: 12px; font-weight: 600; fill: {style_value(style, 'arrow_label_fill')}; }}",
         f"    .legend {{ font-size: 12px; font-weight: 500; fill: {style_value(style, 'legend_fill')}; }}",
@@ -2067,9 +2072,34 @@ def wrap_text_lines(text: object, available_width: float, *, font_size: float = 
     value = " ".join(str(text or "").split())
     if not value:
         return []
-    if geometry.estimate_text_width(value, font_size) <= available_width or max_lines <= 1:
+    if geometry.estimate_text_width(value, font_size) <= available_width:
         return [value]
+    if max_lines <= 1:
+        return [fit_single_line_text(value, available_width, preferred=font_size, minimum=font_size)[0]]
     words = value.split()
+    # Chinese/Japanese text has valid line breaks without spaces. Keep complete
+    # grapheme-like clusters together and use the second line before truncating.
+    if any(ord(character) >= 0x2e80 for character in value):
+        clusters = []
+        import unicodedata
+        for character in value:
+            if clusters and (unicodedata.combining(character) or character in "\ufe0f\ufe0e"):
+                clusters[-1] += character
+            else:
+                clusters.append(character)
+        lines = []
+        current = ""
+        for cluster in clusters:
+            candidate = current + cluster
+            if current and geometry.estimate_text_width(candidate, font_size, weight=1.08) > available_width and len(lines) < max_lines - 1:
+                lines.append(current.rstrip())
+                current = cluster.lstrip()
+            else:
+                current = candidate
+        if current:
+            lines.append(current)
+        return [fit_single_line_text(line, available_width, preferred=font_size, minimum=font_size)[0]
+                for line in lines]
     if max_lines == 2 and len(words) > 1:
         candidates: List[Tuple[Tuple[float, float], List[str]]] = []
         for index in range(1, len(words)):
@@ -2598,13 +2628,14 @@ def render_rect_node(node: Dict[str, object], style: Dict[str, object], kind: st
     if kind == "bot":
         title_x = x + width / 2
         text_anchor = "middle"
-    title_size = to_float(
-        node.get("title_size"),
-        fitted_text_size(title_text, width - (32 if kind == "double_rect" else 24)),
+    title_budget = width - (76 if kind == "user_avatar" else 52 if kind == "hexagon" else 32 if kind == "double_rect" else 24)
+    fitted_title, title_size = fit_single_line_text(
+        title_text, title_budget, preferred=to_float(node.get("title_size"), 18), minimum=12,
     )
     lines.append(
-        f'  <text x="{title_x}" y="{title_y}" text-anchor="{text_anchor}" class="node-title" '
-        f'font-size="{title_size}">{title}</text>'
+        f'  <text data-text-role="title" data-full-text="{normalize_attribute(title_text)}" '
+        f'data-text-max-width="{title_budget}" x="{title_x}" y="{title_y}" text-anchor="{text_anchor}" class="node-title" '
+        f'font-size="{title_size}">{normalize_text(fitted_title)}</text>'
     )
 
     if subtitle:
@@ -2622,7 +2653,11 @@ def render_rect_node(node: Dict[str, object], style: Dict[str, object], kind: st
             sub_y = y + height + 20
         if kind == "user_avatar":
             sub_y = title_y + 22
-        lines.append(f'  <text x="{title_x}" y="{sub_y}" text-anchor="{text_anchor}" class="node-sub">{subtitle}</text>')
+        subtitle_raw = str(node.get("sublabel", ""))
+        subtitle_visible, subtitle_size = fit_single_line_text(subtitle_raw, title_budget, preferred=12, minimum=10.5)
+        lines.append(f'  <text data-text-role="subtitle" data-full-text="{normalize_attribute(subtitle_raw)}" '
+                     f'data-text-max-width="{title_budget}" x="{title_x}" y="{sub_y}" text-anchor="{text_anchor}" '
+                     f'class="node-sub" font-size="{subtitle_size}">{normalize_text(subtitle_visible)}</text>')
 
     tag_lines = []
     if node.get("tags"):
@@ -2649,19 +2684,24 @@ def render_node(node: Dict[str, object], style: Dict[str, object]) -> str:
         stroke = str(node.get("stroke", "#10b981"))
         stroke_width = to_float(node.get("stroke_width", 2.2))
         label_text = str(node.get("label", ""))
-        label = normalize_text(label_text)
-        subtitle = normalize_text(node.get("sublabel", ""))
+        label_visible, label_size = fit_single_line_text(label_text, width - 24, preferred=to_float(node.get("title_size"), 18), minimum=12)
+        label = normalize_text(label_visible)
+        subtitle_raw = str(node.get("sublabel", ""))
+        subtitle_visible, subtitle_size = fit_single_line_text(subtitle_raw, width - 24, preferred=12, minimum=10.5)
+        subtitle = normalize_text(subtitle_visible)
         lines = [
-            f'  <ellipse cx="{x + width / 2}" cy="{y + ry}" rx="{rx / 2}" ry="{ry}" fill="{fill}" stroke="{stroke}" stroke-width="{stroke_width}"/>',
+            f'  <ellipse cx="{x + width / 2}" cy="{y + ry}" rx="{rx}" ry="{ry}" fill="{fill}" stroke="{stroke}" stroke-width="{stroke_width}"/>',
             f'  <rect x="{x}" y="{y + ry}" width="{width}" height="{height - 2 * ry}" fill="{fill}" stroke="{stroke}" stroke-width="{stroke_width}"/>',
-            f'  <ellipse cx="{x + width / 2}" cy="{y + height - ry}" rx="{rx / 2}" ry="{ry}" fill="{fill}" stroke="{stroke}" stroke-width="{stroke_width}"/>',
-            f'  <ellipse cx="{x + width / 2}" cy="{y + height * 0.38}" rx="{rx / 2}" ry="{ry}" fill="none" stroke="{stroke}" stroke-opacity="0.45" stroke-width="1.2"/>',
-            f'  <ellipse cx="{x + width / 2}" cy="{y + height * 0.6}" rx="{rx / 2}" ry="{ry}" fill="none" stroke="{stroke}" stroke-opacity="0.25" stroke-width="1.2"/>',
-            f'  <text x="{x + width / 2}" y="{y + height / 2 - 6}" text-anchor="middle" class="node-title" '
-            f'font-size="{to_float(node.get("title_size"), fitted_text_size(label_text, width - 24))}">{label}</text>',
+            f'  <ellipse cx="{x + width / 2}" cy="{y + height - ry}" rx="{rx}" ry="{ry}" fill="{fill}" stroke="{stroke}" stroke-width="{stroke_width}"/>',
+            f'  <ellipse cx="{x + width / 2}" cy="{y + height * 0.38}" rx="{rx}" ry="{ry}" fill="none" stroke="{stroke}" stroke-opacity="0.45" stroke-width="1.2"/>',
+            f'  <ellipse cx="{x + width / 2}" cy="{y + height * 0.6}" rx="{rx}" ry="{ry}" fill="none" stroke="{stroke}" stroke-opacity="0.25" stroke-width="1.2"/>',
+            f'  <text data-text-role="title" data-full-text="{normalize_attribute(label_text)}" data-text-max-width="{width - 24}" '
+            f'x="{x + width / 2}" y="{y + height / 2 - 6}" text-anchor="middle" class="node-title" '
+            f'font-size="{label_size}">{label}</text>',
         ]
         if subtitle:
-            lines.append(f'  <text x="{x + width / 2}" y="{y + height / 2 + 18}" text-anchor="middle" class="node-sub">{subtitle}</text>')
+            lines.append(f'  <text data-text-role="subtitle" data-full-text="{normalize_attribute(subtitle_raw)}" data-text-max-width="{width - 24}" '
+                         f'x="{x + width / 2}" y="{y + height / 2 + 18}" text-anchor="middle" class="node-sub" font-size="{subtitle_size}">{subtitle}</text>')
         return "\n".join(lines)
     return render_rect_node(node, style, kind)
 
@@ -3013,10 +3053,7 @@ def build_svg_with_report(template_type: str, data: Dict[str, object]) -> Tuple[
     width = to_float(source_data.get("width", width))
     height = to_float(source_data.get("height", height))
     if source_data.get("viewBox"):
-        match = re.match(r"0 0 ([0-9.]+) ([0-9.]+)", str(source_data["viewBox"]))
-        if match:
-            width = float(match.group(1))
-            height = float(match.group(2))
+        _, _, width, height = parse_viewbox(source_data["viewBox"])
     if not math.isfinite(width) or not math.isfinite(height) or width <= 0 or height <= 0:
         raise ValueError("canvas width and height must be finite positive numbers")
 
@@ -3280,6 +3317,13 @@ def build_svg_with_report(template_type: str, data: Dict[str, object]) -> Tuple[
         )
         raise ValueError(f"COMPOSITION_QUALITY: {summary}")
 
+    svg = "\n".join(line for line in lines if line)
+    typography = text_quality_report(svg)
+    text_policy = source_data.get("text_policy", "report")
+    if text_policy not in {"report", "strict"}:
+        raise ValueError("text_policy must be report or strict")
+    if text_policy == "strict" and not typography["complete_text"]:
+        raise ValueError("TEXT_FIT: text would be truncated; widen the card or split the view")
     report: Dict[str, object] = {
         "schema_version": 1,
         "input_schema": diagram.input_schema,
@@ -3289,6 +3333,8 @@ def build_svg_with_report(template_type: str, data: Dict[str, object]) -> Tuple[
         "ok": True,
         "canvas": {"width": round(width, 2), "height": round(height, 2)},
         "text_metrics": "heuristic-v1",
+        "typography": typography,
+        "palette": palette_report(style),
         "placements": {
             "legend": {
                 key: ([round(item, 2) for item in value] if key == "bounds" else value)
@@ -3306,7 +3352,7 @@ def build_svg_with_report(template_type: str, data: Dict[str, object]) -> Tuple[
             "bridged_crossings": sum(len(rendered.report["bridges"]) for rendered in rendered_by_index.values()),
         },
     }
-    return "\n".join(line for line in lines if line), report
+    return svg, report
 
 
 def build_svg(template_type: str, data: Dict[str, object]) -> str:

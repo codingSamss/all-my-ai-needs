@@ -7,6 +7,7 @@ import argparse
 import importlib.util
 import json
 import shutil
+import subprocess
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -22,6 +23,8 @@ from diagram_ir import normalize_diagram  # noqa: E402
 from interactive_html import build_interactive_html  # noqa: E402
 from motion import DEFAULT_MOTION_DURATION, MOTION_PRESETS, probe_motion_runtime, render_motion_gif  # noqa: E402
 from validate_svg import run_check  # noqa: E402
+from png_export import export_png  # noqa: E402
+from semantic_contracts import STYLE_NAMES  # noqa: E402
 
 
 def _load_generator():
@@ -46,8 +49,33 @@ def command_doctor(_: argparse.Namespace) -> int:
     }
     probes["raster_export"] = {"ok": probes["cairosvg"]["ok"] or probes["rsvg-convert"]["ok"]}
     probes["animation_export"] = {"ok": motion_runtime["ok"], "optional": True}
+    probes["version"] = version_info()
+    probes["capabilities"] = {"svg": probes["python"]["ok"], "html": probes["python"]["ok"],
+                              "png": probes["raster_export"]["ok"], "gif": motion_runtime["ok"]}
     print(json.dumps(probes, indent=2, sort_keys=True))
     return 0 if probes["python"]["ok"] and probes["raster_export"]["ok"] else 1
+
+
+def version_info() -> dict:
+    package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
+    result = {"version": package["version"], "schema_version": 1, "skill_root": str(ROOT),
+              "source": "installed-package", "styles": dict(STYLE_NAMES),
+              "node_for_motion": ">=22.12.0"}
+    if (ROOT / ".git").exists() and shutil.which("git"):
+        commit = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "HEAD"], capture_output=True, text=True, timeout=5)
+        dirty = subprocess.run(["git", "-C", str(ROOT), "diff", "--quiet", "HEAD"], timeout=5)
+        result.update(source="git-checkout", commit=commit.stdout.strip(), modified=dirty.returncode != 0)
+    return result
+
+
+def command_version(_: argparse.Namespace) -> int:
+    print(json.dumps(version_info(), ensure_ascii=False, indent=2, sort_keys=True))
+    return 0
+
+
+def command_export_png(args: argparse.Namespace) -> int:
+    print(json.dumps(export_png(args.svg, args.output, args.width), indent=2, sort_keys=True))
+    return 0
 
 
 def _read_json(path: Path) -> dict[str, object]:
@@ -85,12 +113,13 @@ def command_render(args: argparse.Namespace) -> int:
     if args.report:
         args.report.parent.mkdir(parents=True, exist_ok=True)
         args.report.write_text(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    print(json.dumps({"ok": True, "svg": str(args.output), "report": str(args.report) if args.report else None}, sort_keys=True))
+    print(json.dumps({"ok": True, "svg": str(args.output), "report": str(args.report) if args.report else None,
+                      "typography": report["typography"], "palette": report["palette"]}, sort_keys=True))
     return 0
 
 
 def command_check(args: argparse.Namespace) -> int:
-    checks = args.check or ["xml", "markers", "geometry", "composition"]
+    checks = args.check or ["xml", "markers", "collisions", "geometry", "composition"]
     results: dict[str, object] = {}
     ok = True
     for check in checks:
@@ -160,6 +189,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("doctor").set_defaults(func=command_doctor)
+    subparsers.add_parser("version", help="report installed version, source and style catalog").set_defaults(func=command_version)
+    png = subparsers.add_parser("export-png", help="export PNG with bounded dimensions and pixel-size readback")
+    png.add_argument("svg", type=Path)
+    png.add_argument("output", type=Path)
+    png.add_argument("--width", type=int, default=1920)
+    png.set_defaults(func=command_export_png)
 
     validate = subparsers.add_parser("validate", help="validate and normalize diagram JSON")
     validate.add_argument("mode")
@@ -211,7 +246,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         return int(args.func(args))
-    except (OSError, RuntimeError, ValueError, json.JSONDecodeError, ET.ParseError) as error:
+    except (OSError, RuntimeError, ValueError, json.JSONDecodeError, ET.ParseError, subprocess.TimeoutExpired) as error:
         print(json.dumps({"ok": False, "error": str(error)}, ensure_ascii=False), file=sys.stderr)
         return 1
 

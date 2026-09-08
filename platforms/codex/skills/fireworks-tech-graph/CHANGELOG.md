@@ -4,6 +4,16 @@ All notable changes use semantic versioning.
 
 Historical `1.0.0` through `1.0.4` entries were reconstructed from the published npm artifacts and their registry-recorded `gitHead` values. See [`docs/releases/`](docs/releases/) for provenance details.
 
+## Unreleased — quality upgrade
+
+- Reject non-SVG XML and invalid viewBoxes before layout; include generic arrow/node collisions in the default `check` contract.
+- Add CJK-aware two-line wrapping, bounded card titles, complete-text reports and opt-in `text_policy: "strict"` that rejects visible truncation before output writes.
+- Strengthen supporting text in nine themes while preserving their palette identities, routes and motion signatures; expose default-canvas contrast measurements.
+- Add `version` and capability-scoped `doctor` evidence. Align optional Puppeteer runtime requirements and CI with Node.js 22.12+.
+- Add a shared, bounded PNG export command with atomic output and dimension readback. Keep the Chromium PNG route, fix root-only canvas sizing and share trusted browser discovery with GIF export.
+- Reduce the Skill entrypoint and load detailed composition/quality guidance on demand. Repair the complete nested distribution, including README and sponsor assets.
+- Refresh current text/style snapshots separately from historical motion approval hashes. Published 1.2.0 GIF showcases remain historical release artifacts.
+
 ## 1.2.0 — 2026-07-17
 
 - Added one focused motion contract: generated semantic SVG in, validated GIF plus a JSON motion report out. The renderer rejects raster inputs and unsupported media formats.

@@ -52,6 +52,8 @@
         "additionalProperties": true
       }
     },
+    "text_policy": { "enum": ["report", "strict"] },
+    "viewBox": { "type": "string", "description": "Four finite numbers, origin 0 0 and positive width and height; validated by the CLI." },
     "quality_profile": { "enum": ["standard", "showcase"] },
     "composition": {
       "type": "object",

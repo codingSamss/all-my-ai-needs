@@ -20,6 +20,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from semantic_contracts import resolve_style_index, validate_semantic_contract  # noqa: E402
+from svg_canvas import parse_viewbox  # noqa: E402
 
 
 class DiagramValidationError(ValueError):
@@ -87,7 +88,14 @@ def normalize_diagram(data: Mapping[str, Any], expected_mode: str) -> DiagramIR:
     normalized["schema_version"] = 1
     normalized["mode"] = mode
 
+    if normalized.get("text_policy", "report") not in {"report", "strict"}:
+        raise DiagramValidationError("text_policy must be report or strict")
     _validate_numeric_fields(normalized, ("width", "height"), "diagram")
+    if "viewBox" in normalized:
+        box = parse_viewbox(normalized["viewBox"])
+        if box[:2] != (0.0, 0.0):
+            raise DiagramValidationError("generated diagrams require a viewBox origin of 0 0")
+        normalized["viewBox"] = " ".join(format(number, ".15g") for number in box)
     for field in ("width", "height"):
         if field in normalized and _finite(normalized[field], f"diagram.{field}") <= 0:
             raise DiagramValidationError(f"diagram.{field} must be greater than zero")

@@ -1611,6 +1611,16 @@ def probe_motion_runtime() -> dict[str, object]:
         result["error"] = "Node.js or scripts/svg2gif.js is unavailable"
         return result
     try:
+        version_process = subprocess.run([node, "--version"], capture_output=True, text=True, timeout=5)
+        version_text = version_process.stdout.strip().lstrip("v")
+        result["node_version"] = version_text
+        if version_process.returncode or tuple(int(part) for part in version_text.split(".")[:3]) < (22, 12, 0):
+            result["error"] = "MOTION_NODE_VERSION: puppeteer-core 25.3.0 requires Node.js >=22.12.0"
+            return result
+    except (OSError, ValueError, subprocess.TimeoutExpired):
+        result["error"] = "MOTION_NODE_VERSION: could not determine a supported Node.js version"
+        return result
+    try:
         process = subprocess.run(
             [node, str(MOTION_WORKER), "--probe"],
             text=True,

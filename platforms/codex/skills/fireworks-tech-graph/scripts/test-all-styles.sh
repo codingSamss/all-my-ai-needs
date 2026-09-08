@@ -32,18 +32,8 @@ export_png() {
     local svg_file="$1"
     local png_file="$2"
 
-    # Keep both renderer branches on the same public 1920px contract. Using
-    # CairoSVG's scale would make output width depend on each SVG viewBox.
-    if python3 -c "import cairosvg" 2>/dev/null \
-        && python3 -c "import sys, cairosvg; cairosvg.svg2png(url=sys.argv[1], write_to=sys.argv[2], output_width=int(sys.argv[3]))" \
-            "$svg_file" "$png_file" "$PNG_WIDTH" 2>/dev/null; then
-        return 0
-    fi
-    if command -v rsvg-convert &> /dev/null \
-        && rsvg-convert -w "$PNG_WIDTH" "$svg_file" -o "$png_file" 2>/dev/null; then
-        return 0
-    fi
-    return 1
+    python3 "${SKILL_DIR}/scripts/fireworks.py" export-png "$svg_file" "$png_file" --width "$PNG_WIDTH" >/dev/null
+
 }
 
 # Summary counters
