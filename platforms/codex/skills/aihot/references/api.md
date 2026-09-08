@@ -4,9 +4,9 @@
 
 ## 共同合同
 
-- Base URL：`https://aihot.virxact.com`
+- Base URL：`https://aihot.news`
 - 匿名只读，不需要 API Key，不发送 cookie。
-- OpenAPI：`https://aihot.virxact.com/openapi-v1.json`
+- OpenAPI：`https://aihot.news/openapi-v1.json`
 - 所有 cursor 都是不透明书签：只原样回传给产生它的同一端点和同一查询，不解析、不修改、不跨查询复用。
 - 未知参数、无效参数、损坏或跨查询 cursor 都返回明确的 Problem JSON，不会静默回到第一页。
 - 对同一完整 URL 保存响应 `ETag`；下次发送 `If-None-Match`。`304` 表示内容未变化。
@@ -32,7 +32,7 @@
 
 `window` 从哪个时间点往回算、结果按哪个时间排序，由 `by` 决定。两个原始时间戳恒定随每条返回，可自行判断。
 
-- `by=timeline`（默认）：与 aihot.virxact.com 网页看到的顺序和集合一致。规则是——原文发布后 72 小时内被收录，按收录时间；超过 72 小时才收录的历史回填，归位到原文发布日。所以官方博客、公众号、HuggingFace Daily 这类「原文两三天前发、今天才抓到」的慢推信源，仍会出现在 `window=24h` 里，同时旧文回填不会冒充最近。
+- `by=timeline`（默认）：与 aihot.news 网页看到的顺序和集合一致。规则是——原文发布后 72 小时内被收录，按收录时间；超过 72 小时才收录的历史回填，归位到原文发布日。所以官方博客、公众号、HuggingFace Daily 这类「原文两三天前发、今天才抓到」的慢推信源，仍会出现在 `window=24h` 里，同时旧文回填不会冒充最近。
 - `by=published`：只按第三方原文发布时间。慢推信源可能掉出短窗口；需要严格按原文时间线对账时才用。
 
 切换 `by` 会让已持有的 cursor 失效并返回 `invalid_cursor`，这是有意的：换了口径继续用旧书签会串页。重新从第一页开始即可。
@@ -96,7 +96,7 @@ GET /api/v1/items?mode=all&window=24h&limit=50
 
 `GET /api/v1/stories/{publicId}`
 
-publicId 只取自实际返回的 hot-topics `links.story`，或另一个 story 响应里 storyline／related 的引用。对于 `links.story`，先确认 URL 属于 `https://aihot.virxact.com/story/{publicId}`，只提取路径末段的实际 `publicId`，再调用本 API；不得直接请求该 HTML 网页 URL，也不得把网页响应当 API 数据。字段缺失或 URL 格式不符时不得猜测 id，改用 items 关键词查询。响应为 `{schemaVersion, story}`：`story.reports` 是逆序报道时间线（每条含站内 `links.aihot`）；`story.digest` 是随事件演化增量更新的 AI 综述（与旧结论矛盾处会显式标注），`story.latest` 是最新进展一句话；`storyline`／`related` 是关联事件引用（含 `links.api` 可直接续跳）。事件被合并时返回 308，跟随 Location 即可；404 表示事件层或该事件当前不可用，回落到 items。`status` 为 `settled` 表示事件已收束（超过 48 小时无新报道）。
+publicId 只取自实际返回的 hot-topics `links.story`，或另一个 story 响应里 storyline／related 的引用。对于 `links.story`，先确认 URL 属于 `https://aihot.news/story/{publicId}` 或 `https://aihot.virxact.com/story/{publicId}`，只提取路径末段的实际 `publicId`，再调用本 API；不得直接请求该 HTML 网页 URL，也不得把网页响应当 API 数据。字段缺失或 URL 格式不符时不得猜测 id，改用 items 关键词查询。响应为 `{schemaVersion, story}`：`story.reports` 是逆序报道时间线（每条含站内 `links.aihot`）；`story.digest` 是随事件演化增量更新的 AI 综述（与旧结论矛盾处会显式标注），`story.latest` 是最新进展一句话；`storyline`／`related` 是关联事件引用（含 `links.api` 可直接续跳）。事件被合并时返回 308，跟随 Location 即可；404 表示事件层或该事件当前不可用，回落到 items。`status` 为 `settled` 表示事件已收束（超过 48 小时无新报道）。
 
 ### 日报
 
