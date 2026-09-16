@@ -13,8 +13,8 @@ sync_paths:
 origin:
   repo: https://github.com/KKKKhazix/khazix-skills
   path: aihot
-  ref: 3fa874169134f65b14e8a27164386510bc867037
-  version: 1.6.0
+  ref: 4f2db09802736ac8130ddf8dd6121435b5a41b55
+  version: 1.7.1
   license: MIT
   local_adaptations:
     - 不下发 upstream 的 install.sh 与 manifest.sha256；本仓库由 AI 直接同步文件，不走远端安装器。
@@ -24,6 +24,10 @@ origin:
     - 2026-09-09 回流 v1.5.4→v1.6.0：upstream 把主域名从 aihot.virxact.com 迁到 aihot.news，
       旧域名保留为长期兼容入口。收录的 SKILL.md 与 references 三件逐字节替换，本地无正文改写；
       LICENSE 未变。虽然 skill 已按 upstream 合同同时接受两个域名，仍应保持锚点跟进，避免旧域名停用后失效。
+    - 2026-09-16 回流 v1.6.0→v1.7.1（跨 v1.7.0）：新增 Tibo 重置监控端点 /api/v1/codex-resets，
+      补入 HTTP 压缩与缓存友好的调用约定；收录面只动 SKILL.md 与 references/api.md，其余三件未变。
+    - verify 的版本与连通性断言改为从 SKILL.md 的 frontmatter 现读 version 再拼 UA，不再硬编码版本号。
+      此前两次上游升版都让写死的断言失效（1.5.4→1.6.0、1.6.0→1.7.1），改后升版只需更新 ref 与 version。
 
 dependencies:
   commands:
@@ -45,5 +49,10 @@ verify:
   - test -f references/sync.md
   - test -f agents/openai.yaml
   - rg -q '^name: aihot$' SKILL.md
-  - rg -q 'aihot-skill/1.6.0' SKILL.md
-  - curl -fsS --max-time 10 -H 'User-Agent: aihot-skill/1.6.0 (+https://aihot.news/aihot-skill/)' 'https://aihot.news/api/v1/items?mode=selected&window=24h&limit=1' | rg -q '"schemaVersion"'
+  # 版本不写死：UA 必须与 frontmatter 的 version 一致，上游升版时本段无需跟着改
+  - |
+    v=$(grep -m1 '^  version:' SKILL.md | tr -d ' "' | cut -d: -f2)
+    rg -q "aihot-skill/$v" SKILL.md
+  - |
+    v=$(grep -m1 '^  version:' SKILL.md | tr -d ' "' | cut -d: -f2)
+    curl -fsS --max-time 10 -H "User-Agent: aihot-skill/$v (+https://aihot.news/aihot-skill/)" 'https://aihot.news/api/v1/items?mode=selected&window=24h&limit=1' | rg -q '"schemaVersion"'
