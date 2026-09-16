@@ -65,7 +65,7 @@ mo analyze --json "$HOME/Library"
 ~/.config/mole/clean-list.txt
 ```
 
-Read that file when exact paths matter. `purge --dry-run` and `installer --dry-run` report their candidates in the terminal and do not write this list.
+Read that file to review the paths this dry-run found. It is a preview snapshot, not an executable deletion plan: a later `mo clean` rescans and revalidates current candidates, so the two target sets can differ. Never promise the user that the real run will remove exactly this list. `purge --dry-run` and `installer --dry-run` report their candidates in the terminal and do not write this list.
 
 ### Cleanup history
 
@@ -88,7 +88,7 @@ Use `mo status --json` for a single CPU, memory, disk, and network snapshot. `mo
 - `mo clean` permanently removes caches and also sweeps evidence-backed leftovers from already-uninstalled apps. It does not uninstall an installed app.
 - `mo uninstall` moves the app and matched leftovers to Trash by default, so they remain recoverable until Trash is emptied.
 - `mo clean --external <path>` cleans macOS metadata from an external volume; resolve and show the exact mounted path before asking for confirmation.
-- In current upstream Mole, `mo purge` targets both local build output (`target/`, `build/`, `dist/`, `.next/`) and dependency directories that require a network to restore (`node_modules/`, `Pods/`, `venv/`, `vendor/`). A purge is therefore not always recoverable offline: classify the dry-run candidates by recovery type and show that distinction before requesting confirmation. Add `--include-empty` to surface zero-size candidates. `mo purge --paths` opens an interactive editor for the scan directories; it is a human surface, so report that the user has to edit it themselves instead of entering it.
+- In current upstream Mole, `mo purge` targets both local build output (`target/`, `build/`, `dist/`, `.next/`) and dependency directories that require a network to restore (`node_modules/`, `Pods/`, `venv/`, `vendor/`). A purge is therefore not always recoverable offline: classify the dry-run candidates by recovery type and show that distinction before requesting confirmation. Add `--include-empty` to surface zero-size candidates. A non-interactive real run requires an explicit `--yes`; dry-run does not. Use `--yes` only after the user has authorized removal in the current turn. Artifacts with authored content stay protected, and an inconclusive content probe keeps the candidate and reports an incomplete run. `mo purge --paths` opens an interactive editor for the scan directories; it is a human surface, so report that the user has to edit it themselves instead of entering it.
 - `mo optimize` refreshes caches and system services rather than only deleting files. Explain the planned effects before requesting approval.
 - Use `--debug` only to diagnose a command that did nothing or failed; normal runs should stay concise.
 
@@ -116,4 +116,4 @@ Before cleanup, report the command, potential bytes/items, largest categories, e
 3. Explain nonzero `failed` and important `skipped` counts without escalating to `sudo` automatically.
 4. Verify separately protected paths still exist when the dry-run surfaced dotfiles, login items, Docker data, dependency stores, virtualenvs, or active project state.
 
-The dry-run is the practical undo for `mo clean`, because clean deletions are normally permanent. If a user asks whether Mole removed a specific file, use the deletion log path returned by history and answer from the exact matching record.
+A dry-run provides no backup and no undo. Clean deletions are normally permanent, so the preview is the only point at which the user can veto; it is not a way to reverse anything afterwards, and it does not guarantee the real run will target the same set. If a user asks whether Mole removed a specific file, use the deletion log path returned by history and answer from the exact matching record.

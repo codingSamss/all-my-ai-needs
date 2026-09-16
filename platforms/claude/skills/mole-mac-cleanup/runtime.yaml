@@ -5,8 +5,8 @@ platform: claude
 origin:
   repo: https://github.com/tw93/Mole
   path: .claude/skills/mole
-  ref: 2c0f11aa76a5291a09f1b95aaacd38c40bb43063
-  version: V1.53.0
+  ref: 2ddb0b732464c992ffd35e8d93ed10499ec1bc9b
+  version: V1.54.0
   license: GPL-3.0-or-later
   local_adaptations:
     - 保留 mole-mac-cleanup 名称与更宽的用户触发描述，正文以 upstream agent skill 的命令语义与 machine-readable surfaces 为基线。
@@ -18,6 +18,11 @@ origin:
       只补齐本地此前漏写的两个命令面——`mo uninstall --list`（非 TTY 时输出 JSON 应用清单，用于免 TUI 取 uninstall_name）
       与 `mo purge --include-empty`；字段与行为已在本机 mo 1.53.0 实测复核，含 upstream 未列出的 source 字段。
     - purge 的 `--paths` 是交互式扫描目录编辑器，按本地「不进入 TUI」原则标注为人类面，只提示用户自行编辑，不由 agent 进入。
+    - 2026-09-16 回流 2c0f11aa→2ddb0b73：upstream 推翻了「dry-run 就是撤销手段」的旧表述，本地正文同步纠正为
+      dry-run 不提供备份也不提供撤销，且 clean-list.txt 只是预览快照——之后的 mo clean 会重新扫描并重新校验候选，
+      两次的目标集可能不同，不得向用户承诺实跑会精确删除该清单。
+    - 同轮补入 purge 的授权语义：非交互实跑需要显式 --yes（dry-run 不需要），有作者内容的产物受保护，
+      内容探测不确定时保留候选并报告运行不完整。
 
 sync_paths:
   - SKILL.md
