@@ -6,7 +6,9 @@ Read actions are free to run. Write actions require --yes.
 
 import argparse
 import json
+import os
 import ssl
+import subprocess
 import sys
 import time
 import urllib.error
@@ -37,6 +39,7 @@ OPS = {
     "createBookmarkFolder":          ("6Xxqpq8TM_CREYiuof_h5w", "mutation"),
     "EditBookmarkFolder":            ("a6kPp1cS1Dgbsjhapz1PNw", "mutation"),
     "DeleteBookmarkFolder":          ("2UTTsO-6zs93XqlEUZPsSg", "mutation"),
+    "DeleteBookmark":                ("Wlmlj2-xzyS1GN3a6cj-mQ", "mutation"),
 }
 
 WRITE_THROTTLE_SEC = 1.5
@@ -72,11 +75,65 @@ def build_headers(auth_token, ct0):
     }
 
 
+def _keychain_value(service):
+    """从登录钥匙串读一条 generic password；条目不存在或读取失败时返回 None。"""
+    try:
+        res = subprocess.run(
+            ["security", "find-generic-password",
+             "-a", os.environ.get("USER", ""), "-s", service, "-w"],
+            capture_output=True, text=True, timeout=10,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if res.returncode != 0:
+        return None
+    return res.stdout.strip() or None
+
+
+def resolve_x_credentials(chrome_profile="Default"):
+    """按 环境变量 -> 钥匙串 -> Chrome cookie 库 的顺序解析 auth_token / ct0。
+
+    每一级必须同时给出两个值才采用：auth_token 与 ct0 必须同源同期。混用不同来源
+    （例如钥匙串里的旧 auth_token 配 Chrome 里的新 ct0）会得到 401 或 CSRF 失败，
+    而报错只提示认证问题，会把诊断方向带偏，所以宁可整级跳过。
+
+    前两级不依赖任何系统授权。最后一级要读 Chrome 的 Cookies 文件，需要完全磁盘
+    访问权限，而该授权绑定调用方的路径与签名——Claude Code 每次升级都会换目录，
+    旧授权随即失效——所以只作为回退，不作为主路径。
+    """
+    env_auth = os.environ.get("BIRD_X_AUTH_TOKEN")
+    env_ct0 = os.environ.get("BIRD_X_CT0")
+    if env_auth and env_ct0:
+        return env_auth, env_ct0
+
+    kc_auth = _keychain_value("bird-x-auth-token")
+    kc_ct0 = _keychain_value("bird-x-ct0")
+    if kc_auth and kc_ct0:
+        return kc_auth, kc_ct0
+
+    try:
+        chrome_auth, chrome_ct0 = dft.extract_twitter_cookies_from_chrome(chrome_profile, None)
+    except Exception:
+        # TCC 拦截时底层 cp 会抛异常，这里吞掉，交给调用方统一给出可操作提示
+        return None, None
+    if chrome_auth and chrome_ct0:
+        return chrome_auth, chrome_ct0
+    return None, None
+
+
 class Client:
     def __init__(self, chrome_profile="Default"):
-        auth, ct0 = dft.extract_twitter_cookies_from_chrome(chrome_profile, None)
+        auth, ct0 = resolve_x_credentials(chrome_profile)
         if not auth or not ct0:
-            sys.exit("could not read auth_token/ct0 from Chrome; log into x.com in Chrome first")
+            sys.exit(
+                "could not obtain auth_token/ct0.\n"
+                "  Preferred (needs no system permission) — store them once in the keychain:\n"
+                '    security add-generic-password -U -a "$USER" -s bird-x-auth-token -w\n'
+                '    security add-generic-password -U -a "$USER" -s bird-x-ct0 -w\n'
+                "  Values come from Chrome DevTools: F12 -> Application -> Cookies -> https://x.com\n"
+                "  Alternative: grant Full Disk Access to the running Claude Code bundle so that\n"
+                "  Chrome's cookie DB can be read directly."
+            )
         self.headers = build_headers(auth, ct0)
         self.opener = build_opener()
 
@@ -152,6 +209,12 @@ def remove_from_folder(client, tweet_id, folder_id):
     return data.get("data", {}).get("bookmark_collection_tweet_delete")
 
 
+def delete_bookmark(client, tweet_id):
+    """Un-bookmark the tweet entirely; it also disappears from every folder."""
+    data = client.call("DeleteBookmark", {"tweet_id": tweet_id})
+    return data.get("data", {}).get("tweet_bookmark_delete")
+
+
 def create_folder(client, name):
     data = client.call("createBookmarkFolder", {"name": name})
     return data.get("data", {}).get("bookmark_collection_create")
@@ -197,6 +260,9 @@ def main():
     p_mv.add_argument("tweet_id")
     p_mv.add_argument("src_folder")
     p_mv.add_argument("dst_folder")
+
+    p_del = sub.add_parser("delete", help="un-bookmark a tweet entirely (removes it from all folders)")
+    p_del.add_argument("tweet_id")
 
     p_new = sub.add_parser("create", help="create a new bookmark folder")
     p_new.add_argument("name")
@@ -246,6 +312,11 @@ def main():
         require_confirmation(args, "remove a tweet from a folder")
         folder_id = resolve_folder(client, args.folder)
         print(f"remove {args.tweet_id} from {folder_id}: {remove_from_folder(client, args.tweet_id, folder_id)}")
+        return
+
+    if args.cmd == "delete":
+        require_confirmation(args, "un-bookmark a tweet")
+        print(f"delete bookmark {args.tweet_id}: {delete_bookmark(client, args.tweet_id)}")
         return
 
     if args.cmd == "move":
