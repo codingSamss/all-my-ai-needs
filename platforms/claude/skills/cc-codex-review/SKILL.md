@@ -77,7 +77,7 @@ codex exec review "自定义审查重点"        # 附加审查指令
 三个实战踩过的坑:
 
 - **会话膨胀(最隐蔽)**:`image_gen` 的结果 base64 全量记进会话历史,几十张图后会话文件可达 200MB+,每次 resume 都向服务器重放,服务器直接掐流。表象:早期顺利、越跑越断、`Reconnecting 2/5...5/5`、`websocket closed by server`,换代理无效。解法:**弃旧会话,开全新会话轻装续跑**(重附参考图 + 全量清单),别在臃肿会话上恋战。
-- **残留孤儿**:被掐的 Bash 会留下 codex exec 孤儿在旧会话上继续跑,可能拿旧版指令覆盖新产物。重启前 `ps -eo pid,ppid,command | grep "codex exec"` 按血统精确清理;`codex app-server`(桌面应用)和 `codexmcp`(MCP)不要动。
+- **残留孤儿**:被掐的 Bash 会留下 codex exec 孤儿在旧会话上继续跑,可能拿旧版指令覆盖新产物。重启前 `ps -eo pid,ppid,command | grep "codex exec"` 按血统精确清理;`codex app-server`(桌面应用)不要动。
 - **谎报落盘**:codex 可能报告"已保存"但目标路径为空——生成物实际在 `~/.codex/generated_images/<session-id>/`。指令里必须要求"每张落盘后 ls 确认";翻车后可按 md5/生成时序从该缓存目录捞回,不用重新生成。
 
 ## 续接很久以前的讨论

@@ -9,7 +9,7 @@
 - 读 `platforms/claude/skills.meta.yaml` 与 `skills/` 真源，与 `~/.claude/skills` 做最小差异 diff 后落盘
 - 处理同步/提交/推送请求时，若用户只说“看下本地跟仓库有什么需要同步的”等未授权写入请求，默认先汇总差异，待用户审批后再写入
 - 只下发 skill 最小文件集，不下发 `runtime.yaml`、`skills.meta.yaml` 等治理元数据
-- `.mcp.json` 作为 MCP 模板，由 agent 合并缺失项到 `~/.claude.json`，不覆盖本机已有鉴权
+- MCP 配置由本机自管；仓库不提供 MCP 模板，也不向 `~/.claude.json` 合并 server
 - `agents`/`hooks`/`scripts` 等运行件由各设备本地自管，不入仓也不由仓库回写
 
 ## Skill 同步分层
@@ -29,7 +29,7 @@
 | `bilibili` | B站搜索、热门、排行、视频详情、音频入口与字幕读取 | 依赖 `bilibili-cli` 包提供的 `bili` 命令与 OpenCLI；`bili` 缺失时仅搜索可降级到 search API |
 | `bird-bookmark-folders` | 整理 X/Twitter 收藏夹：列目录、读目录内容、增删移书签、建目录 | 依赖 `python3`；必须与 `bird-twitter` 同时下发；走 GraphQL + Chrome Cookie，含写操作 |
 | `bird-twitter` | 只读访问 X/Twitter 内容 | 依赖 Bird CLI（仓库内置包优先） |
-| `cc-codex-review` | Claude / Codex 协作讨论与 Battle Loop | 依赖 CodexMCP 与 topic-manager |
+| `cc-codex-review` | Claude / Codex 协作讨论与 Battle Loop | 依赖本机 `codex` CLI 的 `codex exec`，不依赖 MCP |
 | `fireworks-tech-graph` | 生成带几何校验的技术图，覆盖 12 种风格、工程语义合同、SVG/PNG、语义 SVG→GIF 与离线 HTML | 依赖 Python 3.9+；PNG 优先 `cairosvg`；GIF 动效依赖可选的 Node/FFmpeg/Chromium 工具链 |
 | `git-ops` | 按 Sam 习惯安全执行 Git 分支、提交、合并、推送与对比 | 依赖 `git` 与 `rg` |
 | `gsap` | 前端动效实现辅助，覆盖 GSAP core、React、ScrollTrigger、插件与性能约束 | 依赖 `gsap`，React 项目可加 `@gsap/react` |
@@ -49,10 +49,10 @@
 
 ## 平台能力资产
 
-- 受管内容：`skills/`、`.mcp.json` 模板、`.claude-plugin/`
+- 受管内容：`skills/`、`.claude-plugin/`
 - skill 同步由 AI agent 拉仓库后做最小差异 diff 落到 `~/.claude/skills`；`agents`/`hooks`/`scripts` 等运行件由各设备本地自管，不入仓
-- `platforms/claude/.mcp.json` 已内置 9 个 MCP：`amap`、`codex`、`context7`、`chrome-devtools`、`magic`、`morphllm-fast-apply`、`sequential-thinking`、`serena`、`tavily`
-- 需要复用 Chrome 登录态的浏览器自动化，走 Claude Code 官方 Chrome 集成（安装 Claude in Chrome 扩展后 `claude --chrome` 或 `/chrome`），不再自维护 playwright skill
+- MCP server 由各设备本地按需配置；仓库不提供预设，也不将旧服务带回运行目录
+- 需要复用 Chrome 登录态的浏览器自动化，走 Claude Code 官方 Chrome 集成（安装 Claude in Chrome 扩展后 `claude --chrome` 或 `/chrome`），不依赖 `chrome-devtools` MCP
 - skill 若需要依赖、手动步骤、验证命令，统一写入 repo 中对应 skill 目录下的 `runtime.yaml`
 - 平台级 `platforms/claude/runtime.yaml` 仅用于仓库内 AI 理解迁移规则，不会同步到 `~/.claude` 根目录
 - skill 级 `runtime.yaml` 仅保留在 repo，不同步到 `~/.claude/skills/<skill>/`

@@ -16,7 +16,7 @@ all-my-ai-needs/
 ├── .claude-plugin/marketplace.json
 └── platforms/
     ├── claude/                     # Claude 平台真源 → ~/.claude
-    │   ├── README.md  runtime.yaml  .mcp.json
+    │   ├── README.md  runtime.yaml
     │   ├── skills.meta.yaml         # repo-only 同步分层真源
     │   ├── skills/ (24)
     │   └── .claude-plugin/plugin.json

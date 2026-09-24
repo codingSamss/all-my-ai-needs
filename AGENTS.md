@@ -4,7 +4,7 @@
 
 本仓库采用 `platform-first` 模型：`platforms/claude/`、`platforms/codex/` 各自维护各自的平台真源；允许同名 skill 在不同平台目录并存，不强行去重。`shared/` 不再作为主要组织方式。
 
-- `platforms/claude/`：Claude 的 `skills/`、`.claude-plugin/`、`.mcp.json` 模板。
+- `platforms/claude/`：Claude 的 `skills/`、`.claude-plugin/` 与平台运行约定。
 - `platforms/codex/`：Codex 的 `skills/`、`config.toml` 参考。
 - 治理元数据：`platforms/{claude,codex}/runtime.yaml`、`skills.meta.yaml`、根 `PROFILES.md`。
 - `runtime.yaml` 的字段约定以各平台 `skill_runtime_contract` 为准；平台固定为各自目录对应平台，不再使用 `platform: shared`。
@@ -35,7 +35,7 @@
 
 - 列出可同步技能：读 `platforms/<platform>/skills.meta.yaml` 与 `skills/` 目录。
 - 同步指定技能：将 `platforms/<platform>/skills/<skill>` 的最小文件集 diff 后落到 `~/.claude/skills` 或 `~/.codex/skills`，不下发 `runtime.yaml` 等治理元数据。
-- 新机初始化 / 灾备：AI 按 `runtime.yaml` 把全部 skill 真源铺到对应运行目录，并按 `.mcp.json` 模板合并 MCP 配置（不覆盖本机鉴权）。
+- 新机初始化 / 灾备：AI 按 `runtime.yaml` 把全部 skill 真源铺到对应运行目录；MCP 配置由各设备本地自管，不从仓库恢复。
 - 日常优先增量 diff，不做整目录镜像；删除类同步必须用户明确确认。
 
 ## 代码风格与命名约定
