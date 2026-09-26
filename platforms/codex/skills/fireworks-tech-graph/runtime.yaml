@@ -43,7 +43,7 @@ dependencies:
     - python3
   notes:
     - Python 3.9+；PNG 导出优先使用 cairosvg，也可回退到 rsvg-convert。
-    - Node.js 18+ 仅用于可选的 Puppeteer/svg2png.js 路径，不是默认生成链路的硬依赖。
+    - Node.js 22.12+ 仅用于可选的 Puppeteer/svg2png.js 路径，不是默认生成链路的硬依赖。
     - 可选 GIF 动效还需要 FFmpeg/FFprobe、Chrome/Chromium，以及 puppeteer 或 puppeteer-core。
 
 manual_steps:

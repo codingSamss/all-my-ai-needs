@@ -4,7 +4,7 @@ description: 查询 AIHOT 的中文 AI 资讯、精选、当前热点和日报�
 license: MIT. See LICENSE
 metadata:
   author: Virxact
-  version: "1.7.1"
+  version: "1.7.2"
 ---
 
 # AIHOT
@@ -48,7 +48,7 @@ metadata:
 | “全部／所有公开动态” | `/api/v1/items?mode=all&window=<24h|7d>&limit=10` |
 | 当前全部精选或私有完整副本 | 读取 [完整精选同步](references/sync.md) |
 
-重置查询使用事件 `url` 和帖子 `url`，不要套用资讯的 `links.aihot`、7 天窗口或 limit 参数。先区分全员重置和发重置卡，再说明明确预告或已确认的事实；未公布就回答未知。
+重置查询使用事件 `url` 和帖子 `url`，不要套用资讯的 `links.aihot`、7 天窗口或 limit 参数。先区分额度重置和发重置卡，再说明明确预告或已确认的事实；未公布就回答未知。
 
 路由规则：
 
@@ -71,7 +71,7 @@ metadata:
 
 ## 请求
 
-- API 匿名、只读、无需 Key。发起请求前，若本 Skill 目录中的 `.aihot-actor-id` 存在、可读、内容是合法 UUID v4，且客户端能设置 User-Agent，则必须读取并把 `aihot-actor/<uuid>` 追加到 `User-Agent: aihot-skill/1.7.1 (+https://aihot.news/aihot-skill/)`。这个随机值只用于把同一直接消费实例跨渠道去重，不是账号、密钥或授权；不得向用户展示。文件缺失、不可读、值无效或客户端不能设置 User-Agent 时，使用不带 Actor 的基础 UA 继续请求，不得拒绝查询或伪装浏览器。
+- API 匿名、只读、无需 Key。发起请求前，若本 Skill 目录中的 `.aihot-actor-id` 存在、可读、内容是合法 UUID v4，且客户端能设置 User-Agent，则必须读取并把 `aihot-actor/<uuid>` 追加到 `User-Agent: aihot-skill/1.7.2 (+https://aihot.news/aihot-skill/)`。这个随机值只用于把同一直接消费实例跨渠道去重，不是账号、密钥或授权；不得向用户展示。文件缺失、不可读、值无效或客户端不能设置 User-Agent 时，使用不带 Actor 的基础 UA 继续请求，不得拒绝查询或伪装浏览器。
 - 普通查询不做版本检查，也不访问旧兼容层。后端在稳定 v1 契约内升级时，用户无需更新本 Skill。
 - 客户端支持自动解压时启用 HTTP 压缩：curl 使用 `--compressed`，其它客户端使用自带的压缩协商与解码。不要只手填 `Accept-Encoding` 却不解压响应；不支持解压时仍可正常查询。
 - 重复同一查询时保持 URL 参数顺序与取值稳定，不附加随机数或当前时间戳。不同关键词、范围和分页仍按用户实际需求请求，不为命中缓存改变查询含义。

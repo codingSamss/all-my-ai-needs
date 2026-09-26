@@ -13,8 +13,8 @@ sync_paths:
 origin:
   repo: https://github.com/KKKKhazix/khazix-skills
   path: aihot
-  ref: 4f2db09802736ac8130ddf8dd6121435b5a41b55
-  version: 1.7.1
+  ref: b81ad3b442e778bb7bf27047034c1d0d9f0637ff
+  version: 1.7.2
   license: MIT
   local_adaptations:
     - 不下发 upstream 的 install.sh 与 manifest.sha256；本仓库由 AI 直接同步文件，不走远端安装器。
@@ -34,8 +34,8 @@ dependencies:
     - curl
     - rg
   notes:
-    - 仅访问 https://aihot.virxact.com/api/v1/* 匿名只读 GET 接口，不需要 API Key、cookie 或 MCP server。
-    - 默认使用 SKILL.md 定义的 aihot-skill/1.5.4 基础 User-Agent，不生成或附加 Actor 标识。
+    - 仅访问 https://aihot.news/api/v1/* 匿名只读 GET 接口，不需要 API Key、cookie 或 MCP server。
+    - 默认使用 SKILL.md 当前版本定义的基础 User-Agent，不生成或附加 Actor 标识。
 
 manual_steps:
   - 新增或更新后需开启新的 Codex 会话，确保运行时重新扫描 Skill。

@@ -5,7 +5,7 @@ platform: codex
 origin:
   repo: https://github.com/mattpocock/skills
   path: skills/productivity/teach
-  ref: ed37663cc5fbef691ddfecd080dff42f7e7e350d
+  ref: 321658273cb1d20b76026717d027d505790106d4
   license: MIT
   local_adaptations:
     - SKILL.md 省略 upstream 的 disable-model-invocation 与 argument-hint frontmatter，以符合当前仓库的双平台 metadata 约束。

@@ -42,7 +42,7 @@ dependencies:
     - python3
     - rsync
   notes:
-    - MCP 配置由仓库维护，但真实 token、headers、登录态仍需本机手动补齐
+    - MCP 配置由各设备本地自管，不从仓库恢复；真实 token、headers、登录态仅保留在本机
 
 manual_steps:
   - 提交、推送前，由读取仓库的 AI 比较 ~/.codex/skills 与仓库 skill 真源的差异

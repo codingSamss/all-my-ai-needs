@@ -45,6 +45,5 @@ verify:
   - test -f LICENSE
   - rg -q 'mo analyze --json' SKILL.md
   - rg -q 'mo history --json --limit' SKILL.md
-  - rg -q 'b5c6eccb24f4727da850a1a454aa0df45bb51216' runtime.yaml
   - command -v mo
   - mo --version

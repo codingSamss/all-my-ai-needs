@@ -5,7 +5,7 @@
 
 ## 平台支持
 - Claude Code（本实现）
-- Codex（独立实现，采用 OAuth + RSS 方案，见 `platforms/codex/skills/linuxdo/`）
+- Codex（同样采用 Chrome Cookie + Discourse JSON API，见 `platforms/codex/skills/linuxdo/`）
 
 ## 工作原理
 单文件 Python 脚本 `linuxdo.py`，零 pip 依赖（仅标准库 + macOS CommonCrypto ctypes）：
@@ -13,16 +13,11 @@
 2. 通过 Discourse JSON API 获取论坛数据
 3. urllib 请求 + curl 自动回退，支持代理配置
 
-## 与 Codex 版本的差异
+## 平台实现
 
-| 方面 | Codex | Claude (本方案) |
-|------|-------|----------------|
-| 认证 | OAuth PKCE (connect.linux.do) | Chrome Cookie 自动提取 |
-| API | RSS/HTML 解析 | Discourse JSON API |
-| 脚本数 | 2 个 (oauth + feed) | 1 个 (统一) |
-| 外部依赖 | OAuth client_id/secret | 无 (Chrome 已登录即可) |
-| 搜索 | RSS 关键词匹配 | search.json 全文搜索 |
-| 受限内容 | 无法访问 | Chrome Cookie 可访问 |
+Claude Code 与 Codex 均使用单文件 `linuxdo.py`、Chrome Cookie 认证和 Discourse JSON API，支持 `search.json` 全文搜索；可访问内容受当前登录账号权限限制。无认证时仅可访问公开内容。
+
+两平台按各自目录维护与安装：Claude Code 使用 `~/.claude/skills/linuxdo/`，Codex 使用 `${CODEX_HOME:-$HOME/.codex}/skills/linuxdo/`；具体入口以对应平台的 `SKILL.md` 为准。
 
 ## 验证命令
 

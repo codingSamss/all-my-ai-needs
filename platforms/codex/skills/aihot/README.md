@@ -2,7 +2,7 @@
 
 > 本仓库采用 `platform-first` 人工同步：下方安装器说明仅用于 upstream 独立分发。本仓库不会执行安装器、生成 Actor 标识或创建跨平台 symlink；实际下发范围以本目录 `runtime.yaml: sync_paths` 为准。
 
-让支持 Agent Skills（`SKILL.md`）的工具查询 [AIHOT](https://aihot.virxact.com) 的当前精选、最近公开动态、热点和日报，也可低流量维护当前全部精选副本。
+让支持 Agent Skills（`SKILL.md`）的工具查询 [AIHOT](https://aihot.news) 的当前精选、最近公开动态、热点和日报，也可低流量维护当前全部精选副本。
 
 基础能力长期保持匿名、只读、无需 API Key。Skill 1.x 使用稳定的 `/api/v1/*` 契约；后端抓取、评分、排序、缓存和模型可以继续迭代，用户无需因此更新 Skill。
 
@@ -10,9 +10,9 @@
 
 ## 安装前可审阅
 
-- [SKILL.md](https://aihot.virxact.com/aihot-skill/SKILL.md)
-- [安装包清单](https://aihot.virxact.com/aihot-skill/manifest.sha256)
-- [install.sh](https://aihot.virxact.com/aihot-skill/install.sh)
+- [SKILL.md](https://aihot.news/aihot-skill/SKILL.md)
+- [安装包清单](https://aihot.news/aihot-skill/manifest.sha256)
+- [install.sh](https://aihot.news/aihot-skill/install.sh)
 - [GitHub 镜像](https://github.com/KKKKhazix/khazix-skills/tree/main/aihot)
 
 ## 手动安装
@@ -22,13 +22,13 @@
 Skill 正文只安装到 Agent Skills 通用目录 `~/.agents/skills/aihot`：
 
 ```bash
-bash <(curl -fsSL https://aihot.virxact.com/aihot-skill/install.sh) --target agents
+bash <(curl -fsSL https://aihot.news/aihot-skill/install.sh) --target agents
 ```
 
 `codex`、`gemini`、`copilot` 与 `opencode` 仍可作为同一路径的兼容目标名。Claude Code 按官方约定从 `~/.claude/skills` 发现个人 Skill；使用下面命令时，安装器会把正文安装到通用目录，并创建一个指向同一实体的兼容软链，不复制第二份 Skill：
 
 ```bash
-bash <(curl -fsSL https://aihot.virxact.com/aihot-skill/install.sh) --target claude
+bash <(curl -fsSL https://aihot.news/aihot-skill/install.sh) --target claude
 ```
 
 安装器会在本地生成 `.aihot-actor-id`（权限 `0600`），更新时保留。它是可轮换的随机 UUID，
@@ -40,9 +40,9 @@ bash <(curl -fsSL https://aihot.virxact.com/aihot-skill/install.sh) --target cla
 显式使用通用目录或自定义目录：
 
 ```bash
-bash <(curl -fsSL https://aihot.virxact.com/aihot-skill/install.sh) --target agents
+bash <(curl -fsSL https://aihot.news/aihot-skill/install.sh) --target agents
 
-bash <(curl -fsSL https://aihot.virxact.com/aihot-skill/install.sh) \
+bash <(curl -fsSL https://aihot.news/aihot-skill/install.sh) \
   --dir "$HOME/path/to/skills/aihot"
 ```
 
@@ -76,7 +76,7 @@ references/errors.md
 发现旧副本时默认停止，不会静默覆盖或再造一份。确认这些目录都是应被当前 1.x 包替换的旧 AIHOT Skill 后，显式迁移：
 
 ```bash
-bash <(curl -fsSL https://aihot.virxact.com/aihot-skill/install.sh) \
+bash <(curl -fsSL https://aihot.news/aihot-skill/install.sh) \
   --target agents \
   --migrate-legacy
 ```
@@ -111,17 +111,17 @@ bash <(curl -fsSL https://aihot.virxact.com/aihot-skill/install.sh) \
 当前边界：
 
 - 超过 7 天的普通历史搜索暂不保证。
-- “最近一周精选”不是 AIHOT 编辑成品周报。正式周报和月报目前只有 [周报网页](https://aihot.virxact.com/weekly) 与 [月报网页](https://aihot.virxact.com/monthly)，尚无 Skill／API／RSS 端点。
+- “最近一周精选”不是 AIHOT 编辑成品周报。正式周报和月报目前只有 [周报网页](https://aihot.news/weekly) 与 [月报网页](https://aihot.news/monthly)，尚无 Skill／API／RSS 端点。
 - v1 items 返回摘要、推荐理由、AIHOT 阅读页和第三方原文链接，不提供按 ID 获取单篇正文的接口。站内阅读页有权利且已抓到时才显示正文；全文 RSS 也只对允许再分发的来源内联正文。
 
 ## 内容、许可与署名
 
 - `LICENSE` 中的 MIT License 只覆盖 Skill 指令与随附文件。
-- AIHOT 服务与数据输出适用 [AIHOT 公开使用规则](https://aihot.virxact.com/terms)。匿名、无需 API Key 只说明技术访问方式，不代表所有用途均获许可。
+- AIHOT 服务与数据输出适用 [AIHOT 公开使用规则](https://aihot.news/terms)。匿名、无需 API Key 只说明技术访问方式，不代表所有用途均获许可。
 - 第三方原文及全文版权仍归原作者，不因经过 AIHOT 而改变。
 - 个人非商业、公益非商业和组织内部使用免费。面向外部的商业产品、收费服务、客户交付、代理接口、数据转售、公开镜像、批量公开再分发或对外模型产品须先取得书面授权；仅标注「数据来源：AIHOT」不代表已取得授权。
 - 授权联系 `wzglyay@virxact.com`。attribution 与 canonical 继续用于机器识别和追溯；重要引用回第三方原文核对。
 
-详细接入文档：[aihot.virxact.com/agent](https://aihot.virxact.com/agent)
+详细接入文档：[aihot.news/agent](https://aihot.news/agent)
 
-反馈：[aihot.virxact.com/feedback](https://aihot.virxact.com/feedback)
+反馈：[aihot.news/feedback](https://aihot.news/feedback)

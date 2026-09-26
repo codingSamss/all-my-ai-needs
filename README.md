@@ -18,12 +18,12 @@ all-my-ai-needs/
     ├── claude/                     # Claude 平台真源 → ~/.claude
     │   ├── README.md  runtime.yaml
     │   ├── skills.meta.yaml         # repo-only 同步分层真源
-    │   ├── skills/ (24)
+    │   ├── skills/ (23)
     │   └── .claude-plugin/plugin.json
     └── codex/                      # Codex 平台真源 → ~/.codex
         ├── README.md  runtime.yaml  config.toml
         ├── skills.meta.yaml         # repo-only 同步分层真源
-        └── skills/ (22)
+        └── skills/ (21)
 ```
 
 ## 核心模型
