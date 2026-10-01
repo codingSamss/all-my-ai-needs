@@ -29,7 +29,7 @@ manual-only  仓库留存，默认不下发，只能由 agent 按名点取。
 obsidian-kb       Obsidian 知识库写作与收录
 frontend-design   前端设计、动效与出图
 api-testing       API 设计与单接口测试用例维护
-social-reading    社交平台只读采集
+social-reading    社交平台采集与收藏整理
 macos-local       macOS 本地维护
 ```
 

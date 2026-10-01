@@ -1,6 +1,6 @@
 ---
 name: bird-twitter
-description: "Read X/Twitter content via Bird CLI. Actions: read tweets, search, view all bookmarks or bookmark folders, trending, news, timeline, mentions, lists. Keywords: twitter, x, tweet, trending, bookmarks, bookmark folder, 收藏夹, timeline."
+description: "Read X/Twitter content via Bird CLI. Actions: read tweets, search, view all bookmarks or bookmark folders, trending, news, timeline, mentions, lists. Keywords: twitter, x, tweet, trending, bookmarks, bookmark folder, 收藏夹, timeline. 整理收藏夹（移动/新建/增删）用 bird-bookmark-folders。"
 ---
 
 # Bird Twitter Skill (Read-Only)

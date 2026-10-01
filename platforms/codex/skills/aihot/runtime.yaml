@@ -4,37 +4,29 @@ platform: codex
 
 sync_paths:
   - SKILL.md
-  - references/api.md
-  - references/errors.md
-  - references/sync.md
   - agents/openai.yaml
   - LICENSE
 
 origin:
   repo: https://github.com/KKKKhazix/khazix-skills
   path: aihot
-  ref: b81ad3b442e778bb7bf27047034c1d0d9f0637ff
-  version: 1.7.2
+  ref: 1e6adab5ecfbc36156071295a0d3e7757d50c53e
+  version: 2.0.0
   license: MIT
   local_adaptations:
+    - SKILL.md 与 upstream 2.0.0 逐字节一致；查询入口改为 /api/v1/agent，旧参考文件随 upstream 移除。
+    - README.md 保留 upstream 内容并补充本仓库同步范围与验证命令，只留在 repo 供人阅读。
     - 不下发 upstream 的 install.sh 与 manifest.sha256；本仓库由 AI 直接同步文件，不走远端安装器。
-    - README.md 只保留在 repo 供人阅读，按 upstream 约定不进入运行目录。
     - 不生成或持久化 .aihot-actor-id；文件缺失时按 upstream 合同使用不带 Actor 的基础 User-Agent 继续请求。
-    - 不下发 upstream 安装器生成的 .gitignore 与本地状态文件，避免运行目录出现不受仓库管理的标识。
-    - 2026-09-09 回流 v1.5.4→v1.6.0：upstream 把主域名从 aihot.virxact.com 迁到 aihot.news，
-      旧域名保留为长期兼容入口。收录的 SKILL.md 与 references 三件逐字节替换，本地无正文改写；
-      LICENSE 未变。虽然 skill 已按 upstream 合同同时接受两个域名，仍应保持锚点跟进，避免旧域名停用后失效。
-    - 2026-09-16 回流 v1.6.0→v1.7.1（跨 v1.7.0）：新增 Tibo 重置监控端点 /api/v1/codex-resets，
-      补入 HTTP 压缩与缓存友好的调用约定；收录面只动 SKILL.md 与 references/api.md，其余三件未变。
-    - verify 的版本与连通性断言改为从 SKILL.md 的 frontmatter 现读 version 再拼 UA，不再硬编码版本号。
-      此前两次上游升版都让写死的断言失效（1.5.4→1.6.0、1.6.0→1.7.1），改后升版只需更新 ref 与 version。
+    - 不下发安装器生成的 .gitignore 与本地状态文件，也不创建跨平台 symlink。
+    - Claude 不下发 agents/；Codex 保留 upstream 的 agents/openai.yaml。
 
 dependencies:
   commands:
     - curl
     - rg
   notes:
-    - 仅访问 https://aihot.news/api/v1/* 匿名只读 GET 接口，不需要 API Key、cookie 或 MCP server。
+    - 通过 https://aihot.news/api/v1/agent 及其查询入口发起匿名只读 GET，返回 Markdown，不需要 API Key、cookie 或 MCP server。
     - 默认使用 SKILL.md 当前版本定义的基础 User-Agent，不生成或附加 Actor 标识。
 
 manual_steps:
@@ -44,15 +36,18 @@ manual_steps:
 verify:
   - test -f SKILL.md
   - test -f LICENSE
-  - test -f references/api.md
-  - test -f references/errors.md
-  - test -f references/sync.md
+  - test ! -d references
   - test -f agents/openai.yaml
-  - rg -q '^name: aihot$' SKILL.md
-  # 版本不写死：UA 必须与 frontmatter 的 version 一致，上游升版时本段无需跟着改
+  - |
+    rg -q '^name: aihot$' SKILL.md
+  # 版本从正文现读，避免上游升版后仍使用旧 User-Agent。
   - |
     v=$(grep -m1 '^  version:' SKILL.md | tr -d ' "' | cut -d: -f2)
-    rg -q "aihot-skill/$v" SKILL.md
+    rg -Fq "aihot-skill/$v" SKILL.md
+  # 2.0 返回 Markdown；同时验证使用说明和资讯入口，不能沿用旧 JSON 字段断言。
   - |
     v=$(grep -m1 '^  version:' SKILL.md | tr -d ' "' | cut -d: -f2)
-    curl -fsS --max-time 10 -H "User-Agent: aihot-skill/$v (+https://aihot.news/aihot-skill/)" 'https://aihot.news/api/v1/items?mode=selected&window=24h&limit=1' | rg -q '"schemaVersion"'
+    for endpoint in agent 'agent/latest?limit=1'; do
+      response=$(curl -fsS --compressed --max-time 20 -H "User-Agent: aihot-skill/$v (+https://aihot.news/aihot-skill/)" "https://aihot.news/api/v1/$endpoint")
+      printf '%s\n' "$response" | rg -q '^# AIHOT'
+    done

@@ -1,7 +1,7 @@
 # orbit-os
 
 ## 作用
-OrbitOS Obsidian Vault 共享配置。定义 Vault 结构、格式规则、排版规范，供 orbit-* 系列技能引用；也可在知识库相关操作中直接调用以获取 Vault 上下文。
+Obsidian 知识库的共享规范：Vault 目录结构、frontmatter 受控词表与排版规则。新建或修改知识库笔记前读取，`official-article-ingest` 等技能也会引用。
 
 ## 平台支持
 - Codex
@@ -12,8 +12,9 @@ OrbitOS Obsidian Vault 共享配置。定义 Vault 结构、格式规则、排�
 ## 关联技能
 | 技能 | 说明 |
 |------|------|
-| `orbit-ai-newsletters` | AI 新闻简报摘要 |
-| `orbit-ai-products` | AI 产品发布追踪 |
+| `official-article-ingest` | 收录官方文章前读取 Vault 与排版规范 |
+| `handoff` | 复用 `07_交接台` 目录与交接约定 |
+| `video-transcribe` | 输出 Obsidian 笔记时遵守路径与排版规范 |
 
 ## 验证
 按 `SKILL.md` 核对 `$OBSIDIAN_VAULT_ROOT` 下的全库入口与七个顶级目录：

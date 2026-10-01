@@ -23,12 +23,12 @@
 
 | Skill | 能力 | 运行说明 |
 | --- | --- | --- |
-| `aihot` | 查询中文 AI 资讯、精选、当前热点、事件时间线、日报与完整精选同步 | 匿名只读 `/api/v1/*`；外部商业或公开再分发需书面授权；按点名方式下发 |
+| `aihot` | 查询中文 AI 资讯、关键词动态、热点事件、日报与 Codex 额度重置 | 2.0.0；通过 `/api/v1/agent` 读取当前使用说明；匿名只读；外部商业用途需书面授权；按点名方式下发 |
 | `apifox-cli` | 通过 CLI 管理 Apifox 接口、Schema、环境、Mock 与项目资源 | 依赖 Apifox CLI 2.2.6+；登录凭据仅保存在本机 |
 | `apifox-test-case` | 维护单接口测试用例、请求参数、Body、断言、变量提取与测试数据 | 依赖 `apifox-cli`；写入前校验 schema，写入后回读并运行验证 |
 | `bilibili` | B站搜索、热门、排行、视频详情、音频入口与字幕读取 | `bilibili-cli` 包提供的 `bili` 命令为主；OpenCLI 用于字幕；完整转录交给 `video-transcribe` |
 | `bird-bookmark-folders` | 整理 X/Twitter 收藏夹：列目录、读目录内容、增删移书签、建目录 | 依赖 `python3`；必须与 `bird-twitter` 同时下发；走 GraphQL + Chrome Cookie，含写操作 |
-| `bird-twitter` | 只读访问 X/Twitter 内容 | 依赖 Bird CLI（仓库内置包优先） |
+| `bird-twitter` | 只读访问 X/Twitter 内容；收藏夹整理交给 `bird-bookmark-folders` | 依赖 Bird CLI（仓库内置包优先） |
 | `fireworks-tech-graph` | 生成带几何校验的技术图，覆盖 12 种风格、工程语义合同、SVG/PNG、语义 SVG→GIF 与离线 HTML | 依赖 Python 3.9+；PNG 优先 `cairosvg`；GIF 动效依赖可选的 Node/FFmpeg/Chromium 工具链 |
 | `git-ops` | 按 Sam 习惯安全执行 Git 分支、提交、合并、推送与对比 | 依赖 `git` 与 `rg` |
 | `gsap` | 前端动效实现辅助，覆盖 GSAP core、React、ScrollTrigger、插件与性能约束 | 依赖 `gsap`，React 项目可加 `@gsap/react` |
@@ -39,7 +39,7 @@
 | `mono-color` | 从主题、句子、物件或参考照片生成单色/受控双色的编辑印刷图，覆盖海报、zine、社媒封面与包装 | 依赖 Codex `image_gen` 能力 |
 | `official-article-ingest` | 官方文章收录到 Obsidian，区分原文 1:1 与英文中文对照 1:1，并保持源站排版美感 | 依赖目标 Vault、源站页面与本地媒体校验 |
 | `online-doc-html` | Markdown 导出为适合在线文档粘贴的 HTML | 依赖 `pandoc` / `rsvg-convert` |
-| `orbit-os` | OrbitOS Obsidian Vault 共享配置与规范 | 1.7.1；含 folder note、受控字段、`07_交接台` 与禁新增 `See Also` 规则 |
+| `orbit-os` | Obsidian Vault 目录、frontmatter 受控词表与排版规范；新建或修改笔记前读取 | 1.7.1；含 folder note、受控字段、`07_交接台` 与禁新增 `See Also` 规则 |
 | `reddit` | 只读访问 Reddit 内容 | OpenCLI 复用 Chrome 登录态；`rdt-cli` 仅作手动备用 |
 | `teach` | 在当前 workspace 中进行跨会话、可沉淀的概念与技能教学，并复用课程样式、测验与模拟器组件 | 纯指令型 skill；建议在独立学习目录中使用 |
 | `video-transcribe` | 视频/音频全量转录、图文笔记与关键帧分析 | 依赖 yt-dlp / ffmpeg / Groq |

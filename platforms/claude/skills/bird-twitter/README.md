@@ -1,7 +1,7 @@
 # bird-twitter
 
 ## 作用
-通过 Bird CLI 只读访问 X/Twitter 内容（推文、搜索、书签、趋势、时间线），并补充 `device_follow` 通知时间线读取脚本。
+通过 Bird CLI 只读访问 X/Twitter 内容（推文、搜索、书签、趋势、时间线），并补充 `device_follow` 通知时间线读取脚本。整理收藏夹（移动、新建、增删）交给 `bird-bookmark-folders`。
 
 ## 平台支持
 - Claude Code（已支持）

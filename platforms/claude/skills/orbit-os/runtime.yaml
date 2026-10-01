@@ -15,7 +15,7 @@ dependencies:
 
 manual_steps:
   - 在本机 shell 配置中导出 OBSIDIAN_VAULT_ROOT 指向 Obsidian Vault 根目录。
-  - 被 orbit-* 系列 skill 自动引用，改动本文件前先确认对 handoff、official-article-ingest 的连带影响。
+  - 新建或修改知识库笔记前读取本规范；修改 Vault 约定时确认对 handoff、official-article-ingest、video-transcribe 的连带影响。
 
 verify:
   - test -n "$OBSIDIAN_VAULT_ROOT"

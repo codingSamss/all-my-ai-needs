@@ -1,11 +1,11 @@
 ---
 name: orbit-os
-description: "知识库 OrbitOS Obsidian Vault 共享配置。Vault 结构、格式规则、排版规范。被 orbit-* 系列 skill 自动引用；也可在知识库相关操作中直接调用以获取上下文。"
+description: "Obsidian 知识库的共享规范：Vault 目录结构、frontmatter 受控词表、排版规则。新建或修改知识库笔记前读取；official-article-ingest 等 skill 也会引用它。"
 metadata:
   version: "1.7.1"
-  updated: "2026-08-22"
+  updated: "2026-10-01"
 ---
-OrbitOS 共享配置，供 orbit-* 系列 skill 自动引用；也可在知识库相关操作中直接调用以获取 Vault 上下文。
+OrbitOS 知识库共享规范。新建或修改知识库笔记前读取；`official-article-ingest` 等技能复用这里的 Vault 结构、frontmatter 受控词表与排版规则。
 
 # Vault 结构
 

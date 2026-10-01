@@ -42,7 +42,7 @@ all-my-ai-needs/
 | 知识库 `obsidian-kb` | `orbit-os` `official-article-ingest` `online-doc-html` `video-transcribe` |
 | 前端设计 `frontend-design` | `gsap` `fireworks-tech-graph` `ian-xiaohei-illustrations` `mono-color` |
 | API 测试 `api-testing` | `apifox-cli` `apifox-test-case` |
-| 社交只读 `social-reading` | `bilibili` `bird-twitter` `bird-bookmark-folders` `reddit` `linuxdo` `xiaohongshu` |
+| 社交阅读与收藏整理 `social-reading` | `bilibili` `bird-twitter` `bird-bookmark-folders` `reddit` `linuxdo` `xiaohongshu` |
 | macOS 维护 `macos-local` | `mole-mac-cleanup` |
 | 点名 `manual-only` | `aihot` |
 
