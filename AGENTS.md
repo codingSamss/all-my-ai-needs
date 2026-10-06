@@ -4,7 +4,7 @@
 
 本仓库采用 `platform-first` 模型：`platforms/claude/`、`platforms/codex/` 各自维护各自的平台真源；允许同名 skill 在不同平台目录并存，不强行去重。`shared/` 不再作为主要组织方式。
 
-- `platforms/claude/`：Claude 的 `skills/`、`.claude-plugin/` 与平台运行约定。
+- `platforms/claude/`：Claude 的 `skills/`、`.claude-plugin/`、点名安装的 `mods/` 与平台运行约定。
 - `platforms/codex/`：Codex 的 `skills/`、`config.toml` 参考。
 - 治理元数据：`platforms/{claude,codex}/runtime.yaml`、`skills.meta.yaml`、根 `PROFILES.md`。
 - `runtime.yaml` 的字段约定以各平台 `skill_runtime_contract` 为准；平台固定为各自目录对应平台，不再使用 `platform: shared`。
@@ -15,7 +15,7 @@
 
 - 日常同步默认采用“AI 人工同步 + 差异审阅”，不是直接跑脚本做目录镜像。
 - 差异核对前必须先明确口径并在输出中标注：默认使用“日常最小同步口径”（按 runtime.yaml / skills.meta.yaml 规则过滤 repo-only 文件）；仅在用户明确要求“严格镜像/包含删除”时才使用镜像口径。
-- 同步由 AI agent 执行：拉仓库后读 `runtime.yaml` / `skills.meta.yaml`，将 skill 真源 diff 后落到运行目录；仓库不再提供同步脚本。
+- 同步由 AI agent 执行：拉仓库后读 `runtime.yaml` / `skills.meta.yaml`，将 skill 真源 diff 后落到运行目录；仓库不提供全局目录镜像脚本。可选 Mod 允许在自身目录提供经过审查的点名安装器，不改变 skill 同步方式。
 - `runtime.yaml` 必须留在 repo，**不得**下发到 `~/.claude/skills`、`~/.codex/skills`。
 - `agents/openai.yaml` 仅在 Codex / OpenAI 风格运行目录确有必要时才下发；Claude 默认不带。
 - 内部路由与映射数据不得入仓：本地内部配置（`*.local.*`）、内部系统到集群/索引的映射明细、真实服务路由与端点、集群别名、实例 ID、region/zone 组合、容量类内部表都只能留在本地 ignored 文件中；repo 只允许提交占位符模板（如 `env-config.example.yaml`）。
@@ -126,7 +126,7 @@
   - 本地 CLI 根目录（`~/.claude`、`~/.codex`）
 - Claude 平台 skill 日常同步链路：`platforms/claude/skills/<skill>` -> AI 手工 diff -> `~/.claude/skills/<skill>`（最小文件集）。
 - Codex 平台 skill 日常同步链路：`platforms/codex/skills/<skill>` -> AI 手工 diff -> `~/.codex/skills/<skill>`（最小文件集）。
-- `agents`/`hooks`/`scripts`/`bin`、`config.toml` 等运行件由各设备本地自管，不入仓也不由仓库回写。
+- 设备全局 `agents`/`hooks`/`scripts`/`bin`、`config.toml` 等运行件由各设备本地自管，不入仓也不由仓库回写。例外仅为 `platforms/claude/mods/<mod>/` 下明确登记的原创或已获授权源码及点名安装器；包内 hooks 不等于全局 hooks 同步。Mod 按 `mods.meta.yaml` / `origin.json` 管理，默认 manual-only、user scope，不重启或重载当前会话。
 - 推送 GitHub 前必须获得用户明确确认，不允许自动推送。
 - 当用户要求“同步仓库内容”“提交”“推送”或说“看下本地跟仓库有什么内容需要同步的”时：默认先由 AI 做差异检查并输出汇总；若本地有值得保留的新内容，先提示同步回仓库，再等待用户审批后继续执行写入动作。
 - 未获得用户明确审批前，禁止执行会产生写入副作用的动作（例如：向运行目录写入同步结果、`git add/commit/push`）。
@@ -154,7 +154,7 @@
 
 ## 个人配置不入仓
 
-本仓库只管理通用 skill 与同步脚手架。个人全局配置（Codex `config.toml`、全局 `AGENTS.md` 与 `CLAUDE.md`、`.mcp.json` 真实鉴权等）由各设备在本地运行目录（`~/.codex`、`~/.claude`）自行维护，不纳入本仓库，也不由同步脚本回写；公开侧涉及配置只保留占位符 example。
+本仓库管理通用 skill、可选 Mod 的可公开源码/来源清单与迁移说明。未明确许可的上游源码只能按固定哈希在设备本地下载，不能公开入仓；构建缓存、插件登记、会话/用量、认证和设备路径不入仓，安装器不自动覆盖已有版本或权限设置。个人全局配置（Codex `config.toml`、全局 `AGENTS.md` 与 `CLAUDE.md`、`.mcp.json` 真实鉴权等）由各设备在本地运行目录（`~/.codex`、`~/.claude`）自行维护，不纳入本仓库，也不由同步脚本回写；公开侧涉及配置只保留占位符 example。
 
 ## 配置与代理
 

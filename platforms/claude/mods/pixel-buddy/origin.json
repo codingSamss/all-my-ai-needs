@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "plugin": "pixel-buddy-sam",
+  "version": "1.0.0-rc.1",
+  "upstream": {
+    "repo": "hamymarnie/marnie-plugins",
+    "commit": "e9bd8293129ab59b4dfc387a086613bc3c0866e8",
+    "path": "plugins/pixel-buddy/hooks/scene.ts",
+    "sha256": "cefdce4e5485ff125a7f3529057183efe15f2637773533582953c0075ce836dc",
+    "license_status": "not identified; do not vendor or redistribute"
+  },
+  "source_sha256": {
+    ".claude-plugin/plugin.json": "ae85309f75c55d77a9d31f46958249d9226907e5d7f8981e3921878448512477",
+    "LICENSE-local.txt": "16166d3d02c633776fd2686d8efd9c0a632fd10ce2cbd1903ae1fd9def5bcfaf",
+    "hooks/hooks.json": "d842d789476d67282d0f04b7e5fdc68a3d981ccec65dd79cfa2d11eed13fb828",
+    "hooks/pixel-quota-NOTICES.txt": "4be291006902f7facf25e974030dc0d5e2e3199bd7b61b6facfdc0e8612404dc",
+    "hooks/quota-pixels.ts": "ab34454726abf60b3ae488babf6dca25ad0730047bb1c44e80573eb1d2e5c780",
+    "hooks/quota-text-OFL.txt": "f89f8fb79f82d57eb745e6cfc2d4401fd4527ae1a3aa350147bcb819de5494cb",
+    "hooks/quota-text.ts": "fa878f6741fd80653b6005caa90d0e01a3bf40f862b782412a22daf5478ea0c2",
+    "hooks/register.tsx": "0d67b0e39f6822e60ff9469fdb6b6ffcf2f111a912e1ea5f3671f41b59124547",
+    "quota.test.tsx": "7e5d14c57124c4254086487b88e0caf34ff7857301709199e6992017d7cc9b79",
+    "types/index.d.ts": "c5a213f2035f34c9bf90151b83542bf5b04f08158ea8758d45a2065c29aabae1"
+  },
+  "compatibility": {
+    "tested_engine": "2.1.288",
+    "surfaces": [
+      "desktop",
+      "terminal"
+    ],
+    "app_visual_acceptance": "pending new local Code session"
+  },
+  "assets": [
+    {
+      "repo": "halfmage/pixelarticons",
+      "commit": "8275e0af7c16aa40c54ea2b90b7af83b1fe4eb4c",
+      "license": "MIT",
+      "notice": "hooks/pixel-quota-NOTICES.txt"
+    },
+    {
+      "repo": "dhepper/font8x8",
+      "commit": "8e279d2d864e79128e96188a6b9526cfa3fbfef9",
+      "license": "public domain",
+      "notice": "hooks/pixel-quota-NOTICES.txt"
+    },
+    {
+      "repo": "TakWolf/fusion-pixel-font",
+      "commit": "6c88c8ec0f16f05e06663890a043ecbc81d448ae",
+      "release": "2026.09.25",
+      "license": "OFL-1.1",
+      "renamed_subset": "Pixel Buddy Quota Labels",
+      "notice": "hooks/quota-text-OFL.txt"
+    }
+  ],
+  "runtime_policy": {
+    "scope": "user",
+    "automatic_updates": false,
+    "model_calls": false,
+    "additional_quota_polling": false,
+    "original_replacement": "refuse while original is enabled"
+  },
+  "installer_sha256": "de38d09af14f89e62aaded5d21a030ef6468dff72c6211ae5e6fe8cc5deed455"
+}

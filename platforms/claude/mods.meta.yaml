@@ -1,0 +1,18 @@
+schema_version: 1
+platform: claude
+policy: manual-only
+mods:
+  pixel-buddy:
+    plugin_id: pixel-buddy-sam@codingSamss-all-my-ai-needs-mods
+    version: 1.0.0-rc.1
+    source: mods/pixel-buddy/source
+    origin: mods/pixel-buddy/origin.json
+    install: python3 platforms/claude/mods/pixel-buddy/install.py
+    scope: user
+    status: candidate
+    automatic_updates: false
+    notes:
+      - 安装器生成本机 marketplace；根 marketplace 继续只提供现有 skills 插件
+      - 宠物源码在本机匿名下载，固定提交和 SHA-256；未获明确再分发许可，不入公开仓库
+      - 原版已启用、已有源码漂移或同插件正在安装时停止，不自动切换
+      - 新会话现场验收前保持 candidate；不重启 App 或重载现有会话

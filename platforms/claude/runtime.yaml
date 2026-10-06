@@ -28,7 +28,17 @@ skill_runtime_contract:
     - platform 必须固定为 claude，避免把 Codex 命令或布局误写到 Claude skill 中
     - skill 级 runtime.yaml 只保留在 repo，不进入 ~/.claude/skills/<skill>/ 或 ~/.claude 根目录
 
-# 仓库只管 skill；agents/hooks/scripts/MCP 配置等运行件由各设备本地自管，不入仓
+# 设备全局 agents/hooks/scripts/MCP 配置本地自管；可选 Mod 只管理独立包的原创/授权源码和固定来源。
+mod_runtime_contract:
+  catalog: platforms/claude/mods.meta.yaml
+  source_root: platforms/claude/mods
+  default_scope: manual-only
+  install_scope: user
+  notes:
+    - Mod 点名安装器只处理自己的私有缓存与官方 CLI 登记，不做全局目录镜像
+    - origin.json 与 mods.meta.yaml 只留在 repo，不进入插件包或运行目录
+    - 不公开未明确许可的上游源码，不保存凭据、会话、用量或设备绝对路径
+    - 不自动替换已启用原版、覆盖源码漂移、修改权限或重启/重载现有会话
 
 manual_steps:
   - 提交、推送前，由读取仓库的 AI 比较 ~/.claude/skills 与仓库 skill 真源的差异

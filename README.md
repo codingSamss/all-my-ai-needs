@@ -1,6 +1,6 @@
 # all-my-ai-needs
 
-> 跨 Claude Code 与 Codex 两套 agent 的 skill 能力真源与同步规则。写入由 agent 执行，人只审校与决策。
+> 跨 Claude Code 与 Codex 两套 agent 的 skill 真源，以及点名安装的 Claude Mods 来源与迁移约定。写入由 agent 执行，人只审校与决策。
 
 把 Claude Code 与 Codex 的可复用能力收敛到一个仓库，按 `platform-first` 维护：每个平台独立持有自己的 `skills/` 与运行约定，同名 skill 允许在两端并存，不强行抽象去重。
 
@@ -19,6 +19,8 @@ all-my-ai-needs/
     │   ├── README.md  runtime.yaml
     │   ├── skills.meta.yaml         # repo-only 同步分层真源
     │   ├── skills/ (23)
+    │   ├── mods.meta.yaml           # 可选 Mod 清单，默认 manual-only
+    │   ├── mods/pixel-buddy/        # 原创/授权源码、来源哈希和点名安装器
     │   └── .claude-plugin/plugin.json
     └── codex/                      # Codex 平台真源 → ~/.codex
         ├── README.md  runtime.yaml  config.toml
@@ -29,7 +31,7 @@ all-my-ai-needs/
 ## 核心模型
 
 1. **platform-first** —— `platforms/claude/`、`platforms/codex/` 各为真源，互不依赖；不设跨平台共享 skill 目录，同名 skill 按各自平台约定演化。
-2. **agent 写入 · 人审校** —— 仓库内容默认由 agent 维护。涉及写入的操作先产出差异清单交人审批再执行；仓库不提供同步脚本，同步与校验都由 agent 读元数据完成。
+2. **agent 写入 · 人审校** —— 仓库内容默认由 agent 维护。涉及写入的操作先产出差异清单交人审批再执行；仓库不提供全局镜像脚本；skills 同步由 agent 读元数据完成，可选 Mod 使用自身经过审查的点名安装器。
 3. **scope / profile 分层** —— 每个 skill 标注 `scope`（core / project / manual-only）与项目类型 `profile`，决定何时下发到运行目录。机读真源是各平台 `skills.meta.yaml`，人读视图与同步剧本见 [PROFILES.md](PROFILES.md)。
 
 ## 能力地图
@@ -54,6 +56,20 @@ all-my-ai-needs/
 
 - `runtime.yaml`、`skills.meta.yaml`、`PROFILES.md` 等治理元数据只留在仓库，不进入 `~/.claude`、`~/.codex`。
 - 本地 repo 之外的私有 skill（带私有前缀，不公开）与含内网信息的配置不回流仓库，也不被同步删除。
+
+## 可选 Claude Mods
+
+[pixel-buddy-sam](platforms/claude/mods/pixel-buddy/README.md) 保存像素剩余额度、透明宠物背景和 cache / ctx 高亮。
+在已经克隆的仓库根执行：
+
+```bash
+python3 platforms/claude/mods/pixel-buddy/install.py
+```
+
+需要 Python 3.9+、Claude Code CLI 和首次访问 GitHub 的网络。安装器匿名下载固定提交的动画并校验 SHA-256，
+在设备私有缓存生成完整插件与本机 marketplace，用官方 CLI 安装到 user scope；不改项目、权限或现有会话。
+原版已启用或发现本地改动时停止，不自动替换。候选版现场验证需要新的 Desktop Code 本地会话。
+Mod 由 `mods.meta.yaml` 单独登记，默认不随 skills 同步；运行态、凭据、真实设置不入仓，未明确许可的上游源码不公开发布。
 
 ## 治理与约定
 

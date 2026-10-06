@@ -29,7 +29,7 @@
 运行目录规则：
 
 - `runtime.yaml`、`skills.meta.yaml`、`PROFILES.md` 只保留在 repo，不下发到任何运行目录
-- `agents`/`hooks`/`scripts`/`bin`、`config.toml` 等运行件由各设备本地自管，不入仓也不由仓库回写
+- 设备全局 `agents`/`hooks`/`scripts`/`bin`、`config.toml` 等运行件本地自管。`mods/` 例外仅收明确登记的原创/授权源码及点名安装器，按 `mods.meta.yaml` / `origin.json` 管理；未明确许可的上游源码仅本机固定哈希下载，运行态不入仓。Mod 默认 manual-only、user scope，不自动改权限、覆盖手工修改或重启/重载当前会话
 
 授权边界：
 

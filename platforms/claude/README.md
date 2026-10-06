@@ -10,7 +10,7 @@
 - 处理同步/提交/推送请求时，若用户只说“看下本地跟仓库有什么需要同步的”等未授权写入请求，默认先汇总差异，待用户审批后再写入
 - 只下发 skill 最小文件集，不下发 `runtime.yaml`、`skills.meta.yaml` 等治理元数据
 - MCP 配置由本机自管；仓库不提供 MCP 模板，也不向 `~/.claude.json` 合并 server
-- `agents`/`hooks`/`scripts` 等运行件由各设备本地自管，不入仓也不由仓库回写
+- 设备全局 `agents`/`hooks`/`scripts` 本地自管；可选 Mod 的独立包源码及点名安装器按下方 Mod 约定维护
 
 ## Skill 同步分层
 
@@ -47,10 +47,26 @@
 | `video-transcribe` | 视频/音频全量转录、图文笔记与关键帧分析 | 依赖 yt-dlp / ffmpeg / Groq |
 | `xiaohongshu` | 只读访问小红书搜索、笔记、评论、feed 与用户公开笔记 | OpenCLI 复用 Chrome 登录态；不再保留 HTTP/API 直读路线 |
 
+## 可选 Mods
+
+`mods.meta.yaml` 是 repo-only 的 manual-only 清单，不加入 skill profiles，也不随 skill 同步自动启用。
+当前候选为 [pixel-buddy-sam](mods/pixel-buddy/README.md)：像素剩余额度、透明宠物场景和 cache / ctx 高亮。
+
+在已克隆的仓库根执行一条命令即可组装并安装到 user scope：
+
+```bash
+python3 platforms/claude/mods/pixel-buddy/install.py
+```
+
+需要 Python 3.9+、支持 Mods 的 Claude Code CLI 和首次下载网络。宠物源码固定提交/哈希，只在本机下载；
+安装器生成独立本机 marketplace，不把未明确许可的上游源码放进根 marketplace 发布。
+已启用原版、并发安装、已有版本或源码漂移时停止，不自动覆盖；新会话 UI 验收前保持 candidate。
+设备设置、凭据、插件缓存、登记文件、会话和用量不入仓；不改权限、不重启/重载当前会话。
+
 ## 平台能力资产
 
-- 受管内容：`skills/`、`.claude-plugin/`
-- skill 同步由 AI agent 拉仓库后做最小差异 diff 落到 `~/.claude/skills`；`agents`/`hooks`/`scripts` 等运行件由各设备本地自管，不入仓
+- 受管内容：`skills/`、`.claude-plugin/`、点名安装的 `mods/` 与 `mods.meta.yaml`
+- skill 同步由 AI agent 做最小差异 diff；设备全局运行件本地自管。Mod 的包内 hooks 只作为可选插件源码管理，不镜像全局 hooks
 - MCP server 由各设备本地按需配置；仓库不提供预设，也不将旧服务带回运行目录
 - 需要复用 Chrome 登录态的浏览器自动化，走 Claude Code 官方 Chrome 集成（安装 Claude in Chrome 扩展后 `claude --chrome` 或 `/chrome`），不依赖 `chrome-devtools` MCP
 - skill 若需要依赖、手动步骤、验证命令，统一写入 repo 中对应 skill 目录下的 `runtime.yaml`

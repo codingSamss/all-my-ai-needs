@@ -19,7 +19,7 @@ __pycache__/
 # Codex 本机命令审批规则（含本机端点/路径等运行态），各设备本地维护，不入公开仓库
 platforms/codex/rules/
 
-# 仓库只收 skill 与治理元数据；同步脚本与运行件由各设备本地自管，不入公开仓库
+# 仓库收 skill、可公开的可选 Mod 源码及治理元数据；设备全局同步脚本和运行件仍本地自管
 /setup.sh
 /scripts/
 platforms/claude/agents/
@@ -32,3 +32,9 @@ platforms/codex/hooks/
 platforms/codex/scripts/
 # skill 自带的安装脚本也不入仓（依赖清单写在各 skill 的 runtime.yaml）
 platforms/*/skills/*/setup.sh
+
+# 可选 Mod 的下载、构建与设备私有数据不入仓
+platforms/claude/mods/**/cache/
+platforms/claude/mods/**/dist/
+platforms/claude/mods/**/*.local.*
+platforms/claude/mods/**/*.zip
