@@ -4,7 +4,7 @@ policy: manual-only
 mods:
   pixel-buddy:
     plugin_id: pixel-buddy-sam@codingSamss-all-my-ai-needs-mods
-    version: 1.0.0-rc.1
+    version: 1.0.0-rc.2
     source: mods/pixel-buddy/source
     origin: mods/pixel-buddy/origin.json
     install: python3 platforms/claude/mods/pixel-buddy/install.py
@@ -12,6 +12,7 @@ mods:
     status: candidate
     automatic_updates: false
     notes:
+      - CSS 内置宠物动画；分钟级额度面板与秒级 cache 底栏分离，持续性能验收待完成
       - 安装器生成本机 marketplace；根 marketplace 继续只提供现有 skills 插件
       - 宠物源码在本机匿名下载，固定提交和 SHA-256；未获明确再分发许可，不入公开仓库
       - 原版已启用、已有源码漂移或同插件正在安装时停止，不自动切换

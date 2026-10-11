@@ -1,8 +1,10 @@
 {
   "name": "pixel-buddy-sam",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.2",
   "description": "像素剩余额度、主题透明的宠物场景，以及 cache / ctx 高亮",
-  "author": { "name": "codingSamss" },
+  "author": {
+    "name": "codingSamss"
+  },
   "types": "./types/index.d.ts",
   "userConfig": {
     "cacheTtl": {
@@ -10,7 +12,10 @@
       "title": "Prompt cache TTL",
       "description": "显示计时器使用的 TTL；不改变服务端缓存策略",
       "default": "1h",
-      "options": ["5m", "1h"]
+      "options": [
+        "5m",
+        "1h"
+      ]
     }
   }
 }

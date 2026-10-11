@@ -1,33 +1,34 @@
 {
   "schema_version": 1,
   "plugin": "pixel-buddy-sam",
-  "version": "1.0.0-rc.1",
+  "version": "1.0.0-rc.2",
   "upstream": {
     "repo": "hamymarnie/marnie-plugins",
-    "commit": "e9bd8293129ab59b4dfc387a086613bc3c0866e8",
+    "commit": "3392f4ae80038c433a3230a168154386c069a309",
     "path": "plugins/pixel-buddy/hooks/scene.ts",
-    "sha256": "cefdce4e5485ff125a7f3529057183efe15f2637773533582953c0075ce836dc",
+    "sha256": "e5dca29053f798c218bc17f14888871e1e189bf7362a1d410e8978184bf9e6e9",
     "license_status": "not identified; do not vendor or redistribute"
   },
   "source_sha256": {
-    ".claude-plugin/plugin.json": "ae85309f75c55d77a9d31f46958249d9226907e5d7f8981e3921878448512477",
+    ".claude-plugin/plugin.json": "0ae2408dc1ad7689eadca3c07fddb4712374e05279f3a15a82a90b32d6357a50",
     "LICENSE-local.txt": "16166d3d02c633776fd2686d8efd9c0a632fd10ce2cbd1903ae1fd9def5bcfaf",
     "hooks/hooks.json": "d842d789476d67282d0f04b7e5fdc68a3d981ccec65dd79cfa2d11eed13fb828",
     "hooks/pixel-quota-NOTICES.txt": "4be291006902f7facf25e974030dc0d5e2e3199bd7b61b6facfdc0e8612404dc",
     "hooks/quota-pixels.ts": "ab34454726abf60b3ae488babf6dca25ad0730047bb1c44e80573eb1d2e5c780",
     "hooks/quota-text-OFL.txt": "f89f8fb79f82d57eb745e6cfc2d4401fd4527ae1a3aa350147bcb819de5494cb",
     "hooks/quota-text.ts": "fa878f6741fd80653b6005caa90d0e01a3bf40f862b782412a22daf5478ea0c2",
-    "hooks/register.tsx": "0d67b0e39f6822e60ff9469fdb6b6ffcf2f111a912e1ea5f3671f41b59124547",
-    "quota.test.tsx": "7e5d14c57124c4254086487b88e0caf34ff7857301709199e6992017d7cc9b79",
-    "types/index.d.ts": "c5a213f2035f34c9bf90151b83542bf5b04f08158ea8758d45a2065c29aabae1"
+    "hooks/register.tsx": "57fe206a11bf0a151b3b02c882059494d7ef9c1612ea6376ad6456d52ec2ab91",
+    "quota.test.tsx": "f88d31ef458eb9b1b6b2259dc20d338b23370fc87e8a7375937afea4b9524bbf",
+    "types/index.d.ts": "22b0dac9e006f7960330fce7eed94d4140113c0d279ecfa0daa4537edee18a17"
   },
   "compatibility": {
-    "tested_engine": "2.1.288",
+    "tested_engine": "2.1.295",
     "surfaces": [
       "desktop",
       "terminal"
     ],
-    "app_visual_acceptance": "pending new local Code session"
+    "app_visual_acceptance": "rc.2 dark-theme idle session displayed; full UI and sustained performance acceptance pending",
+    "tested_cli": "2.1.294"
   },
   "assets": [
     {

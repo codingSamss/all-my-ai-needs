@@ -1,15 +1,18 @@
 import { atom, read, update } from 'claude-code'
 import type { Register } from 'claude-code'
-import type { Mood, Telemetry } from '../types'
+import type { Mood, PanelState, FooterState } from '../types'
 import { pixelIconSvg, pixelMeterSvg, pixelPercentSvg } from './quota-pixels'
 import { pixelLabelSvg, pixelQuotaCardSvg } from './quota-text'
 import { DONE_SECONDS, SCENE_HEIGHT, SCENE_WIDTH, sceneSvg } from './scene'
 
 // 本文件按显示需求独立实现；上游宠物素材仅在设备本地下载并校验。
-const telemetry = atom({ plugin: 'pixel-buddy-sam', key: 'telemetry' } as const, {
-  phase: 'idle', phaseAt: 0, clockAt: 0, cacheAt: null, context: null, limits: [],
-} as Telemetry)
-const animationAt = atom({ plugin: 'pixel-buddy-sam', key: 'animationAt' } as const, 0)
+// 面板与秒级倒计时分开订阅，cache 更新不能让宠物 SVG 被反复替换。
+const panel = atom({ plugin: 'pixel-buddy-sam', key: 'panel' } as const, {
+  phase: 'idle', phaseAt: 0, clockAt: 0, limits: [],
+} as PanelState)
+const footer = atom({ plugin: 'pixel-buddy-sam', key: 'footer' } as const, {
+  clockAt: 0, cacheAt: null, context: null,
+} as FooterState)
 const GREEN = '#4cc35a', AMBER = '#e5a33a', RED = '#e5534b', NEUTRAL = '#9a9a9a'
 
 const usedColor = (used: number) => used >= 90 ? RED : used >= 70 ? AMBER : GREEN
@@ -59,21 +62,21 @@ export const register: Register = (on, options) => {
     // 用量只从宿主读取一次；后续使用 measure 事件。计时器不会轮询账号接口。
     const usage = await $.session.usage()
     const now = await $.clock.now()
-    await update($, telemetry, () => ({
-      phase: 'idle', phaseAt: now, clockAt: now, cacheAt: null,
-      context: usage.context, limits: usage.rateLimits,
+    await update($, panel, () => ({
+      phase: 'idle', phaseAt: now, clockAt: now, limits: usage.rateLimits,
     }))
-    await update($, animationAt, () => now)
-    $.clock.every(150, async () => {
+    await update($, footer, () => ({ clockAt: now, cacheAt: null, context: usage.context }))
+    // 动画交给 SVG 内的 CSS；这里只按分钟刷新额度文案，并补偿重载后丢失的阶段回调。
+    $.clock.every(60000, async () => {
       const tick = await $.clock.now()
-      await update($, animationAt, () => tick)
+      await update($, panel, state => ({ ...state, clockAt: tick }))
     })
     $.clock.every(1000, async () => {
       const tick = await $.clock.now()
-      const previous = await read($, telemetry)
+      const previous = await read($, footer)
       const warm = previous.cacheAt !== null && tick - previous.cacheAt < ttl + 2000
-      if (warm || Math.floor(tick / 60000) !== Math.floor(previous.clockAt / 60000)) {
-        await update($, telemetry, state => ({ ...state, clockAt: tick }))
+      if (warm) {
+        await update($, footer, state => ({ ...state, clockAt: tick }))
       }
     })
     return next(event)
@@ -81,9 +84,13 @@ export const register: Register = (on, options) => {
 
   on('session.measure', async ($, event, next) => {
     const tick = await $.clock.now()
-    await update($, telemetry, previous => ({
+    const previousPanel = await read($, panel)
+    // 宿主重复发送相同额度时不重绘上方区域；context 和 cache 只影响底栏。
+    if (event.rateLimits.length && JSON.stringify(event.rateLimits) !== JSON.stringify(previousPanel.limits)) {
+      await update($, panel, state => ({ ...state, limits: event.rateLimits, clockAt: tick }))
+    }
+    await update($, footer, previous => ({
       ...previous, context: event.context,
-      limits: event.rateLimits.length ? event.rateLimits : previous.limits,
       cacheAt: event.changed.includes('context') ? tick : previous.cacheAt,
       clockAt: tick,
     }))
@@ -91,15 +98,27 @@ export const register: Register = (on, options) => {
   })
   on('turn.start', async ($, event, next) => {
     const tick = await $.clock.now()
-    await update($, telemetry, state => ({ ...state, phase: 'working', phaseAt: tick }))
+    await update($, panel, state => ({ ...state, phase: 'working', phaseAt: tick, clockAt: tick }))
     return next(event)
   })
   on('turn.complete', async ($, event, next) => {
     if (!event.agentId) {
       const tick = await $.clock.now()
-      await update($, telemetry, state => ({ ...state,
-        phase: event.isAborted || event.reason === 'error' ? 'idle' : 'done', phaseAt: tick,
+      const phase = event.isAborted || event.reason === 'error' ? 'idle' : 'done'
+      await update($, panel, state => ({ ...state,
+        phase, phaseAt: tick, clockAt: tick,
       }))
+      if (phase === 'done') {
+        for (const delay of [DONE_SECONDS * 1000, (DONE_SECONDS + 240) * 1000]) {
+          $.clock.after(delay, async () => {
+            const current = await read($, panel)
+            // 已开始新一轮任务时，旧庆祝计时器不能重绘或覆盖新阶段。
+            if (current.phase !== 'done' || current.phaseAt !== tick) return
+            const now = await $.clock.now()
+            await update($, panel, state => ({ ...state, clockAt: now }))
+          })
+        }
+      }
     }
     return next(event)
   })
@@ -107,7 +126,7 @@ export const register: Register = (on, options) => {
   on('ui.render', { component: 'AbovePrompt' }, async ($, event, next) => {
     if (event.props.hasSurvey) return next(event)
     const { Box, Text } = $.ui.resolve(event)
-    const state = await read($, telemetry)
+    const state = await read($, panel)
     const items = ([['five_hour', '5h', 'clock'], ['seven_day', '7d', 'cal']] as const).map(([kind, title, icon]) => {
       const limit = state.limits.find(item => item.kind === kind)
       // 未知用量保持未知；剩余额度与上下文占用比例使用不同含义的颜色规则。
@@ -126,9 +145,8 @@ export const register: Register = (on, options) => {
       return bitmap ? <Svg source={bitmap.source} width={bitmap.width} height={bitmap.height} alt={text} />
         : <Text dimColor wrap="truncate-end">{text}</Text>
     }
-    const tick = await read($, animationAt)
     const phase: Mood = event.props.isWorking ? 'working' : state.phase === 'working' ? 'idle' : state.phase
-    const [shown, elapsed] = scenePhase(phase, Math.max(0, (tick - state.phaseAt) / 1000))
+    const [shown, elapsed] = scenePhase(phase, Math.max(0, (state.clockAt - state.phaseAt) / 1000))
     return <Box flexDirection="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" columnGap={2} rowGap={1} paddingX={1}>
       <Box flexDirection="row" alignItems="center" flexWrap="wrap" columnGap={3} rowGap={1}>
         {items.map(item => {
@@ -147,14 +165,14 @@ export const register: Register = (on, options) => {
           </Box>
         })}
       </Box>
-      <Svg source={themedScene(shown, elapsed)} width={SCENE_WIDTH} height={SCENE_HEIGHT}
+      <Svg source={themedScene(shown, elapsed)} isInteractive width={SCENE_WIDTH} height={SCENE_HEIGHT}
         alt={`Claude is ${shown === 'done' ? 'celebrating' : shown === 'relax' ? 'relaxing' : shown}`} />
     </Box>
   })
 
   on('ui.render', { component: 'SessionMode' }, async ($, event, next) => {
     const { Box, Text } = $.ui.resolve(event)
-    const state = await read($, telemetry)
+    const state = await read($, footer)
     const left = state.cacheAt === null ? 0 : ttl - (state.clockAt - state.cacheAt)
     const seconds = Math.max(0, Math.ceil(left / 1000))
     const cache = state.cacheAt === null ? 'cache –' : left <= 0 ? 'cache cold'

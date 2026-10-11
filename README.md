@@ -60,6 +60,7 @@ all-my-ai-needs/
 ## 可选 Claude Mods
 
 [pixel-buddy-sam](platforms/claude/mods/pixel-buddy/README.md) 保存像素剩余额度、透明宠物背景和 cache / ctx 高亮。
+`1.0.0-rc.2` 采用 SVG 内置动画，移除 150 ms 面板重绘，并将秒级 cache 倒计时与额度面板分离。
 在已经克隆的仓库根执行：
 
 ```bash

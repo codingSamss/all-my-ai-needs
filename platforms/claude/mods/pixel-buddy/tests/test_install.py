@@ -24,7 +24,7 @@ class InstallerSafety(unittest.TestCase):
     def test_source_integrity_and_upstream_exclusion(self):
         origin, files = installer.source_files()
         self.assertNotIn("hooks/scene.ts", files)
-        self.assertEqual(origin["upstream"]["commit"], "e9bd8293129ab59b4dfc387a086613bc3c0866e8")
+        self.assertEqual(origin["upstream"]["commit"], "3392f4ae80038c433a3230a168154386c069a309")
         self.assertFalse(any(str(Path.home()).encode() in value for value in files.values()))
 
     def test_install_lock_refuses_second_writer(self):

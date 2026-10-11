@@ -2,7 +2,8 @@
 
 保存像素剩余额度、12px 中文标签、透明主题背景、cache 倒计时和 ctx 百分比高亮。
 本仓库的界面入口独立实现；宠物动画从上游固定提交下载到设备私有缓存，不公开打包上游源码。
-这是候选版 `1.0.0-rc.1`，与原版 `pixel-buddy@marnie-plugins` 使用不同插件标识。
+动画使用上游固定版本的 SVG 内置 CSS keyframes，取消 150 ms 的整块重绘；额度面板按分钟或实际变化更新，cache 倒计时独立更新底栏。
+这是候选版 `1.0.0-rc.2`，与原版 `pixel-buddy@marnie-plugins` 使用不同插件标识。
 
 ## 一条命令安装
 
@@ -12,7 +13,7 @@
 python3 platforms/claude/mods/pixel-buddy/install.py
 ```
 
-前提：Python 3.9+、已安装并支持 Mods 的 Claude Code CLI（已测试内核 2.1.288），首次安装能访问 GitHub。
+前提：Python 3.9+、已安装并支持 Mods 的 Claude Code CLI（已测试 CLI 内核 2.1.294），首次安装能访问 GitHub。
 安装器不自动安装系统依赖、不登录账号。新设备仍需自行登录 Claude Desktop。
 访问 GitHub 需要代理时，通过本机 `HTTP_PROXY` / `HTTPS_PROXY` 提供；代理地址、鉴权不保存在仓库。
 
@@ -22,7 +23,17 @@ python3 platforms/claude/mods/pixel-buddy/install.py
 标识为 `pixel-buddy-sam@codingSamss-all-my-ai-needs-mods`。
 不会写项目文件、修改 permissions/MCP/隐私设置，也不重启 App、不发送提示词、不运行 `/reload-plugins`。
 
-原版已启用时安全停止，避免重复 UI。请在原会话任务完成后单独安排切换；本安装器不会自动禁用原版。
+原版已启用时安全停止，避免重复 UI。首次从原版迁移时，先完成下方验证，再在已授权的切换窗口通过官方 CLI 操作：
+
+```bash
+claude plugin disable pixel-buddy@marnie-plugins --scope user --json
+python3 platforms/claude/mods/pixel-buddy/install.py
+```
+
+旧插件及定制文件保留，不覆盖其缓存；安装器不会自动禁用原版。旧会话可能继续运行已加载的旧代码，
+需在任务结束后用新本地 Code 会话或显式 `/reload-plugins` 确认新版；不能把配置启用当作实际加载。
+如果安装失败或需要恢复，通过官方 CLI 禁用 `pixel-buddy-sam@codingSamss-all-my-ai-needs-mods`（若已启用），
+再启用 `pixel-buddy@marnie-plugins`；不要同时启用两版。
 同版本且文件一致时再次运行直接成功；有其他版本、手工修改、异常缓存或未知目录内容时停止，不覆盖。
 不使用 command-source，避免每次会话启动自动执行组装命令或触发热重载。
 
@@ -53,6 +64,9 @@ claude plugin list --json
 
 程序验证涵盖：剩余量与未知读数、分钟倒计时不增加账号轮询、12px 字库边界、ctx 分级颜色、主题透明底色，
 以及下载哈希、并发锁、源码漂移、符号链接/路径越界、原版冲突和重复安装。
+性能回归测试覆盖秒级 cache 更新不替换上方面板、重复额度不重绘、模拟一小时仅 61 份宠物 SVG、
+庆祝→休息→空闲和过期回调隔离。模拟计数不是真实 App 的 CPU、内存或泄漏结论。
+现场性能仍需以相似任务负载持续采样；既有 Renderer 已累积的内存不会因安装文件切换立即清空。
 UI 必须在新的 Claude Desktop Code 本地会话验证：浅/深主题、窄宽度布局、文字不遮挡、宠物动画和底栏高亮。
 CLI 验证成功不等于 App 已显示；在现场验收前保持 candidate。
 

@@ -51,6 +51,7 @@
 
 `mods.meta.yaml` 是 repo-only 的 manual-only 清单，不加入 skill profiles，也不随 skill 同步自动启用。
 当前候选为 [pixel-buddy-sam](mods/pixel-buddy/README.md)：像素剩余额度、透明宠物场景和 cache / ctx 高亮。
+`1.0.0-rc.2` 采用 SVG 内置动画，移除 150 ms 面板重绘，并将秒级 cache 倒计时与额度面板分离。
 
 在已克隆的仓库根执行一条命令即可组装并安装到 user scope：
 
