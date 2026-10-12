@@ -69,7 +69,9 @@ Read that file to review the paths this dry-run found. It is a preview snapshot,
 
 ### Cleanup history
 
-`mo history --json --limit N` returns session summaries and the operation/deletion log paths. Use `actions.removed`, `trashed`, `skipped`, and `failed` to verify the outcome. When `failed` is nonzero, inspect only the matching session in the operations log and classify permission-protected or running-app paths separately from real cleanup failures.
+`mo history --json --limit N` (N is 1-200) returns `logs`, `sessions[]`, and `deletions[]`. Use `actions.removed`, `trashed`, `skipped`, and `failed` to verify the outcome. When `failed` is nonzero, inspect only the matching session in the operations log and classify permission-protected or running-app paths separately from real cleanup failures.
+
+In Mole 1.59.0+, each session includes an opaque `run_id` and an `attribution`: `run` identifies one run, `command` groups older command-based records, and `ambiguous` means older markers cannot distinguish interrupted or overlapping runs. Do not assign ambiguous counts to one run. An empty `run_id` means no identity was logged; an empty `ended_at` means no end marker was recorded, not confirmed completion. Each deletion records `timestamp`, `mode`, `status`, `size_kb`, and `path`; control bytes in paths appear as `\n`, `\r`, `\t`, or `\xHH`.
 
 ### Installed apps
 

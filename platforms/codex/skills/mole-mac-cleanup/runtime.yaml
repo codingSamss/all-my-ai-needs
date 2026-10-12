@@ -5,8 +5,8 @@ platform: codex
 origin:
   repo: https://github.com/tw93/Mole
   path: .claude/skills/mole
-  ref: 2ddb0b732464c992ffd35e8d93ed10499ec1bc9b
-  version: V1.54.0
+  ref: fe32f9915787c5420f1836dbdf726566956157c1
+  version: V1.59.1
   license: GPL-3.0-or-later
   local_adaptations:
     - 保留 mole-mac-cleanup 名称与更宽的用户触发描述，正文以 upstream agent skill 的命令语义与 machine-readable surfaces 为基线。
@@ -23,6 +23,8 @@ origin:
       两次的目标集可能不同，不得向用户承诺实跑会精确删除该清单。
     - 同轮补入 purge 的授权语义：非交互实跑需要显式 --yes（dry-run 不需要），有作者内容的产物受保护，
       内容探测不确定时保留候选并报告运行不完整。
+    - 2026-10-13 核对 V1.58.0→V1.59.1：仅回流 history 的 run_id、attribution 与结构化删除记录语义；
+      旧日志归属 ambiguous 时不得将计数归入单次运行，ended_at 为空不视为已完成；保留本地清理二次确认边界。
 
 sync_paths:
   - SKILL.md
