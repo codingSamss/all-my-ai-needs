@@ -45,7 +45,7 @@
 | `skill-creator` | 创建、优化、评估 skills | 用于 skill 设计与迭代 |
 | `teach` | 在当前 workspace 中进行跨会话、可沉淀的概念与技能教学，并复用课程样式、测验与模拟器组件 | 纯指令型 skill；建议在独立学习目录中使用 |
 | `video-transcribe` | 视频/音频全量转录、图文笔记与关键帧分析 | 依赖 yt-dlp / ffmpeg / Groq |
-| `xiaohongshu` | 只读访问小红书搜索、笔记、评论、feed、用户公开笔记与媒体下载 | OpenCLI 复用 Chrome 登录态；筛选参数按版本使用，遇风控停止批次；升级前核对依赖安全 |
+| `xiaohongshu` | 只读访问小红书搜索、笔记、评论、feed、用户公开笔记与媒体下载 | OpenCLI 复用 Chrome 登录态；1.8.8 搭配已验证的修复依赖，重装后复核；遇风控停止批次 |
 
 ## 可选 Mods
 

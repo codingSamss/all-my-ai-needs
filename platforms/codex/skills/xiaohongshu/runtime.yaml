@@ -29,6 +29,6 @@ notes:
   - This skill is read-only.
   - HTTP/API and Chrome Cookie DB extraction are intentionally not supported.
   - Do not use opencli doctor for routine checks because it may start the daemon.
-  - OpenCLI 1.8.8 features require Node.js >=20.18.1; its original dependency set is not an approved security baseline.
+  - Reviewed combination is OpenCLI 1.8.8 with actual undici 7.29.1 and js-yaml 4.3.2; Node.js >=20.18.1 is required. Recheck dependencies after any reinstall or update.
   - Stop the whole batch on SECURITY_BLOCK, AUTH_REQUIRED, captcha, or account warnings.
   - Trace capture is off by default; signed URLs and diagnostics must remain local.

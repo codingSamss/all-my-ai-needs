@@ -19,7 +19,7 @@ Triggered by:
 ## Prerequisites
 
 1. Node.js and npm are installed. OpenCLI 1.8.8 requires Node.js >=20.18.1.
-2. OpenCLI is installed. Before installing or upgrading, read [the upgrade review](references/opencli-upgrade.md); version 1.8.8 is a feature reference, not an approved security baseline.
+2. OpenCLI is installed. Before installing or upgrading, read [the upgrade review](references/opencli-upgrade.md). The reviewed combination is OpenCLI 1.8.8 with actual runtime dependencies `undici 7.29.1` and `js-yaml 4.3.2`; an ordinary 1.8.8 installation does not include this dependency correction. Reinstalling or updating can overwrite the local correction, so recheck the actual dependencies and current advisories.
 3. The OpenCLI Chrome extension is installed manually from the Chrome Web Store.
 4. Chrome is open and logged into Xiaohongshu.
 

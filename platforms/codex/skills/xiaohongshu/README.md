@@ -19,7 +19,7 @@ OpenCLI 使用本地 daemon + Chrome 扩展复用真实浏览器登录态。数�
 - Chrome OpenCLI extension
 - Chrome 已登录小红书
 
-安装或升级前阅读 [版本与安全评估](references/opencli-upgrade.md)。1.8.8 的功能已核对，但其原始依赖存在安全公告，不能直接作为推荐安装版本。依赖安装按用户授权执行，本仓库不自动安装扩展或写入 Cookie。
+安装或升级前阅读 [版本与安全评估](references/opencli-upgrade.md)。已验证组合为 OpenCLI 1.8.8 + `undici 7.29.1` + `js-yaml 4.3.2`，验证时未命中已知依赖公告；原版 1.8.8 仍固定受影响的 `undici 7.29.0`。重装或更新可能覆盖本地依赖修补，需检查实际安装版本并重新审计。依赖安装按用户授权执行，本仓库不自动安装扩展或写入 Cookie。
 
 ## 验证命令
 
