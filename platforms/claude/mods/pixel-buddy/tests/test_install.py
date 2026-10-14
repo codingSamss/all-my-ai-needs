@@ -1,5 +1,4 @@
 import importlib.util
-import io
 import json
 from pathlib import Path
 import tempfile
@@ -21,10 +20,11 @@ class InstallerSafety(unittest.TestCase):
     def tearDown(self):
         self.temporary.cleanup()
 
-    def test_source_integrity_and_upstream_exclusion(self):
+    def test_source_integrity_and_licensed_graphics(self):
         origin, files = installer.source_files()
-        self.assertNotIn("hooks/scene.ts", files)
-        self.assertEqual(origin["upstream"]["commit"], "3392f4ae80038c433a3230a168154386c069a309")
+        self.assertIn("hooks/scene.ts", files)
+        self.assertIn(b"MIT License", files["hooks/scene-NOTICES.txt"])
+        self.assertEqual(origin["upstream"]["commit"], "3fc00b3ad2ef3a57ac043f8d28e7abcbd1679a6c")
         self.assertFalse(any(str(Path.home()).encode() in value for value in files.values()))
 
     def test_install_lock_refuses_second_writer(self):
@@ -39,31 +39,27 @@ class InstallerSafety(unittest.TestCase):
         with self.assertRaises(installer.Refusal):
             installer.private_dir(self.cache)
 
-    def test_wrong_download_digest_never_published(self):
-        origin, _ = installer.source_files()
-        response = mock.MagicMock()
-        response.__enter__.return_value = io.BytesIO(b"unexpected content")
-        opener = mock.Mock()
-        opener.open.return_value = response
-        with mock.patch.object(installer.urllib.request, "build_opener", return_value=opener):
-            with self.assertRaises(installer.Refusal):
-                installer.upstream_scene(self.cache, origin, False)
-        self.assertEqual(list((self.cache / "sources").iterdir()), [])
+    def test_offline_assembly_is_complete_and_repeatable(self):
+        with mock.patch("socket.create_connection", side_effect=AssertionError("network")):
+            plugin, files, fingerprint = installer.assemble(self.cache, True)
+            installer.verify_tree(plugin, files)
+            again, _, same = installer.assemble(self.cache, True)
+        self.assertEqual((again, same), (plugin, fingerprint))
 
-    def test_cached_digest_mismatch_preserved(self):
-        origin, _ = installer.source_files()
-        stored = self.cache / "sources" / (origin["upstream"]["sha256"] + ".ts")
-        stored.parent.mkdir(parents=True)
-        stored.write_bytes(b"local modification")
+    def test_built_source_drift_preserved(self):
+        plugin, _, _ = installer.assemble(self.cache, True)
+        scene = plugin / "hooks/scene.ts"
+        scene.write_bytes(b"local modification")
         with self.assertRaises(installer.Refusal):
-            installer.upstream_scene(self.cache, origin, True)
-        self.assertEqual(stored.read_bytes(), b"local modification")
+            installer.assemble(self.cache, True)
+        self.assertEqual(scene.read_bytes(), b"local modification")
 
-    def test_missing_offline_cache_has_no_network(self):
+    def test_missing_license_notice_rejected(self):
         origin, _ = installer.source_files()
-        with mock.patch.object(installer.urllib.request, "build_opener", side_effect=AssertionError("network")):
+        del origin["source_sha256"]["hooks/scene-NOTICES.txt"]
+        with mock.patch.object(installer, "read_json", return_value=origin):
             with self.assertRaises(installer.Refusal):
-                installer.upstream_scene(self.cache, origin, True)
+                installer.source_files()
 
     def test_original_enabled_refuses_before_build_or_cli(self):
         config = self.root / "config"
@@ -98,9 +94,12 @@ class InstallerSafety(unittest.TestCase):
             with self.assertRaises(installer.Refusal):
                 installer.source_files()
 
-    def test_redirect_refused(self):
-        with self.assertRaises(installer.Refusal):
-            installer.NoRedirect().redirect_request(None, None, 302, "redirect", {}, "https://example.com")
+    def test_unconfirmed_license_rejected(self):
+        origin, _ = installer.source_files()
+        origin["upstream"]["license_status"] = "unknown"
+        with mock.patch.object(installer, "read_json", return_value=origin):
+            with self.assertRaises(installer.Refusal):
+                installer.source_files()
 
     def test_existing_marketplace_edits_preserved(self):
         catalog = self.cache / "marketplace" / ".claude-plugin" / "marketplace.json"

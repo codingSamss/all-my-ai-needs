@@ -5,7 +5,7 @@ import { pixelIconSvg, pixelMeterSvg, pixelPercentSvg } from './quota-pixels'
 import { pixelLabelSvg, pixelQuotaCardSvg } from './quota-text'
 import { DONE_SECONDS, SCENE_HEIGHT, SCENE_WIDTH, sceneSvg } from './scene'
 
-// 本文件按显示需求独立实现；上游宠物素材仅在设备本地下载并校验。
+// 本文件按显示需求独立实现；动画绘图使用包内 MIT 授权素材。
 // 面板与秒级倒计时分开订阅，cache 更新不能让宠物 SVG 被反复替换。
 const panel = atom({ plugin: 'pixel-buddy-sam', key: 'panel' } as const, {
   phase: 'idle', phaseAt: 0, clockAt: 0, limits: [],
@@ -39,15 +39,6 @@ function scenePhase(phase: Mood, elapsed: number): [Mood, number] {
   return phase === 'relax' && elapsed >= 240 ? ['idle', elapsed - 240] : [phase, elapsed]
 }
 
-function themedScene(phase: Mood, elapsed: number): string {
-  // 只去掉最外层底色；场景自己的天空、海面不变。散点颜色使用中性透明灰。
-  return sceneSvg(phase, elapsed)
-    .replace(/<rect x="-2" y="-2" width="104" height="22" fill="#[a-fA-F0-9]{6}"\/>/, '')
-    .replace(/fill="#555"/g, 'fill="#919191" opacity="0.45"')
-    .replace(/fill="#3c3c3c"/g, 'fill="#919191" opacity="0.24"')
-    .replace(/fill="#2c2c2c"/g, 'fill="#919191" opacity="0.12"')
-}
-
 function contextSvg(percent: number): string {
   const active = Math.max(0, Math.min(10, Math.round(percent / 10)))
   const blocks = Array.from({ length: 10 }, (_, index) =>
@@ -66,7 +57,7 @@ export const register: Register = (on, options) => {
       phase: 'idle', phaseAt: now, clockAt: now, limits: usage.rateLimits,
     }))
     await update($, footer, () => ({ clockAt: now, cacheAt: null, context: usage.context }))
-    // 动画交给 SVG 内的 CSS；这里只按分钟刷新额度文案，并补偿重载后丢失的阶段回调。
+    // 动画交给 SVG 内的 SMIL；这里只按分钟刷新额度文案，并补偿重载后丢失的阶段回调。
     $.clock.every(60000, async () => {
       const tick = await $.clock.now()
       await update($, panel, state => ({ ...state, clockAt: tick }))
@@ -97,6 +88,7 @@ export const register: Register = (on, options) => {
     return next(event)
   })
   on('turn.start', async ($, event, next) => {
+    if (event.agentId) return next(event)
     const tick = await $.clock.now()
     await update($, panel, state => ({ ...state, phase: 'working', phaseAt: tick, clockAt: tick }))
     return next(event)
@@ -146,27 +138,31 @@ export const register: Register = (on, options) => {
         : <Text dimColor wrap="truncate-end">{text}</Text>
     }
     const phase: Mood = event.props.isWorking ? 'working' : state.phase === 'working' ? 'idle' : state.phase
-    const [shown, elapsed] = scenePhase(phase, Math.max(0, (state.clockAt - state.phaseAt) / 1000))
-    return <Box flexDirection="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" columnGap={2} rowGap={1} paddingX={1}>
-      <Box flexDirection="row" alignItems="center" flexWrap="wrap" columnGap={3} rowGap={1}>
+    const [shown] = scenePhase(phase, Math.max(0, (state.clockAt - state.phaseAt) / 1000))
+    return <Box flexDirection="row" alignItems="center" justifyContent="space-between" flexWrap="nowrap" columnGap={2} paddingX={1} overflow="hidden">
+      <Box flexDirection="row" alignItems="center" flexShrink={0} columnGap={2}>
         {items.map(item => {
           const card = pixelQuotaCardSvg(`${item.title}·剩余`, item.remaining, item.reset, item.color)
-          return <Box key={item.kind} flexDirection="row" alignItems="center" flexShrink={0} gap={1}>
-            <Svg source={pixelIconSvg(item.icon)} width={24} height={24} alt={`${item.title} quota window`} />
+          return <Box key={item.kind} flexDirection="row" alignItems="center" flexShrink={0} gap={0.75}>
+            <Svg source={pixelIconSvg(item.icon)} width={18} height={18} alt={`${item.title} quota window`} />
             {card ? <Svg source={card.source} width={card.width} height={card.height} alt={`${item.title} ${item.label} ${item.reset}`} />
               : <Box flexDirection="column" flexShrink={0} rowGap={1}>
                 <Box flexDirection="row" alignItems="center" justifyContent="space-between" gap={1}>
                   {label(`${item.title}·剩余`)}
                   <Svg source={pixelPercentSvg(item.remaining, item.color)} width={64} height={16} alt={item.label} />
                 </Box>
-                <Svg source={pixelMeterSvg(item.remaining, item.color)} width={140} height={10} alt={item.label} />
+                <Svg source={pixelMeterSvg(item.remaining, item.color)} width={112} height={10} alt={item.label} />
                 {label(item.reset)}
               </Box>}
           </Box>
         })}
       </Box>
-      <Svg source={themedScene(shown, elapsed)} isInteractive width={SCENE_WIDTH} height={SCENE_HEIGHT}
-        alt={`Claude is ${shown === 'done' ? 'celebrating' : shown === 'relax' ? 'relaxing' : shown}`} />
+      <Box flexGrow={1} flexShrink={1} width={0} minWidth={0} overflow="hidden" alignItems="center">
+        <Box flexShrink={0}>
+          <Svg source={sceneSvg(shown)} isInteractive width={SCENE_WIDTH} height={SCENE_HEIGHT}
+            alt={`Claude is ${shown === 'done' ? 'celebrating' : shown === 'relax' ? 'relaxing' : shown}`} />
+        </Box>
+      </Box>
     </Box>
   })
 

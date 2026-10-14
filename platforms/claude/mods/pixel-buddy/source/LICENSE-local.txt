@@ -20,8 +20,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-This grant covers the original local code only, not upstream scene.ts.
-Third-party glyphs and icons retain the notices in hooks/pixel-quota-NOTICES.txt
-and hooks/quota-text-OFL.txt. The upstream scene is not in this repository;
-installation obtains the pinned file on the user's device for personal use.
-The upstream repository has no identified redistribution license.
+This grant covers the original local code only.
+Third-party graphics retain their licenses and attribution in:
+- hooks/scene-NOTICES.txt (pixel-at-work drawing subset, MIT)
+- hooks/pixel-quota-NOTICES.txt (glyphs and icons)
+- hooks/quota-text-OFL.txt (font subset)

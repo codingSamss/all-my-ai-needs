@@ -60,14 +60,14 @@ all-my-ai-needs/
 ## 可选 Claude Mods
 
 [pixel-buddy-sam](platforms/claude/mods/pixel-buddy/README.md) 保存像素剩余额度、透明宠物背景和 cache / ctx 高亮。
-`1.0.0-rc.2` 采用 SVG 内置动画，移除 150 ms 面板重绘，并将秒级 cache 倒计时与额度面板分离。
+`1.0.0-rc.4` 接入 MIT 授权的 pixel-at-work 动画并补充浅色白天、深色夜晚两套场景，额度区收窄 80px，动画高度保持 54px；仅依据主会话生命周期切换，cache 底栏独立更新。
 在已经克隆的仓库根执行：
 
 ```bash
 python3 platforms/claude/mods/pixel-buddy/install.py
 ```
 
-需要 Python 3.9+、Claude Code CLI 和首次访问 GitHub 的网络。安装器匿名下载固定提交的动画并校验 SHA-256，
+需要 Python 3.9+ 和 Claude Code CLI。安装器校验包内源码与许可的 SHA-256，离线组装，
 在设备私有缓存生成完整插件与本机 marketplace，用官方 CLI 安装到 user scope；不改项目、权限或现有会话。
 原版已启用或发现本地改动时停止，不自动替换。候选版现场验证需要新的 Desktop Code 本地会话。
 Mod 由 `mods.meta.yaml` 单独登记，默认不随 skills 同步；运行态、凭据、真实设置不入仓，未明确许可的上游源码不公开发布。

@@ -29,7 +29,7 @@ test('宠物外层底色透明，保留场景画布', async ($, on) => {
   } })
   const pet = (await mounted.findAll({ type: 'Svg' })).find(item => item.props.alt === 'Claude is idle')
   expect(String(pet?.props.source).includes('x="-2" y="-2" width="104" height="22"')).toBe(false)
-  expect(String(pet?.props.source).includes('viewBox="0 0 100 18"')).toBe(true)
+  expect(String(pet?.props.source).includes('viewBox="0 0 256 27"')).toBe(true)
   await mounted.unmount()
 })
 
@@ -59,7 +59,7 @@ test('宿主用量转成剩余像素读数，倒计时推进不额外读取用�
   expect(svgs.map(s => s.props.alt)).toContain('7d 剩余56% 5天19小时后重置')
   expect(svgs.map(s => s.props.alt)).toContain('Claude is idle')
   for (const card of svgs.filter(s => String(s.props.alt).includes('剩余'))) {
-    expect(card.props.width).toBe(140)
+    expect(card.props.width).toBe(112)
     expect(card.props.height).toBe(52)
   }
   await clock.advance(60_000)
@@ -122,7 +122,7 @@ test('cache 秒级倒计时和重复用量事件不替换宠物 SVG', async ($, 
   const original = await ui.drawn()
   const pet = (await ui.findAll({ type: 'Svg' })).find(s => s.props.alt === 'Claude is idle')
   expect(pet?.props.isInteractive).toBe(true)
-  expect(String(pet?.props.source)).toContain('@keyframes')
+  expect(String(pet?.props.source)).toContain('<animate')
   for (let i = 0; i < 20; i++) {
     await clock.advance(1000)
     await $.session.measure({ context, rateLimits: limits, changed: ['rateLimits'] })
@@ -133,7 +133,7 @@ test('cache 秒级倒计时和重复用量事件不替换宠物 SVG', async ($, 
   await ui.unmount()
 })
 
-test('模拟一小时保持分钟级 SVG 更新，额度读取不轮询', async ($, on) => {
+test('模拟一小时保持同一动画源，额度读取不轮询', async ($, on) => {
   const clock = mock.clock(on, { now })
   let reads = 0
   on('session.usage', () => { reads++; return { value: { context, rateLimits: [] } } })
@@ -147,7 +147,7 @@ test('模拟一小时保持分钟级 SVG 更新，额度读取不轮询', async 
     sources.add(String(pet?.props.source))
     if (i < 2400) await clock.advance(1500)
   }
-  expect(sources.size).toBe(61)
+  expect(sources.size).toBe(1)
   expect(reads).toBe(1)
   await ui.unmount()
 })
@@ -176,12 +176,47 @@ test('庆祝切换到休息和空闲，旧回调不能打断新任务', async ($
   await ui.unmount()
 })
 
-test('各动画包含浏览器关键帧，重绘用负延迟延续进度', () => {
+test('各状态使用稳定的浏览器动画源，不引入执行结果文案', () => {
   for (const mood of ['idle', 'working', 'done', 'relax'] as const) {
-    const svg = sceneSvg(mood, 30)
-    expect(svg).toContain('@keyframes')
+    const svg = sceneSvg(mood)
+    expect(svg).toContain('<animate')
     expect(svg).not.toContain('{{')
-    expect(svg).toContain('-30s')
+    expect(sceneSvg(mood)).toBe(svg)
+    expect(svg).not.toContain('undefined')
+    expect(svg).not.toContain('NaN')
+    expect(svg).not.toContain('<script')
     expect(svg.length).toBeLessThan(131072)
   }
+})
+
+
+test('子任务完成、异常和中断不播放主任务庆祝', async ($, on) => {
+  mock.clock(on, { now })
+  on('session.usage', () => ({ value: { context, rateLimits: [] } }))
+  on('session.start', (_, e) => ({ cwd: e.cwd }))
+  on('turn.complete', () => ({ text: '' }))
+  await $.session.start({ cwd: '/project', surface: 'desktop', isInteractive: true })
+  const ui = await $.ui.mount({ plugin: 'pixel-buddy-sam', surface: 'desktop', component: 'AbovePrompt', props })
+  for (const extra of [{ agentId: 'child' }, { isAborted: true }, { reason: 'error' as const }]) {
+    await $.turn.complete({ turnId: 'one', answer: '', durationMs: 1000, isAborted: false, usage: null, ...extra })
+    expect((await ui.findAll({ type: 'Svg' })).map(s => s.props.alt)).not.toContain('Claude is celebrating')
+  }
+  await ui.unmount()
+})
+
+test('窄宽窗口均保持单行，动画由可收缩容器裁边', async ($, on) => {
+  mock.clock(on, { now })
+  on('session.usage', () => ({ value: { context, rateLimits: [] } }))
+  on('session.start', (_, e) => ({ cwd: e.cwd }))
+  await $.session.start({ cwd: '/project', surface: 'desktop', isInteractive: true })
+  const ui = await $.ui.mount({ plugin: 'pixel-buddy-sam', surface: 'desktop', component: 'AbovePrompt', props })
+  for (const bodyColumns of [45, 95, 160]) {
+    await ui.redraw({ ...props, bodyColumns })
+    const boxes = await ui.findAll({ type: 'Box' })
+    expect(boxes.some(b => b.props.flexWrap === 'wrap')).toBe(false)
+    expect(boxes.some(b => b.props.flexGrow === 1 && b.props.minWidth === 0 && b.props.overflow === 'hidden')).toBe(true)
+    const pet = (await ui.findAll({ type: 'Svg' })).find(s => s.props.alt === 'Claude is idle')
+    expect(pet?.props.height).toBe(54)
+  }
+  await ui.unmount()
 })

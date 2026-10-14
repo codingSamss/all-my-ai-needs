@@ -66,14 +66,14 @@ export function pixelLabelSvg(text: string): PixelLabel | undefined {
 export function pixelQuotaCardSvg(title: string, remaining: number | undefined, caption: string, color: string): PixelLabel | undefined {
   const heading = pixelLabelSvg(title)
   const reset = pixelLabelSvg(caption)
-  if (!heading || !reset || heading.width > 68) return undefined
+  if (!heading || !reset || heading.width > 48 || reset.width > 112) return undefined
   // 内部统一坐标排版，避免宿主把多个独立图片行紧贴，文字与方格条至少相隔 6px。
   return {
-    width: 140,
+    width: 112,
     height: 52,
-    source: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 52" width="140" height="52" shape-rendering="crispEdges">` +
+    source: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 52" width="112" height="52" shape-rendering="crispEdges">` +
       `<g transform="translate(0 2)">${heading.source}</g>` +
-      `<g transform="translate(76 0)">${pixelPercentSvg(remaining, color)}</g>` +
+      `<g transform="translate(48 0)">${pixelPercentSvg(remaining, color)}</g>` +
       `<g transform="translate(0 22)">${pixelMeterSvg(remaining, color)}</g>` +
       `<g transform="translate(0 38)">${reset.source}</g></svg>`,
   }

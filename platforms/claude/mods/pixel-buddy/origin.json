@@ -1,33 +1,36 @@
 {
   "schema_version": 1,
   "plugin": "pixel-buddy-sam",
-  "version": "1.0.0-rc.2",
+  "version": "1.0.0-rc.4",
   "upstream": {
-    "repo": "hamymarnie/marnie-plugins",
-    "commit": "3392f4ae80038c433a3230a168154386c069a309",
-    "path": "plugins/pixel-buddy/hooks/scene.ts",
-    "sha256": "e5dca29053f798c218bc17f14888871e1e189bf7362a1d410e8978184bf9e6e9",
-    "license_status": "not identified; do not vendor or redistribute"
+    "repo": "zhuoxingzhang/pixel-at-work",
+    "commit": "3fc00b3ad2ef3a57ac043f8d28e7abcbd1679a6c",
+    "path": "hooks/register.tsx",
+    "sha256": "19784134a6c4e8126d0432c0edac64c6ec9d40d85bf4f2fb4b3dcdb56d51c062",
+    "license_status": "MIT",
+    "notice": "hooks/scene-NOTICES.txt"
   },
   "source_sha256": {
-    ".claude-plugin/plugin.json": "0ae2408dc1ad7689eadca3c07fddb4712374e05279f3a15a82a90b32d6357a50",
-    "LICENSE-local.txt": "16166d3d02c633776fd2686d8efd9c0a632fd10ce2cbd1903ae1fd9def5bcfaf",
+    ".claude-plugin/plugin.json": "7d72d23556481b1a964bb6d4a59c7a7a2459dff3e02c1790151def8cd66f1827",
+    "LICENSE-local.txt": "6b341429fd5f6e5aeb330fe991b0a85a1184d7446aeb00b779def8cce209ccdf",
     "hooks/hooks.json": "d842d789476d67282d0f04b7e5fdc68a3d981ccec65dd79cfa2d11eed13fb828",
     "hooks/pixel-quota-NOTICES.txt": "4be291006902f7facf25e974030dc0d5e2e3199bd7b61b6facfdc0e8612404dc",
-    "hooks/quota-pixels.ts": "ab34454726abf60b3ae488babf6dca25ad0730047bb1c44e80573eb1d2e5c780",
+    "hooks/quota-pixels.ts": "edb1aa7b648cc67396fae4188747d078787e92ee3bc74f108c8fb36f56c09ef2",
     "hooks/quota-text-OFL.txt": "f89f8fb79f82d57eb745e6cfc2d4401fd4527ae1a3aa350147bcb819de5494cb",
-    "hooks/quota-text.ts": "fa878f6741fd80653b6005caa90d0e01a3bf40f862b782412a22daf5478ea0c2",
-    "hooks/register.tsx": "57fe206a11bf0a151b3b02c882059494d7ef9c1612ea6376ad6456d52ec2ab91",
-    "quota.test.tsx": "f88d31ef458eb9b1b6b2259dc20d338b23370fc87e8a7375937afea4b9524bbf",
+    "hooks/quota-text.ts": "0fbf67852a7a351206733fa34a2779dadf4781b5d84e0eb5c01d56c8b9bfa72c",
+    "hooks/register.tsx": "173871b921585be6c93d014815ec4b3a1195c957eaec43987db2414b33969f82",
+    "hooks/scene-NOTICES.txt": "3ffa520b7ce3076cf342dcce7de21b55fdd6830be8207f3f64c22b19b28f5930",
+    "hooks/scene.ts": "029a7914e58e5fc830e341557409caf6e3bf07cb798631c1b21c5ae9f9cb58bc",
+    "quota.test.tsx": "3a742d44998cf187db04dba7cfce6d94c84e683971bf54d1a5691f5c0b1e3678",
     "types/index.d.ts": "22b0dac9e006f7960330fce7eed94d4140113c0d279ecfa0daa4537edee18a17"
   },
   "compatibility": {
-    "tested_engine": "2.1.295",
+    "tested_engine": "2.1.294",
     "surfaces": [
       "desktop",
       "terminal"
     ],
-    "app_visual_acceptance": "rc.2 dark-theme idle session displayed; full UI and sustained performance acceptance pending",
+    "app_visual_acceptance": "rc.4 light/dark browser preview and live CSS theme switch verified; native session review pending",
     "tested_cli": "2.1.294"
   },
   "assets": [
@@ -59,5 +62,5 @@
     "additional_quota_polling": false,
     "original_replacement": "refuse while original is enabled"
   },
-  "installer_sha256": "de38d09af14f89e62aaded5d21a030ef6468dff72c6211ae5e6fe8cc5deed455"
+  "installer_sha256": "0d43d25aa91ec0b61d18956e793e05793f4cf7c6d0caf151d0db1843b5c33d43"
 }

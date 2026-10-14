@@ -51,7 +51,7 @@
 
 `mods.meta.yaml` 是 repo-only 的 manual-only 清单，不加入 skill profiles，也不随 skill 同步自动启用。
 当前候选为 [pixel-buddy-sam](mods/pixel-buddy/README.md)：像素剩余额度、透明宠物场景和 cache / ctx 高亮。
-`1.0.0-rc.2` 采用 SVG 内置动画，移除 150 ms 面板重绘，并将秒级 cache 倒计时与额度面板分离。
+`1.0.0-rc.4` 接入 MIT 授权的 pixel-at-work 动画并补充浅色白天、深色夜晚两套场景，额度区收窄 80px，动画高度保持 54px；仅依据主会话生命周期切换，cache 底栏独立更新。
 
 在已克隆的仓库根执行一条命令即可组装并安装到 user scope：
 
@@ -59,8 +59,8 @@
 python3 platforms/claude/mods/pixel-buddy/install.py
 ```
 
-需要 Python 3.9+、支持 Mods 的 Claude Code CLI 和首次下载网络。宠物源码固定提交/哈希，只在本机下载；
-安装器生成独立本机 marketplace，不把未明确许可的上游源码放进根 marketplace 发布。
+需要 Python 3.9+ 和支持 Mods 的 Claude Code CLI；MIT 动画子集及完整 notice 随包分发，组装无需网络。
+安装器生成独立本机 marketplace，源码与许可按固定 SHA-256 校验。
 已启用原版、并发安装、已有版本或源码漂移时停止，不自动覆盖；新会话 UI 验收前保持 candidate。
 设备设置、凭据、插件缓存、登记文件、会话和用量不入仓；不改权限、不重启/重载当前会话。
 

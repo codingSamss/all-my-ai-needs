@@ -1,6 +1,6 @@
 {
   "name": "pixel-buddy-sam",
-  "version": "1.0.0-rc.2",
+  "version": "1.0.0-rc.4",
   "description": "像素剩余额度、主题透明的宠物场景，以及 cache / ctx 高亮",
   "author": {
     "name": "codingSamss"

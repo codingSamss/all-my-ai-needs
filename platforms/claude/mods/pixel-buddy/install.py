@@ -11,8 +11,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import urllib.error
-import urllib.request
 from contextlib import contextmanager
 
 ROOT = Path(__file__).resolve().parent
@@ -21,7 +19,6 @@ PLUGIN = "pixel-buddy-sam"
 MARKETPLACE = "codingSamss-all-my-ai-needs-mods"
 PLUGIN_ID = PLUGIN + "@" + MARKETPLACE
 ORIGINAL_ID = "pixel-buddy@marnie-plugins"
-LIMIT = 512 * 1024
 
 
 class Refusal(Exception):
@@ -103,49 +100,17 @@ def source_files():
         if digest(data) != expected:
             raise Refusal("来源文件与审核哈希不一致，需先审查并更新清单。")
         result[relative] = data
-    required = {".claude-plugin/plugin.json", "hooks/hooks.json", "hooks/register.tsx", "types/index.d.ts"}
+    required = {".claude-plugin/plugin.json", "hooks/hooks.json", "hooks/register.tsx", "types/index.d.ts", "hooks/scene.ts", "hooks/scene-NOTICES.txt"}
     if not required.issubset(result):
         raise Refusal("插件模板不完整。")
     upstream = origin["upstream"]
-    if upstream["repo"] != "hamymarnie/marnie-plugins" or not re.fullmatch(r"[0-9a-f]{40}", upstream["commit"]):
+    if upstream["repo"] != "zhuoxingzhang/pixel-at-work" or not re.fullmatch(r"[0-9a-f]{40}", upstream["commit"]):
         raise Refusal("上游地址或提交不在允许范围。")
-    if upstream["path"] != "plugins/pixel-buddy/hooks/scene.ts" or not re.fullmatch(r"[0-9a-f]{64}", upstream["sha256"]):
+    if upstream["path"] != "hooks/register.tsx" or not re.fullmatch(r"[0-9a-f]{64}", upstream["sha256"]):
         raise Refusal("上游文件不在允许范围。")
+    if upstream.get("license_status") != "MIT":
+        raise Refusal("动画来源许可未确认，停止。")
     return origin, result
-
-
-class NoRedirect(urllib.request.HTTPRedirectHandler):
-    def redirect_request(self, request, fp, code, message, headers, new_url):
-        raise Refusal("下载出现重定向，需重新审查目标。")
-
-
-def upstream_scene(cache, origin, offline):
-    spec = origin["upstream"]
-    folder = cache / "sources"
-    private_dir(folder)
-    stored = folder / (spec["sha256"] + ".ts")
-    if stored.exists():
-        if stored.is_symlink() or not stored.is_file() or stored.stat().st_size > LIMIT:
-            raise Refusal("上游缓存文件异常。")
-        data = stored.read_bytes()
-        if digest(data) != spec["sha256"]:
-            raise Refusal("上游缓存哈希不符；保留现场，停止安装。")
-        return data
-    if offline:
-        raise Refusal("离线模式缺少已审核的上游缓存。")
-    # 匿名 HTTPS 请求一个固定文件；不读 Keychain、git credential 或项目文件。
-    url = "https://raw.githubusercontent.com/" + spec["repo"] + "/" + spec["commit"] + "/" + spec["path"]
-    opener = urllib.request.build_opener(NoRedirect())
-    try:
-        request = urllib.request.Request(url, headers={"User-Agent": "all-my-ai-needs-pixel-buddy/1"})
-        with opener.open(request, timeout=30) as response:
-            data = response.read(LIMIT + 1)
-    except (urllib.error.URLError, TimeoutError, OSError):
-        raise Refusal("固定上游文件下载失败；请检查网络或代理，不输出凭据和环境变量。")
-    if len(data) > LIMIT or digest(data) != spec["sha256"]:
-        raise Refusal("下载大小或 SHA-256 不符，未执行下载内容。")
-    atomic_write(stored, data)
-    return data
 
 
 def atomic_write(path, data):
@@ -179,7 +144,7 @@ def verify_tree(path, expected):
 
 def assemble(cache, offline=False):
     origin, files = source_files()
-    files["hooks/scene.ts"] = upstream_scene(cache, origin, offline)
+    # MIT 绘图已随包受哈希保护；组装不再下载或执行远端文件。
     fingerprint = digest(json_bytes({name: digest(data) for name, data in sorted(files.items())}))[:16]
     release = cache / "releases" / fingerprint
     plugin = release / "plugin"
@@ -317,7 +282,7 @@ def install(binary, config, cache, offline):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--prepare-only", action="store_true", help="仅组装缓存，不修改 Claude 设置")
-    parser.add_argument("--offline", action="store_true", help="仅使用已校验的下载缓存")
+    parser.add_argument("--offline", action="store_true", help="兼容旧命令；当前版本始终使用包内源码离线组装")
     parser.add_argument("--cache-dir", type=Path, default=Path.home() / ".cache" / "all-my-ai-needs" / "mods" / PLUGIN)
     parser.add_argument("--config-dir", type=Path, default=Path(os.environ.get("CLAUDE_CONFIG_DIR", str(Path.home() / ".claude"))))
     parser.add_argument("--claude-bin", default=shutil.which("claude"))

@@ -21,7 +21,7 @@ const ICONS = {
 
 export const PIXEL_PERCENT_WIDTH = 64
 export const PIXEL_PERCENT_HEIGHT = 16
-export const PIXEL_METER_WIDTH = 140
+export const PIXEL_METER_WIDTH = 112
 export const PIXEL_METER_HEIGHT = 10
 
 // SDK 读数可能暂缺；限制到有效范围后再画图，未知不能伪装成满额。
@@ -58,11 +58,11 @@ export function pixelMeterSvg(remaining: number | undefined, color: string): str
   const ink = safeInk(color)
   let pixels = ''
   for (let index = 0; index < 10; index++) {
-    const x = 1 + index * 7
-    pixels += `<rect x="${x}" y="0" width="5" height="5" fill="#9a9a9a" fill-opacity="0.25"/>`
-    // 每格为 10%，仅向下取整到 2% 像素刻度；99% 不画成全满，读数仍显示整数。
-    const width = value === undefined ? 0 : Math.floor(Math.min(1, Math.max(0, value / 10 - index)) * 5 + 1e-9)
-    if (width) pixels += `<rect x="${x}" y="0" width="${width}" height="5" fill="${ink}"/>`
+    const x = 1 + index * 11
+    pixels += `<rect x="${x}" y="0" width="8" height="10" fill="#9a9a9a" fill-opacity="0.25"/>`
+    // 每格为 10%，仅向下取整到 1.25% 像素刻度；99% 不画成全满，读数仍显示整数。
+    const width = value === undefined ? 0 : Math.floor(Math.min(1, Math.max(0, value / 10 - index)) * 8 + 1e-9)
+    if (width) pixels += `<rect x="${x}" y="0" width="${width}" height="10" fill="${ink}"/>`
   }
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 5" width="${PIXEL_METER_WIDTH}" height="${PIXEL_METER_HEIGHT}" shape-rendering="crispEdges">${pixels}</svg>`
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 10" width="${PIXEL_METER_WIDTH}" height="${PIXEL_METER_HEIGHT}" shape-rendering="crispEdges">${pixels}</svg>`
 }
