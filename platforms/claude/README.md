@@ -51,7 +51,7 @@
 
 `mods.meta.yaml` 是 repo-only 的 manual-only 清单，不加入 skill profiles，也不随 skill 同步自动启用。
 当前候选为 [pixel-buddy-sam](mods/pixel-buddy/README.md)：像素剩余额度、透明宠物场景和 cache / ctx 高亮。
-`1.0.0-rc.4` 接入 MIT 授权的 pixel-at-work 动画并补充浅色白天、深色夜晚两套场景，额度区收窄 80px，动画高度保持 54px；仅依据主会话生命周期切换，cache 底栏独立更新。
+`1.0.0-rc.12` 用小人和沙漏表示等待前台/后台脚本或 subagent 返回，按宿主事件与任务快照归并状态，重载后未取得快照时显示未知。保留完整额度卡片、54px 昼夜场景和独立更新的 cache 底栏；百分比按有效压缩窗口计算，缩短文案以容纳完整 token 分母。
 
 在已克隆的仓库根执行一条命令即可组装并安装到 user scope：
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-// SVG 绘图摘自 pixel-at-work，版权及固定提交见 scene-NOTICES.txt。
-// 仅移植绘图；不引入工具分类、结果猜测、节日、轮询或上游事件钩子。
+// 基础场景摘自 pixel-at-work，版权及固定提交见 scene-NOTICES.txt；等候沙漏为独立实现。
+// 仅移植绘图；不引入上游工具分类、结果猜测、节日、轮询或事件钩子。
 import type { Mood } from '../types'
 export const DONE_SECONDS = 6.5
 export const SCENE_WIDTH = 512
@@ -83,6 +83,8 @@ const P = {
   lamp: 'var(--pb-lamp,#fde68a)', tower: 'var(--pb-tower,#9aa3b5)', towerTop: 'var(--pb-tower-top,#cbd5e1)',
 }
 const THEME = `<style>
+.pb-wait-static{display:none}
+@media(prefers-reduced-motion:reduce){.pb-wait-motion{display:none}.pb-wait-static{display:inline}}
 .pb-day{display:none}.pb-night{display:inline}
 .st{fill:#555b6c}.sh{fill:#a5afc4}
 .fl{fill:#808080;fill-opacity:.10}.ft{fill:#808080;fill-opacity:.35}
@@ -132,7 +134,7 @@ const LEGS_A = ['.O.O....O.O.', '.O.O....O.O.']
 const LEGS_B = ['..O.O..O.O..', '..O.O..O.O..']
 const BODY_PAL: Pal = { O: C.o, L: C.ol }
 
-type CritterMood = 'awake' | 'walk' | 'asleep' | 'reading' | 'typing' | 'hop' | 'panic'
+type CritterMood = 'awake' | 'walk' | 'asleep' | 'reading' | 'typing' | 'hop' | 'panic' | 'waiting' | 'still'
 
 function critter(x: number, y: number, mood: CritterMood = 'awake'): string {
   let s = sprite(BODY, BODY_PAL, x, y)
@@ -145,10 +147,13 @@ function critter(x: number, y: number, mood: CritterMood = 'awake'): string {
     // eyes wide, mouth open
     s += rect(x + 2, y + 1, 2, 2, C.white) + rect(x + 3, y + 2, 1, 1, C.eye) + rect(x + 8, y + 1, 2, 2, C.white) +
       rect(x + 8, y + 2, 1, 1, C.eye) + rect(x + 5, y + 4, 2, 2, C.eye)
-  } else if (mood === 'reading') {
-    s += path(rect(3, 2, 1, 2, C.eye) + rect(8, 2, 1, 2, C.eye), [[x, y], [x + 1, y], [x + 2, y], [x + 1, y]], 2.4)
-  } else s += frames([open, open, open, open, open, open, open, shut], 3.2)
+  } else if (mood === 'reading' || mood === 'waiting') {
+    s += path(rect(3, 2, 1, 2, C.eye) + rect(8, 2, 1, 2, C.eye),
+      [[x, y], [x + 1, y], [x + 1, y], [x, y]], mood === 'waiting' ? 6 : 2.4)
+  } else if (mood === 'still') s += open
+  else s += frames([open, open, open, open, open, open, open, shut], 3.2)
   if (mood === 'typing') s += frames([rect(x + 12, y + 4, 2, 1, C.o), rect(x + 12, y + 5, 2, 1, C.o)], 0.3)
+  if (mood === 'waiting') s += frames(['', rect(x + 11, y + 9, 1, 1, C.o)], 1.6)
   return mood === 'hop' ? path(s.replace(/x="(\d+)"/g, (_, v) => `x="${Number(v) - x}"`).replace(/y="(\d+)"/g, (_, v) => `y="${Number(v) - y}"`), [[x, y], [x, y - 2], [x, y - 3], [x, y - 2], [x, y], [x, y]], 0.9) : s
 }
 
@@ -205,6 +210,36 @@ function scIdle(): string {
   s += frames([steam(0), steam(1)], 1.0)
   s += rect(65, 19, 6, 5, '#b45309') + sprite(['.G.G.', 'GGGGG', '.GGG.', '..G..'], { G: C.grass }, 65, 15)
   return s
+}
+
+// 沙漏只表示仍在等结果，循环的沙量不编码完成比例或预计剩余时间。
+function hourglass(phase: number, unknown = false): string {
+  const wood = unknown ? C.gray : C.wood, sand = unknown ? C.gray : '#d4a23b'
+  let s = rect(0, 0, 11, 2, wood) + rect(0, 14, 11, 2, wood)
+  s += sprite(['G.......G', 'G.......G', '.G.....G.', '..G...G..', '...G.G...', '....G....',
+    '...G.G...', '..G...G..', '.G.....G.', 'G.......G', 'G.......G', 'G.......G'],
+  { G: unknown ? '#a3a3a0' : '#bad4d6' }, 1, 2)
+  if (phase === 0) s += rect(3, 3, 5, 1, sand) + rect(4, 4, 3, 2, sand) + rect(5, 6, 1, 1, sand) + rect(5, 13, 1, 1, sand)
+  if (phase === 1) s += rect(4, 4, 3, 2, sand) + rect(5, 6, 1, 1, sand) + rect(3, 13, 5, 1, sand) + rect(4, 12, 3, 1, sand)
+  if (phase === 2) s += rect(5, 6, 1, 1, sand) + rect(2, 13, 7, 1, sand) + rect(3, 12, 5, 1, sand) + rect(4, 11, 3, 1, sand)
+  if (phase === 3) s += rect(2, 12, 7, 2, sand) + rect(3, 11, 5, 1, sand) + rect(4, 10, 3, 1, sand)
+  return s
+}
+
+function scWaiting(): string {
+  const steps = Array.from({ length: 24 }, (_, i) => {
+    const glass = hourglass(Math.min(3, Math.floor(i / 6)))
+    return i < 22 ? glass + rect(5, 8 + i % 3, 1, 1, '#d4a23b')
+      : `<g transform="rotate(${i === 22 ? 90 : 180} 6 8)">${glass}</g>`
+  })
+  const table = rect(44, 22, 17, 2, C.wood)
+  return table + `<g class="pb-wait-motion">${critter(22, 14, 'waiting')}<g transform="translate(47 6)">${frames(steps, 6)}</g></g>` +
+    `<g class="pb-wait-static">${critter(22, 14, 'still')}<g transform="translate(47 6)">${hourglass(1)}</g></g>`
+}
+
+function scUnknown(): string {
+  return critter(22, 14, 'still') + `<g transform="translate(47 6)">${hourglass(1, true)}</g>` +
+    rect(44, 22, 17, 2, C.gray) + sprite(['.QQQ.', 'Q...Q', '....Q', '...Q.', '..Q..', '.....', '..Q..'], { Q: C.gray }, 34, 3)
 }
 
 
@@ -309,7 +344,8 @@ const scenes: Partial<Record<Mood, string>> = {}
 export function sceneSvg(mood: Mood): string {
   if (scenes[mood]) return scenes[mood]!
   const left = (W - STAGE) / 2
-  const draw = mood === 'working' ? scCode : mood === 'done' ? scParty : mood === 'relax' ? scIdle : scSleep
+  const draw = mood === 'waiting' ? scWaiting : mood === 'unknown' ? scUnknown
+    : mood === 'working' ? scCode : mood === 'done' ? scParty : mood === 'relax' ? scIdle : scSleep
   const stage = `<defs><clipPath id="pb-stage"><rect width="${STAGE}" height="${H}"/></clipPath></defs>` +
     `<g transform="translate(${left} 0)"><g clip-path="url(#pb-stage)">${draw()}</g></g>`
   const body = backdrop(W) + garden(left) + skyline(left + STAGE, left) + stage

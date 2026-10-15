@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plugin": "pixel-buddy-sam",
-  "version": "1.0.0-rc.4",
+  "version": "1.0.0-rc.12",
   "upstream": {
     "repo": "zhuoxingzhang/pixel-at-work",
     "commit": "3fc00b3ad2ef3a57ac043f8d28e7abcbd1679a6c",
@@ -11,27 +11,29 @@
     "notice": "hooks/scene-NOTICES.txt"
   },
   "source_sha256": {
-    ".claude-plugin/plugin.json": "7d72d23556481b1a964bb6d4a59c7a7a2459dff3e02c1790151def8cd66f1827",
+    ".claude-plugin/plugin.json": "fb3793cf044d354790c9541f32f91161845f6d66015a78ef1f3430775ac8b173",
     "LICENSE-local.txt": "6b341429fd5f6e5aeb330fe991b0a85a1184d7446aeb00b779def8cce209ccdf",
+    "background.test.tsx": "1569dc68a696b0e5bfb8ec77661478e8a7826ff2e6260ded48a0eb7a1f88b8ce",
+    "hooks/background.ts": "ee49a15fed80fdfcdcbb5e1855a1db1a13cace46f46706c74cb4131dffa6838b",
     "hooks/hooks.json": "d842d789476d67282d0f04b7e5fdc68a3d981ccec65dd79cfa2d11eed13fb828",
     "hooks/pixel-quota-NOTICES.txt": "4be291006902f7facf25e974030dc0d5e2e3199bd7b61b6facfdc0e8612404dc",
     "hooks/quota-pixels.ts": "edb1aa7b648cc67396fae4188747d078787e92ee3bc74f108c8fb36f56c09ef2",
     "hooks/quota-text-OFL.txt": "f89f8fb79f82d57eb745e6cfc2d4401fd4527ae1a3aa350147bcb819de5494cb",
     "hooks/quota-text.ts": "0fbf67852a7a351206733fa34a2779dadf4781b5d84e0eb5c01d56c8b9bfa72c",
-    "hooks/register.tsx": "173871b921585be6c93d014815ec4b3a1195c957eaec43987db2414b33969f82",
+    "hooks/register.tsx": "cd468ac08e8bf85eb15c3858f4d50316984fa4b93070bd9b4c2803a720da908a",
     "hooks/scene-NOTICES.txt": "3ffa520b7ce3076cf342dcce7de21b55fdd6830be8207f3f64c22b19b28f5930",
-    "hooks/scene.ts": "029a7914e58e5fc830e341557409caf6e3bf07cb798631c1b21c5ae9f9cb58bc",
-    "quota.test.tsx": "3a742d44998cf187db04dba7cfce6d94c84e683971bf54d1a5691f5c0b1e3678",
-    "types/index.d.ts": "22b0dac9e006f7960330fce7eed94d4140113c0d279ecfa0daa4537edee18a17"
+    "hooks/scene.ts": "ad964dbe1a883d679162ac130a4b2c113031da5c5ed08b30846c3866068bece0",
+    "quota.test.tsx": "c092ba6ef85c2483ae05ec600219af765acd19864600aeb7e0af9f9df8ce74a0",
+    "types/index.d.ts": "39fd32dc013d2deb11f1195fed835720d8248c6f0b3f14e25b971b4d48e49672"
   },
   "compatibility": {
-    "tested_engine": "2.1.294",
+    "tested_engine": "2.1.295",
     "surfaces": [
       "desktop",
       "terminal"
     ],
-    "app_visual_acceptance": "rc.4 light/dark browser preview and live CSS theme switch verified; native session review pending",
-    "tested_cli": "2.1.294"
+    "app_visual_acceptance": "Native Desktop rc.10 compact footer and complete 400k denominator verified; rc.12 waiting animation has SDK event coverage, real script/subagent acceptance pending idle-session reload",
+    "tested_cli": "2.1.295"
   },
   "assets": [
     {
