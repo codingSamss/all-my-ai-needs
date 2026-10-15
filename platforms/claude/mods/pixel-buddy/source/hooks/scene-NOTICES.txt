@@ -2,7 +2,8 @@ Animation graphics adapted from pixel-at-work
 https://github.com/zhuoxingzhang/pixel-at-work
 Commit: 3fc00b3ad2ef3a57ac043f8d28e7abcbd1679a6c
 Source: hooks/register.tsx (drawing functions only)
-Changes: lifecycle-only scene selection, compact fixed-height canvas, static garden, no holiday effects or success badges, cached SVG; original day/night scenery and theme palettes.
+Changes: lifecycle and real-compaction scene selection, compact fixed-height canvas, static garden, no holiday effects or success badges, cached SVG; original day/night scenery and theme palettes; adapted paper-press compaction scene.
+The waiting hourglass and unknown-task scene are original local additions.
 
 MIT License
 

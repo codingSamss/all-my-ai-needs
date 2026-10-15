@@ -2,69 +2,18 @@ import { expect, mock, test } from 'claude-code/testing'
 import { pixelLabelSvg } from './hooks/quota-text'
 import { DONE_SECONDS, sceneSvg } from './hooks/scene'
 
-for (const [percent, color] of [[52, '#4cc35a'], [70, '#e5a33a'], [90, '#e5534b']] as const) {
-  test(`ctx ${percent}% 按阈值高亮，token 数量保持弱色`, async ($, on) => {
+  test('旧宿主缺少压缩阈值时，底栏用短提示而不伪造进度', async ($, on) => {
     mock.clock(on, { now: Date.parse('2026-10-06T02:00:00Z') })
-    on('session.usage', () => ({ value: { context: { percent, tokens: 516000, window: 1000000 }, rateLimits: [] } }))
+    on('session.usage', () => ({ value: { context: { percent: 52, tokens: 516000, window: 1000000 }, rateLimits: [] } }))
     on('session.start', (_, event) => ({ cwd: event.cwd }))
     await $.session.start({ cwd: '/project', surface: 'desktop', isInteractive: true })
     const mounted = await $.ui.mount({ plugin: 'pixel-buddy-sam', surface: 'desktop', component: 'SessionMode', props: { modes: [] } })
     const texts = await mounted.findAll({ type: 'Text' })
-    const percentage = texts.find(item => item.text === `ctx${percent}%`)
-    expect(percentage?.props.color).toBe(color)
-    const tokens = texts.find(item => item.text === ' 516k/1M')
-    expect(tokens?.props.dimColor).toBe(true)
+    const percentage = texts.find(item => item.text === '待更新')
+    expect(percentage?.props.dimColor).toBe(true)
+    expect(texts.some(item => item.text?.includes('▰'))).toBe(false)
     await mounted.unmount()
   })
-}
-
-const compactDetails = (window: number) => ({
-  categories: [], totalTokens: 999999, maxTokens: window, rawMaxTokens: window,
-  autocompactSource: 'settings' as const, percentage: 99, gridRows: [], model: 'example-model',
-  memoryFiles: [], mcpTools: [], agents: [], isAutoCompactEnabled: true, apiUsage: null,
-})
-
-for (const [tokens, percent, color] of [[155000, 39, '#4cc35a'], [280000, 70, '#e5a33a'], [360000, 90, '#e5534b'], [420000, 105, '#e5534b'], [0, 0, '#4cc35a']] as const) {
-  test(`压缩窗口 400k：${tokens} token 显示 ${percent}% 并按同一口径高亮`, async ($, on) => {
-    mock.clock(on, { now: 100000 })
-    on('session.usage', (_, e) => {
-      expect(e.breakdown).toBe('summary')
-      return { value: { context: { tokens, window: 1000000, percent: Math.round(tokens / 10000), breakdown: compactDetails(400000) }, rateLimits: [] } }
-    })
-    on('session.start', (_, e) => ({ cwd: e.cwd }))
-    await $.session.start({ cwd: '/project', surface: 'desktop', isInteractive: true })
-    const ui = await $.ui.mount({ plugin: 'pixel-buddy-sam', surface: 'desktop', component: 'SessionMode', props: { modes: [] } })
-    const text = (await ui.findAll({ type: 'Text' })).find(t => t.text === `${percent}%`)
-    expect(text?.props.color).toBe(color)
-    expect(await ui.find({ text: ` ${Math.round(tokens / 1000)}k/400k` })).toBeDefined()
-    await ui.unmount()
-  })
-}
-
-test('窗口随宿主上下文更新，额度事件与倒计时不重复估算，失效后明确退回模型口径', async ($, on) => {
-  const clock = mock.clock(on, { now: 100000 })
-  const raw = { window: 1000000, tokens: 155000, percent: 16 }
-  let window = 400000, reads = 0
-  on('session.usage', () => { reads++; return { value: { context: { ...raw, breakdown: compactDetails(window) }, rateLimits: [] } } })
-  on('session.start', (_, e) => ({ cwd: e.cwd }))
-  on('session.measure', (_, e) => ({ changed: e.changed }))
-  await $.session.start({ cwd: '/project', surface: 'desktop', isInteractive: true })
-  const ui = await $.ui.mount({ plugin: 'pixel-buddy-sam', surface: 'desktop', component: 'SessionMode', props: { modes: [] } })
-  window = 500000
-  await $.session.measure({ context: raw, rateLimits: [], changed: ['context'] })
-  expect(await ui.find({ text: '31%' })).toBeDefined()
-  expect(await ui.find({ text: ' 155k/500k' })).toBeDefined()
-  await clock.advance(2000)
-  await $.session.measure({ context: raw, rateLimits: [], changed: ['rateLimits'] })
-  expect(reads).toBe(2)
-  for (const invalid of [0, -1, 2000000]) {
-    window = invalid
-    await $.session.measure({ context: raw, rateLimits: [], changed: ['context'] })
-    expect(await ui.find({ text: 'ctx16%' })).toBeDefined()
-    expect(await ui.find({ text: ' 155k/1M' })).toBeDefined()
-  }
-  await ui.unmount()
-})
 
 test('宠物外层底色透明，保留场景画布', async ($, on) => {
   mock.clock(on, { now: Date.parse('2026-10-06T02:00:00Z') })
@@ -132,16 +81,16 @@ test('缺少用量保持未知，零剩余保持零；底栏与终端文字可�
   const terminal = await $.ui.mount({ plugin: 'pixel-buddy-sam', surface: 'terminal', component: 'AbovePrompt', props })
   expect((await terminal.find({ type: 'Text' }))?.text).toBe('5h 剩余0%   7d 剩余 —')
   const footer = await $.ui.mount({ plugin: 'pixel-buddy-sam', surface: 'desktop', component: 'SessionMode', props: { modes: [] } })
-  expect(await footer.find({ text: 'ctx17%' })).toBeDefined()
-  expect(await footer.find({ text: ' 175k/1M' })).toBeDefined()
+  expect(await footer.find({ text: '待更新' })).toBeDefined()
   await footer.unmount()
   await terminal.unmount()
   await ui.unmount()
 })
 
-test('首轮响应前中断保持明确等待，收到用量后显示完整数字', async ($, on) => {
+test('首轮响应前中断保持等待，收到摘要后显示进度与零用量', async ($, on) => {
   mock.clock(on, { now })
-  on('session.usage', () => ({ value: { context: { window: 1_000_000 }, rateLimits: [] } }))
+  let snapshot = { context: { window: 1000000 } } as { context: { window: number; tokens?: number; percent?: number; breakdown?: { totalTokens: number; autoCompactThreshold: number; isAutoCompactEnabled: boolean } } }
+  on('session.usage', () => ({ value: { ...snapshot, rateLimits: [] } }))
   on('session.start', (_, e) => ({ cwd: e.cwd }))
   on('turn.complete', () => ({ text: '' }))
   on('session.measure', (_, e) => ({ changed: e.changed }))
@@ -149,15 +98,14 @@ test('首轮响应前中断保持明确等待，收到用量后显示完整数�
   const ui = await $.ui.mount({ plugin: 'pixel-buddy-sam', surface: 'desktop', component: 'SessionMode', props: { modes: ['focus'] } })
   await $.turn.complete({ turnId: 'interrupted', answer: '', durationMs: 1000, isAborted: true, usage: null })
   expect(await ui.find({ text: 'cache / ctx 待首轮响应 · focus' })).toBeDefined()
-  await $.session.measure({ context, rateLimits: [], changed: ['context'] })
-  expect(await ui.find({ text: 'cache 60:00 ' })).toBeDefined()
-  expect(await ui.find({ text: 'ctx17%' })).toBeDefined()
-  expect(await ui.find({ text: ' 175k/1M' })).toBeDefined()
-  expect(await ui.find({ text: '· focus' })).toBeDefined()
-  expect((await ui.findAll({ type: 'Box' })).some(b => b.props.flexWrap === 'wrap')).toBe(true)
-  await $.session.measure({ context: { window: 1_000_000, tokens: 0, percent: 0 }, rateLimits: [], changed: ['context'] })
-  expect(await ui.find({ text: 'ctx0%' })).toBeDefined()
-  expect(await ui.find({ text: ' 0k/1M' })).toBeDefined()
+  for (const tokens of [175000, 0]) {
+    snapshot = { context: { ...context, tokens, breakdown: { totalTokens: tokens, autoCompactThreshold: 400000, isAutoCompactEnabled: true } } }
+    await $.session.measure({ context: snapshot.context, rateLimits: [], changed: ['context'] })
+    expect(await ui.find({ text: 'cache 60:00' })).toBeDefined()
+    expect(await ui.find({ text: tokens ? '175k/400k' : '0/400k' })).toBeDefined()
+    expect(await ui.find({ text: 'focus' })).toBeDefined()
+    expect((await ui.findAll({ type: 'Text' })).some(n => n.text?.includes('压缩') || n.text?.includes('▰'))).toBe(false)
+  }
   await ui.unmount()
 })
 
@@ -168,8 +116,8 @@ test('已有上下文的重载不伪造缓存时间，原生提示槽保持透�
   on('ui.render', { component: 'PromptHint' }, () => ({ type: 'Text', props: {}, children: ['native hint'] }))
   await $.session.start({ cwd: '/project', surface: 'desktop', isInteractive: true })
   const footer = await $.ui.mount({ plugin: 'pixel-buddy-sam', surface: 'desktop', component: 'SessionMode', props: { modes: [] } })
-  expect(await footer.find({ text: 'cache 待更新 ' })).toBeDefined()
-  expect(await footer.find({ text: 'ctx17%' })).toBeDefined()
+  expect(await footer.find({ text: 'cache 待更新' })).toBeDefined()
+  expect(await footer.find({ text: '待更新' })).toBeDefined()
   const hint = await $.ui.mount({ plugin: 'pixel-buddy-sam', surface: 'desktop', component: 'PromptHint', props: {
     isDraft: false, isWorking: false, hint: 'native hint',
   } })
@@ -216,7 +164,7 @@ test('cache 秒级倒计时和重复用量事件不替换宠物 SVG', async ($, 
     await $.session.measure({ context, rateLimits: limits, changed: ['rateLimits'] })
     expect(await ui.drawn()).toEqual(original)
   }
-  expect(await footer.find({ text: 'cache 59:40 ' })).toBeDefined()
+  expect(await footer.find({ text: 'cache 59:40' })).toBeDefined()
   await footer.unmount()
   await ui.unmount()
 })
@@ -267,7 +215,7 @@ test('庆祝切换到休息和空闲，旧回调不能打断新任务', async ($
 })
 
 test('各状态使用稳定的浏览器动画源，不引入执行结果文案', () => {
-  for (const mood of ['idle', 'working', 'done', 'relax', 'waiting', 'unknown'] as const) {
+  for (const mood of ['idle', 'working', 'done', 'relax', 'compact', 'waiting', 'unknown'] as const) {
     const svg = sceneSvg(mood)
     expect(svg).toContain('<animate')
     expect(svg).not.toContain('{{')

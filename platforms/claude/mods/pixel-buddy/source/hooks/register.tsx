@@ -1,25 +1,48 @@
 import { atom, read, update } from 'claude-code'
-import type { Register, SessionContextUsage, EngineInterface } from 'claude-code'
-import type { Mood, PanelState, FooterState, Ctx, WorkState } from '../types'
+import type { EngineInterface, Register, SessionUsage } from 'claude-code'
+import type { Mood, PanelState, FooterState, WorkState } from '../types'
 import { pixelIconSvg, pixelMeterSvg, pixelPercentSvg } from './quota-pixels'
 import { pixelLabelSvg, pixelQuotaCardSvg } from './quota-text'
 import { DONE_SECONDS, SCENE_HEIGHT, SCENE_WIDTH, sceneSvg } from './scene'
-import { emptyWork, finished, hasWork, reconcile, workStamp, started, notificationTask, panelWork } from './background'
+import { compactionState, contextProgress } from './context-progress'
+import { emptyWork, finished, hasWork, reconcile, workStamp, started, notificationTask, panelWork, resumeWork, restoreAgents } from './background'
 
 // 本文件按显示需求独立实现；动画绘图使用包内 MIT 授权素材。
 // 面板与秒级倒计时分开订阅，cache 更新不能让宠物 SVG 被反复替换。
 const panel = atom({ plugin: 'pixel-buddy-sam', key: 'panel' } as const, {
-  phase: 'idle', phaseAt: 0, clockAt: 0, limits: [], work: emptyWork(0),
+  phase: 'idle', phaseAt: 0, clockAt: 0, limits: [], compacting: 0, work: emptyWork(0),
 } as PanelState)
 const footer = atom({ plugin: 'pixel-buddy-sam', key: 'footer' } as const, {
-  clockAt: 0, cacheAt: null, context: null,
+  clockAt: 0, cacheAt: null, context: null, compaction: { enabled: null, threshold: null, used: null },
 } as FooterState)
 const GREEN = '#4cc35a', AMBER = '#e5a33a', RED = '#e5534b', NEUTRAL = '#9a9a9a'
 
 const usedColor = (used: number) => used >= 90 ? RED : used >= 70 ? AMBER : GREEN
-const tokenText = (value: number) => value < 1e6
-  ? `${Math.round(value / 1000)}k`
-  : `${(value / 1e6).toFixed(1).replace(/\.0$/, '')}M`
+
+async function readUsage($: EngineInterface): Promise<SessionUsage | null> {
+  try {
+    // summary 只做本地统计；full 会发 token-count 请求，显示进度不需要它。
+    return await $.session.usage({ breakdown: 'summary' })
+  } catch {
+    // 旧宿主或读取失败时保留基本用量，并明确显示阈值未知。
+    try { return await $.session.usage() } catch { return null }
+  }
+}
+
+function contextOnly(context: SessionUsage['context']) {
+  // 不把 breakdown 中的文件路径、工具和记忆清单写进插件状态。
+  return { tokens: context.tokens, window: context.window, percent: context.percent }
+}
+
+async function refreshContext($: EngineInterface, isCurrent: () => boolean) {
+  const usage = await readUsage($)
+  // 配置修改与用量事件可能交错；较早的查询不能覆盖新会话读数。
+  if (!isCurrent()) return
+  await update($, footer, previous => ({ ...previous,
+    context: usage ? contextOnly(usage.context) : previous.context,
+    compaction: compactionState(usage?.context.breakdown),
+  }))
+}
 
 function resetText(iso: string | undefined, now: number): string {
   const until = iso ? Date.parse(iso) : NaN
@@ -38,19 +61,6 @@ function scenePhase(phase: Mood, elapsed: number): [Mood, number] {
     return scenePhase('relax', elapsed - DONE_SECONDS)
   }
   return phase === 'relax' && elapsed >= 240 ? ['idle', elapsed - 240] : [phase, elapsed]
-}
-
-function contextState(context: SessionContextUsage, compactWindow?: number): Ctx {
-  // 只保留读数，不把 summary 中的文件、工具与分类明细写进状态。
-  return { tokens: context.tokens, window: context.window, percent: context.percent, compactWindow }
-}
-
-function effectiveWindow(context: SessionContextUsage): number | undefined {
-  const details = context.breakdown
-  const value = details?.rawMaxTokens
-  // 让宿主处理模型级设置、环境变量和启动参数的优先级；无有效读数则退回模型窗口。
-  return details?.isAutoCompactEnabled !== false && typeof value === 'number'
-    && Number.isFinite(value) && value > 0 && value < context.window ? value : undefined
 }
 
 async function changeWork($: EngineInterface, epoch: number, apply: (work: WorkState) => WorkState) {
@@ -75,8 +85,19 @@ async function snapshotWork($: EngineInterface, tasks: unknown) {
 }
 
 
+async function refreshAgents($: EngineInterface, epoch: number) {
+  const at = workStamp()
+  try {
+    const agents = await $.agent.list()
+    await changeWork($, epoch, current => restoreAgents(current, agents, at))
+  } catch { /* 旧宿主或读取失败时保留已有任务；不能伪造空列表。 */ }
+}
+
+
 export const register: Register = (on, options) => {
   const ttl = options.cacheTtl === '5m' ? 300000 : 3600000
+  let usageRequest = 0
+
   on('tool.call', async ($, event, next) => {
     if (event.tool !== 'Bash' && event.tool !== 'Agent') return next(event)
     const at = workStamp(), work = panelWork(await read($, panel))
@@ -145,15 +166,31 @@ export const register: Register = (on, options) => {
   })
 
 
+
   on('session.start', async ($, event, next) => {
-    const epoch = workStamp()
-    // summary 只做本地估算，不调用计数 API；这里只取有效窗口，分子仍用响应的真实 token。
-    const usage = await $.session.usage({ breakdown: 'summary' }).catch(() => $.session.usage())
+    const previous = await read($, panel), previousWork = panelWork(previous)
+    // 模块重载会重置本地序号；从旧状态之后开始，避免新事件被当作迟到。
+    workStamp(Math.max(previousWork.epoch, previousWork.snapshot, previousWork.turnAt,
+      ...Object.values(previousWork.active), ...Object.values(previousWork.closed), ...Object.values(previousWork.calls)))
+    let sessionId: string | undefined
+    try { sessionId = await $.session.id() } catch { /* 无会话身份时不继承旧任务。 */ }
+    usageRequest++
+    // 用量只从宿主读取一次；后续使用 measure 事件。计时器不会轮询账号接口。
+    const usage = await readUsage($)
     const now = await $.clock.now()
-    await update($, panel, () => ({
-      phase: 'idle', phaseAt: now, clockAt: now, limits: usage.rateLimits, work: emptyWork(epoch),
+    let epoch = 0
+    await update($, panel, state => {
+      const latest = panelWork(state)
+      epoch = workStamp()
+      // 读取用量期间可能已收到完成通知；在原子更新中接续最新任务，避免复活旧任务。
+      const work = sessionId && sessionId === state.sessionId ? resumeWork(latest, epoch) : emptyWork(epoch)
+      return { phase: 'idle', phaseAt: now, clockAt: now, limits: usage?.rateLimits ?? [], compacting: 0, work, sessionId }
+    })
+    await update($, footer, () => ({ clockAt: now, cacheAt: null,
+      context: usage ? contextOnly(usage.context) : null,
+      compaction: compactionState(usage?.context.breakdown),
     }))
-    await update($, footer, () => ({ clockAt: now, cacheAt: null, context: contextState(usage.context, effectiveWindow(usage.context)) }))
+    await refreshAgents($, epoch)
     // 动画交给 SVG 内的 SMIL；这里只按分钟刷新额度文案，并补偿重载后丢失的阶段回调。
     $.clock.every(60000, async () => {
       const tick = await $.clock.now()
@@ -170,26 +207,75 @@ export const register: Register = (on, options) => {
     return next(event)
   })
 
+  on('session.attach', async ($, event, next) => {
+    // 客户端回到会话时补一次代理快照，不随动画或 cache 秒表轮询。
+    const work = panelWork(await read($, panel))
+    await refreshAgents($, work.epoch)
+    return next(event)
+  })
+
   on('session.measure', async ($, event, next) => {
     const tick = await $.clock.now()
     const previousPanel = await read($, panel)
-    const previousFooter = await read($, footer)
-    let compactWindow = previousFooter.context?.compactWindow
-    // 仅上下文变化时更新窗口；额度变化和秒级倒计时都不反复计算 summary。
-    if (event.changed.includes('context')) {
-      const usage = await $.session.usage({ breakdown: 'summary' }).catch(() => null)
-      compactWindow = usage ? effectiveWindow(usage.context) : undefined
-    }
     // 宿主重复发送相同额度时不重绘上方区域；context 和 cache 只影响底栏。
     if (event.rateLimits.length && JSON.stringify(event.rateLimits) !== JSON.stringify(previousPanel.limits)) {
       await update($, panel, state => ({ ...state, limits: event.rateLimits, clockAt: tick }))
     }
     await update($, footer, previous => ({
-      ...previous, context: contextState(event.context, compactWindow),
+      ...previous, context: contextOnly(event.context),
       cacheAt: event.changed.includes('context') ? tick : previous.cacheAt,
       clockAt: tick,
     }))
+    if (event.changed.includes('context')) {
+      const request = ++usageRequest
+      await refreshContext($, () => request === usageRequest)
+    }
     return next(event)
+  })
+  on('session.compact', async ($, event, next) => {
+    // 预计算尚未替换上下文，子会话也不代表主会话正在压缩；两者直接透传。
+    if (event.trigger === 'precompute' || event.agentId) return next(event)
+    let shown = false
+    let epoch: number | undefined
+    try {
+      epoch = panelWork(await read($, panel)).epoch
+      await update($, panel, state => panelWork(state).epoch !== epoch ? state
+        : ({ ...state, compacting: (state.compacting ?? 0) + 1 }))
+      shown = true
+    } catch { /* 装饰层读取/绘制失败不能阻断真实压缩。 */ }
+    try {
+      return await next(event)
+    } finally {
+      // 单独计数，不覆盖工作/休息阶段；并发压缩全部结束后才退出，跳过或失败也清理。
+      if (shown) {
+        try {
+          // 与等待任务共用会话代次，旧压缩回调不能撤掉新会话中的压纸机。
+          await update($, panel, state => panelWork(state).epoch !== epoch ? state
+            : ({ ...state, compacting: Math.max(0, (state.compacting ?? 0) - 1) }))
+        } catch { /* 不用 UI 故障掩盖宿主原始结果或异常。 */ }
+      }
+      try {
+        if (epoch !== undefined && panelWork(await read($, panel)).epoch === epoch) {
+          const request = ++usageRequest
+          await refreshContext($, () => request === usageRequest)
+        }
+      } catch { /* 统计失败不影响压缩结果。 */ }
+    }
+  })
+  on('command.run', async ($, event, next) => {
+    const result = await next(event)
+    // 先让宿主应用新配置或完成压缩，再读实际阈值；不主动执行任何命令。
+    if (['autocompact', 'model', 'clear'].includes(event.command)) {
+      const request = ++usageRequest
+      await refreshContext($, () => request === usageRequest)
+    }
+    return result
+  })
+  on('config.set', { key: 'autoCompact' }, async ($, event, next) => {
+    const result = await next(event)
+    const request = ++usageRequest
+    await refreshContext($, () => request === usageRequest)
+    return result
   })
   on('turn.start', async ($, event, next) => {
     if (event.agentId) return next(event)
@@ -239,7 +325,8 @@ export const register: Register = (on, options) => {
   })
   on('session.end', async ($, event, next) => {
     const epoch = workStamp()
-    await update($, panel, state => ({ ...state, work: emptyWork(epoch) }))
+    usageRequest++
+    await update($, panel, state => ({ ...state, compacting: 0, work: emptyWork(epoch) }))
     return next(event)
   })
 
@@ -266,7 +353,9 @@ export const register: Register = (on, options) => {
         : <Text dimColor wrap="truncate-end">{text}</Text>
     }
     const work = panelWork(state)
-    const phase: Mood = hasWork(work) ? 'waiting' : event.props.isWorking ? 'working'
+    // 主会话真实压缩和工作优先；后台记录继续保留，仅在主会话不工作时显示等待。
+    const phase: Mood = (state.compacting ?? 0) > 0 ? 'compact'
+      : event.props.isWorking ? 'working' : hasWork(work) ? 'waiting'
       : !work.known ? 'unknown' : state.phase === 'working' ? 'idle' : state.phase
     const [shown] = scenePhase(phase, Math.max(0, (state.clockAt - state.phaseAt) / 1000))
     return <Box flexDirection="row" alignItems="center" justifyContent="space-between" flexWrap="nowrap" columnGap={2} paddingX={1} overflow="hidden">
@@ -292,13 +381,13 @@ export const register: Register = (on, options) => {
           <Svg source={sceneSvg(shown)} isInteractive width={SCENE_WIDTH} height={SCENE_HEIGHT}
             alt={shown === 'waiting' ? 'Claude is waiting for scripts or subagents'
               : shown === 'unknown' ? 'Claude task status is unknown'
-              : `Claude is ${shown === 'done' ? 'celebrating' : shown === 'relax' ? 'relaxing' : shown}`} />
+              : `Claude is ${shown === 'done' ? 'celebrating' : shown === 'relax' ? 'relaxing' : shown === 'compact' ? 'compacting' : shown}`} />
         </Box>
       </Box>
     </Box>
   })
 
-  on('ui.render', { component: 'SessionMode' }, async ($, event) => {
+  on('ui.render', { component: 'SessionMode' }, async ($, event, next) => {
     const { Box, Text } = $.ui.resolve(event)
     const state = await read($, footer)
     const left = state.cacheAt === null ? 0 : ttl - (state.clockAt - state.cacheAt)
@@ -306,31 +395,26 @@ export const register: Register = (on, options) => {
     const cache = state.cacheAt === null ? 'cache 待更新' : left <= 0 ? 'cache cold'
       : `cache ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
     const cacheColor = left <= 0 ? undefined : left < 60000 ? AMBER : GREEN
-    const compactWindow = state.context?.compactWindow
-    const isCompact = typeof compactWindow === 'number' && compactWindow > 0 && compactWindow < (state.context?.window ?? 0)
-    const window = isCompact ? compactWindow : state.context?.window
-    const tokenCount = state.context?.tokens
-    const validTokens = typeof tokenCount === 'number' && Number.isFinite(tokenCount) && tokenCount >= 0
-    // 百分比、分母和高亮必须采用同一窗口；不把模型占用率直接套在压缩窗口上。
-    const percent = isCompact ? (validTokens ? Math.round(tokenCount / compactWindow * 100) : undefined) : state.context?.percent
-    const known = typeof percent === 'number' && Number.isFinite(percent)
-    const label = isCompact ? '' : 'ctx'
-    const context = known ? `${label}${percent}%` : `${label} 待更新`
-    const tokens = known && validTokens && window ? ` ${tokenText(tokenCount)}/${tokenText(window)}` : ''
+    const progress = contextProgress(state.context, state.compaction ?? compactionState())
     const modes = event.props.modes.join(' & ')
-    // 首轮没有响应或响应前中断时，宿主没有用量；不要用横杠或 0 冒充读数。
-    if (!known && state.cacheAt === null) {
+    const contextKnown = typeof state.context?.tokens === 'number' && Number.isFinite(state.context.tokens) && state.context.tokens >= 0
+    // 新会话没有响应读数时保留远端的明确等待提示，不能把未知用量显示成 0。
+    if (!contextKnown && progress.ratio === null && state.compaction?.enabled !== false && state.cacheAt === null) {
       return <Text dimColor>{['cache / ctx 待首轮响应', modes].filter(Boolean).join(' · ')}</Text>
     }
     if (event.surface !== 'desktop' && event.surface !== 'vscode') {
-      return <Text dimColor>{[cache, context + tokens, modes].filter(Boolean).join('  ·  ')}</Text>
+      return <Text dimColor>{[cache, progress.label + progress.detail, modes].filter(Boolean).join('  ·  ')}</Text>
     }
-    // Desktop 会截断整个 SessionMode 槽，子元素换行无法扩宽；省略压缩标签，为完整分母留空间。
-    return <Box flexDirection="row" alignItems="center" justifyContent="flex-end" flexWrap="wrap" minWidth={0} columnGap={1}>
-      <Box flexShrink={0}><Text wrap="wrap" color={cacheColor} dimColor={left <= 0}>{cache + ' '}</Text></Box>
-      <Box flexShrink={0}><Text wrap="wrap" color={known ? usedColor(percent) : undefined} dimColor={!known}>{context}</Text></Box>
-      {tokens ? <Box flexShrink={0}><Text wrap="wrap" dimColor>{tokens}</Text></Box> : null}
-      {modes ? <Text wrap="wrap" dimColor>{`· ${modes}`}</Text> : null}
+    // Desktop 给底栏的宽度有限；沿用远端紧凑数字布局，避免像素条挤掉阈值。
+    const color = progress.percent === null ? undefined : usedColor(progress.percent)
+    return <Box flexDirection="row" justifyContent="flex-end" flexWrap="wrap" minWidth={0} columnGap={1}>
+      <Box flexShrink={0}><Text color={cacheColor} dimColor={left <= 0}>{cache}</Text></Box>
+      <Box flexShrink={0}>
+        {progress.percent !== null ? <Text color={color}>{`${Math.floor(progress.percent)}%`}</Text>
+          : <Text dimColor>{state.compaction?.enabled === false ? '已关闭' : '待更新'}</Text>}
+      </Box>
+      {progress.ratio ? <Box flexShrink={0}><Text dimColor>{progress.ratio}</Text></Box> : null}
+      {modes ? <Box flexShrink={0}><Text dimColor>{modes}</Text></Box> : null}
     </Box>
   })
 }

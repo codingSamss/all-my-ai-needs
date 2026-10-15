@@ -1,4 +1,4 @@
-export type Mood = 'idle' | 'working' | 'done' | 'relax' | 'waiting' | 'unknown'
+export type Mood = 'idle' | 'working' | 'done' | 'relax' | 'compact' | 'waiting' | 'unknown'
 export type WorkState = {
   epoch: number
   known: boolean
@@ -9,18 +9,22 @@ export type WorkState = {
   calls: Record<string, number>
 }
 export type Limit = { kind: string; percentUsed: number; resetsAt?: string }
-export type Ctx = { tokens?: number; window: number; percent?: number; compactWindow?: number }
+export type Ctx = { tokens?: number; window: number; percent?: number }
+export type Compaction = { enabled: boolean | null; threshold: number | null; used: number | null }
 export type PanelState = {
+  sessionId?: string
   phase: Mood
   phaseAt: number
   clockAt: number
   limits: Limit[]
+  compacting: number
   work: WorkState
 }
 export type FooterState = {
   clockAt: number
   cacheAt: number | null
   context: Ctx | null
+  compaction: Compaction
 }
 
 declare module 'claude-code' {

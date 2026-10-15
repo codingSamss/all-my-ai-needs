@@ -59,8 +59,8 @@ all-my-ai-needs/
 
 ## 可选 Claude Mods
 
-[pixel-buddy-sam](platforms/claude/mods/pixel-buddy/README.md) 保存像素剩余额度、透明宠物背景和 cache / ctx 高亮，并用小人和沙漏表示等待脚本或 subagent 返回。
-`1.0.0-rc.12` 按宿主事件与任务快照驱动等待动画，保留完整额度卡片与 54px 昼夜场景；cache 底栏独立更新，百分比按有效压缩窗口计算。重载后未取得任务快照时显示未知，真实任务现场验收待空闲会话加载。
+[pixel-buddy-sam](platforms/claude/mods/pixel-buddy/README.md) 保存像素剩余额度、透明宠物背景、cache 倒计时和上下文压缩进度。
+`1.0.0-rc.16` 合并脚本/子代理沙漏等待与真实压缩压纸机，保留 MIT 授权的 pixel-at-work 昼夜场景与 54px 高度；独立底栏按会话实际压缩阈值显示彩色百分比及当前用量/阈值，数据未知或自动压缩关闭时用短提示替代。主会话压缩和工作优先于后台等待；主会话不工作时才按宿主任务 ID 与完整快照显示沙漏；缺失快照保留已确认任务，同会话重载接续追踪，启动/重新连接时补一次代理状态；未知范围不冒充完成，不随 cache 秒表轮询。
 在已经克隆的仓库根执行：
 
 ```bash
@@ -69,7 +69,7 @@ python3 platforms/claude/mods/pixel-buddy/install.py
 
 需要 Python 3.9+ 和 Claude Code CLI。安装器校验包内源码与许可的 SHA-256，离线组装，
 在设备私有缓存生成完整插件与本机 marketplace，用官方 CLI 安装到 user scope；不改项目、权限或现有会话。
-原版已启用或发现本地改动时停止，不自动替换。候选版保留原生目录入口，提供首轮等待提示，以及按有效压缩窗口计算、保留完整分母的紧凑读数；现场验证需要新的 Desktop Code 本地会话。
+原版已启用或发现本地改动时停止，不自动替换。保留原生目录入口与提示槽；候选版现场验证需要新的 Desktop Code 本地会话。
 Mod 由 `mods.meta.yaml` 单独登记，默认不随 skills 同步；运行态、凭据、真实设置不入仓，未明确许可的上游源码不公开发布。
 
 ## 治理与约定

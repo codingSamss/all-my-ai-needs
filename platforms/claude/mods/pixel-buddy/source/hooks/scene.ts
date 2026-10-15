@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // 基础场景摘自 pixel-at-work，版权及固定提交见 scene-NOTICES.txt；等候沙漏为独立实现。
-// 仅移植绘图；不引入上游工具分类、结果猜测、节日、轮询或事件钩子。
+// 仅移植绘图；不引入工具分类、结果猜测、节日、轮询或上游事件钩子。
 import type { Mood } from '../types'
 export const DONE_SECONDS = 6.5
 export const SCENE_WIDTH = 512
@@ -92,7 +92,8 @@ const THEME = `<style>
   .pb-day{display:inline}.pb-night{display:none}
   .pb-scene{--pb-leaf:#3b8749;--pb-house:#b6c2c8;--pb-window:#81b7cf;--pb-window-dim:#81b7cf;
     --pb-building:#91aabd;--pb-building-side:#738fa7;--pb-hill:#7aa38d;--pb-sea:#9bcad7;
-    --pb-wave:#d4edf0;--pb-lamp:#c5c5b6;--pb-tower:#879dac;--pb-tower-top:#b7c5ce}
+    --pb-wave:#d4edf0;--pb-lamp:#c5c5b6;--pb-tower:#879dac;--pb-tower-top:#b7c5ce;
+    --pb-press:#7c8d9d;--pb-press-hi:#a4b4c2;--pb-paper:#ffffff;--pb-paper-shade:#c4d1d9}
   .fl{fill:#87a882;fill-opacity:.12}.ft{fill:#73946e;fill-opacity:.45}
 }
 </style>`
@@ -178,6 +179,24 @@ function scCode(): string {
   return s
 }
 
+// 保留上游压纸机动作；颜色随现有主题切换，尺寸仍在原 80×27 舞台内。
+function scCompact(): string {
+  const cube = rect(0, 0, 6, 6, '#8b5cf6') + rect(0, 0, 6, 1, '#c4b5fd') +
+    rect(1, 2, 4, 1, '#ddd6fe') + rect(1, 4, 3, 1, '#ddd6fe')
+  const at = (x: number, y: number) => `<g transform="translate(${x} ${y})">${cube}</g>`
+  const steel = 'var(--pb-press,#39404f)', steelHi = 'var(--pb-press-hi,#59617a)'
+  let s = critter(3, 14)
+  s += rect(18, 2, 2, 22, steel) + rect(40, 2, 2, 22, steel) + rect(18, 2, 24, 2, steelHi)
+  const phase = (plate: number, top: number, x: number) => {
+    let p = rect(29, 4, 2, plate - 4, C.gray) + rect(21, plate, 18, 2, steelHi)
+    if (top > 0) for (let y = top; y < 24; y += 2) p += rect(22, y, 16, 1, 'var(--pb-paper,#f7f3e8)') + rect(22, y + 1, 16, 1, 'var(--pb-paper-shade,#c8bfa9)')
+    if (x > 0) p += at(x, 18)
+    return p
+  }
+  s += frames([phase(5, 10, 0), phase(9, 13, 0), phase(13, 16, 0), phase(17, 20, 0), phase(5, 0, 27), phase(5, 0, 48)], 3)
+  return s + at(60, 18) + at(66, 18) + at(63, 12)
+}
+
 
 function scSleep(): string {
   let s = critter(30, 14, 'asleep')
@@ -212,6 +231,7 @@ function scIdle(): string {
   return s
 }
 
+
 // 沙漏只表示仍在等结果，循环的沙量不编码完成比例或预计剩余时间。
 function hourglass(phase: number, unknown = false): string {
   const wood = unknown ? C.gray : C.wood, sand = unknown ? C.gray : '#d4a23b'
@@ -241,7 +261,6 @@ function scUnknown(): string {
   return critter(22, 14, 'still') + `<g transform="translate(47 6)">${hourglass(1, true)}</g>` +
     rect(44, 22, 17, 2, C.gray) + sprite(['.QQQ.', 'Q...Q', '....Q', '...Q.', '..Q..', '.....', '..Q..'], { Q: C.gray }, 34, 3)
 }
-
 
 const TREE = sprite([
   '..GGRGG..',
@@ -344,8 +363,7 @@ const scenes: Partial<Record<Mood, string>> = {}
 export function sceneSvg(mood: Mood): string {
   if (scenes[mood]) return scenes[mood]!
   const left = (W - STAGE) / 2
-  const draw = mood === 'waiting' ? scWaiting : mood === 'unknown' ? scUnknown
-    : mood === 'working' ? scCode : mood === 'done' ? scParty : mood === 'relax' ? scIdle : scSleep
+  const draw = mood === 'compact' ? scCompact : mood === 'waiting' ? scWaiting : mood === 'unknown' ? scUnknown : mood === 'working' ? scCode : mood === 'done' ? scParty : mood === 'relax' ? scIdle : scSleep
   const stage = `<defs><clipPath id="pb-stage"><rect width="${STAGE}" height="${H}"/></clipPath></defs>` +
     `<g transform="translate(${left} 0)"><g clip-path="url(#pb-stage)">${draw()}</g></g>`
   const body = backdrop(W) + garden(left) + skyline(left + STAGE, left) + stage
