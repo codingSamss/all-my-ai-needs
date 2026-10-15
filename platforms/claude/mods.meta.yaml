@@ -4,7 +4,7 @@ policy: manual-only
 mods:
   pixel-buddy:
     plugin_id: pixel-buddy-sam@codingSamss-all-my-ai-needs-mods
-    version: 1.0.0-rc.16
+    version: 1.0.0-rc.17
     source: mods/pixel-buddy/source
     origin: mods/pixel-buddy/origin.json
     install: python3 platforms/claude/mods/pixel-buddy/install.py
@@ -15,7 +15,7 @@ mods:
       - 缺失快照保留已确认的后台任务；同会话重载接续追踪，启动/重新连接时补一次代理状态，未知范围不误报完成
       - 主会话真实压缩与工作优先于后台等待；主会话不工作且仍有任务时显示沙漏，旧会话回调不能清除新会话动画
       - 主会话真实压缩期间播放压纸机，结束或失败恢复原状态；预计算与子会话不占用主场景
-      - SMIL 内置宠物动画，随浅深主题切换昼夜；分钟级额度面板与秒级 cache 底栏分离，持续性能验收待完成
+      - 七种状态分别使用工作室、站台、工坊、广场、咖啡露台、小屋和信息亭；54px 高度与浅深配色，未知状态静止，不增加轮询
       - 独立底栏按引擎实际压缩阈值显示彩色百分比与当前用量/阈值；本地 summary 按上下文或相关设置变化读取，不随秒表轮询
       - 安装器生成本机 marketplace；根 marketplace 继续只提供现有 skills 插件
       - pixel-at-work 的 MIT 绘图子集随包分发，固定提交和 SHA-256；额度区收窄 80px，动画高 54px

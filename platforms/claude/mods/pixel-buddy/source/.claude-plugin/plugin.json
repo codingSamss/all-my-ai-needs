@@ -1,7 +1,7 @@
 {
   "name": "pixel-buddy-sam",
-  "version": "1.0.0-rc.16",
-  "description": "像素剩余额度、昼夜宠物、脚本与子代理等待及真实压缩动画，配合彩色进度、实际阈值读数与 cache 倒计时",
+  "version": "1.0.0-rc.17",
+  "description": "像素剩余额度、七种状态地点与浅深主题动画，配合主会话优先、后台等待、真实压缩与实际阈值读数",
   "author": {
     "name": "codingSamss"
   },

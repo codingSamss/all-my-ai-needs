@@ -153,10 +153,10 @@ test('cache 秒级倒计时和重复用量事件不替换宠物 SVG', async ($, 
   on('session.measure', (_, e) => ({ changed: e.changed }))
   await $.session.start({ cwd: '/project', surface: 'desktop', isInteractive: true })
   await $.session.measure({ context, rateLimits: limits, changed: ['context'] })
-  const ui = await $.ui.mount({ plugin: 'pixel-buddy-sam', surface: 'desktop', component: 'AbovePrompt', props })
+  const ui = await $.ui.mount({ plugin: 'pixel-buddy-sam', surface: 'desktop', component: 'AbovePrompt', props: { ...props, isWorking: true } })
   const footer = await $.ui.mount({ plugin: 'pixel-buddy-sam', surface: 'desktop', component: 'SessionMode', props: { modes: [] } })
   const original = await ui.drawn()
-  const pet = (await ui.findAll({ type: 'Svg' })).find(s => s.props.alt === 'Claude task status is unknown')
+  const pet = (await ui.findAll({ type: 'Svg' })).find(s => s.props.alt === 'Claude is working')
   expect(pet?.props.isInteractive).toBe(true)
   expect(String(pet?.props.source)).toContain('<animate')
   for (let i = 0; i < 20; i++) {
@@ -217,7 +217,11 @@ test('庆祝切换到休息和空闲，旧回调不能打断新任务', async ($
 test('各状态使用稳定的浏览器动画源，不引入执行结果文案', () => {
   for (const mood of ['idle', 'working', 'done', 'relax', 'compact', 'waiting', 'unknown'] as const) {
     const svg = sceneSvg(mood)
-    expect(svg).toContain('<animate')
+    // 未知状态必须保持静止，不能借背景运动暗示任务仍在执行。
+    if (mood === 'unknown') expect(svg).not.toContain('<animate')
+    else expect(svg).toContain('<animate')
+    expect(svg).toContain('width="512" height="54"')
+    expect(svg).toContain('@media(prefers-color-scheme:light)')
     expect(svg).not.toContain('{{')
     expect(sceneSvg(mood)).toBe(svg)
     expect(svg).not.toContain('undefined')

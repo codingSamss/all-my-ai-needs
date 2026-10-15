@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// 基础场景摘自 pixel-at-work，版权及固定提交见 scene-NOTICES.txt；等候沙漏为独立实现。
+// 角色与基础动作摘自 pixel-at-work，版权及固定提交见 scene-NOTICES.txt；七景背景、睡床与沙漏为本地绘制。
 // 仅移植绘图；不引入工具分类、结果猜测、节日、轮询或上游事件钩子。
 import type { Mood } from '../types'
 export const DONE_SECONDS = 6.5
@@ -69,57 +69,15 @@ function line(x0: number, y0: number, x1: number, y1: number, n: number): Array<
 }
 
 
-function crect(x: number, y: number, w: number, h: number, cls: string, fill: string, opacity = 1): string {
-  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"` +
-    `${opacity < 1 ? ` fill-opacity="${opacity}"` : ''} class="${cls}"/>`
-}
-
-// 同一份图随宿主 color-scheme 换色；仅日月和云星分组显隐，不需要读配置或增加计时器。
-const P = {
-  leaf: 'var(--pb-leaf,#166534)', house: 'var(--pb-house,#475569)',
-  window: 'var(--pb-window,#fde68a)', dimWindow: 'var(--pb-window-dim,#3a4266)',
-  building: 'var(--pb-building,#262d48)', buildingSide: 'var(--pb-building-side,#303952)',
-  hill: 'var(--pb-hill,#1f3447)', sea: 'var(--pb-sea,#1d3557)', wave: 'var(--pb-wave,#457b9d)',
-  lamp: 'var(--pb-lamp,#fde68a)', tower: 'var(--pb-tower,#9aa3b5)', towerTop: 'var(--pb-tower-top,#cbd5e1)',
-}
+// 配色随宿主主题变化；七景背景由当前状态生成，不读取时钟或添加轮询。
 const THEME = `<style>
 .pb-wait-static{display:none}
 @media(prefers-reduced-motion:reduce){.pb-wait-motion{display:none}.pb-wait-static{display:inline}}
-.pb-day{display:none}.pb-night{display:inline}
-.st{fill:#555b6c}.sh{fill:#a5afc4}
-.fl{fill:#808080;fill-opacity:.10}.ft{fill:#808080;fill-opacity:.35}
-@media (prefers-color-scheme:light){
-  .pb-day{display:inline}.pb-night{display:none}
-  .pb-scene{--pb-leaf:#3b8749;--pb-house:#b6c2c8;--pb-window:#81b7cf;--pb-window-dim:#81b7cf;
-    --pb-building:#91aabd;--pb-building-side:#738fa7;--pb-hill:#7aa38d;--pb-sea:#9bcad7;
-    --pb-wave:#d4edf0;--pb-lamp:#c5c5b6;--pb-tower:#879dac;--pb-tower-top:#b7c5ce;
-    --pb-press:#7c8d9d;--pb-press-hi:#a4b4c2;--pb-paper:#ffffff;--pb-paper-shade:#c4d1d9}
-  .fl{fill:#87a882;fill-opacity:.12}.ft{fill:#73946e;fill-opacity:.45}
+.pb-scene{--v-wall:#303331;--v-floor:#53534b;--v-wood:#836143;--v-wood-light:#ac855d;--v-ink:#798e91;--v-blue:#354955;--v-glass:#253844;--v-paper:#c3c3ad;--v-green:#437256;--v-leaf:#49644c;--v-orange:#b16a4d;--v-soft:#343a36;--v-metal:#6e7d80;--v-roof:#496164;--v-cozy:#353331;--v-pink:#af7378;--v-dim:#747d79}
+@media(prefers-color-scheme:light){
+  .pb-scene{--v-wall:#e6e1d6;--v-floor:#c7c0b0;--v-wood:#a48059;--v-wood-light:#c3a47e;--v-ink:#718181;--v-blue:#9bc3cf;--v-glass:#c9e0e5;--v-paper:#f4efdf;--v-green:#679979;--v-leaf:#3f7d51;--v-orange:#ce8464;--v-soft:#dedad0;--v-metal:#9ba5a6;--v-roof:#809a9e;--v-cozy:#ebe0cb;--v-pink:#d28a8b;--v-dim:#a1aaa6;--pb-press:#7c8d9d;--pb-press-hi:#a4b4c2;--pb-paper:#ffffff;--pb-paper-shade:#c4d1d9}
 }
 </style>`
-
-function sky(w: number): string {
-  let stars = ''
-  for (let x = 2, i = 0; x < w; x += 5 + ((x * 7) % 5), i += 1) {
-    const y = 1 + ((x * 13 + i * 5) % 13)
-    stars += i % 3 === 0
-      ? frames([crect(x, y, 1, 1, 'sh', '#a5afc4'), crect(x, y, 1, 1, 'st', '#555b6c')], 1.6 + (i % 5) * 0.3, (i % 4) * 0.2)
-      : crect(x, y, 1, 1, 'st', '#555b6c')
-  }
-  const moon = sprite(['..MMMM', '.MMM..', 'MMM...', 'MMM...', '.MMM..', '..MMMM'], { M: '#f5e6b3' }, 31, 2)
-  const sun = sprite(['...R...', '.R...R.', '..SSS..', 'RSSSSSR', '..SSS..', '.R...R.', '...R...'],
-    { R: '#dfb755', S: '#efc45f' }, 31, 1)
-  const cloud = sprite(['...WWWW...', '.WWWWWWWW.', 'WWWWWWWWWW', '.SSSSSSSS.'], { W: '#d8e4e8', S: '#c1d5de' })
-  // 云只在两侧天空缓慢移动，不遮住工作屏幕；窄布局照旧裁去两侧景物。
-  const clouds = path(cloud, [[54, 3], [55, 3], [56, 3], [55, 3]], 16) +
-    path(cloud, [[200, 5], [201, 5], [202, 5], [201, 5]], 19)
-  return `<g class="pb-night">${stars}${moon}</g><g class="pb-day">${sun}${clouds}</g>`
-}
-
-function backdrop(w: number): string {
-  return sky(w) + crect(0, 24, w, 4, 'fl', '#808080', 0.1) + crect(0, 24, w, 1, 'ft', '#808080', 0.35)
-}
-
 
 const BODY = [
   '..LOOOOOOO..',
@@ -198,15 +156,15 @@ function scCompact(): string {
 }
 
 
+// 空闲小屋盖上毯子；与短暂休息的咖啡桌区分，阶段计时仍由现有入口负责。
 function scSleep(): string {
-  let s = critter(30, 14, 'asleep')
-  const z = sprite(['ZZZZ', '..Z.', '.Z..', 'ZZZZ'], { Z: C.glow })
-  for (let i = 0; i < 3; i += 1) s += path(z, line(44, 13, 52, 1, 6), 2.4, i * 0.8)
-  s += rect(60, 18, 6, 6, C.cloud) + rect(66, 19, 2, 1, C.cloud) + rect(67, 20, 1, 2, C.cloud) + rect(66, 22, 2, 1, C.cloud) + rect(61, 18, 4, 1, '#7c4a2d')
-  s += frames([rect(62, 15, 1, 2, C.gray) + rect(63, 13, 1, 2, C.gray), rect(63, 15, 1, 2, C.gray) + rect(62, 13, 1, 2, C.gray)], 1.0)
+  let s = rect(24, 21, 41, 3, colors.wood) + rect(23, 18, 2, 6, colors.woodHi) +
+    rect(64, 17, 2, 7, colors.woodHi) + rect(26, 19, 35, 2, colors.paper)
+  s += critter(30, 12, 'asleep') + rect(29, 19, 20, 3, colors.blue) + rect(29, 19, 20, 1, colors.glass)
+  const z = sprite(['ZZZZ', '..Z.', '.Z..', 'ZZZZ'], { Z: colors.ink })
+  for (let i = 0; i < 2; i += 1) s += path(z, line(45, 11, 53, 1, 6), 3, i * 1.5)
   return s
 }
-
 
 function scParty(): string {
   let s = critter(34, 14, 'hop')
@@ -262,99 +220,104 @@ function scUnknown(): string {
     rect(44, 22, 17, 2, C.gray) + sprite(['.QQQ.', 'Q...Q', '....Q', '...Q.', '..Q..', '.....', '..Q..'], { Q: C.gray }, 34, 3)
 }
 
-const TREE = sprite([
-  '..GGRGG..',
-  '.GRGGGRG.',
-  'GGGGRGGGG',
-  'GRGGGGGRG',
-  '.GGGRGGG.',
-  '..GGGGG..',
-  '....T....',
-  '....T....',
-  '...TT....',
-  '....T....',
-], { G: P.leaf, R: '#dc2626', T: '#7c4a2d' }, 0, 14)
-const HOUSE = sprite([
-  '.....RR.....',
-  '....RRRR....',
-  '...RRRRRR...',
-  '..RRRRRRRR..',
-  '.RRRRRRRRRR.',
-  '.WWWWWWWWWW.',
-  '.WYYWWWDDWW.',
-  '.WYYWWWDDWW.',
-  '.WWWWWWDDWW.',
-], { R: '#7c2d12', W: P.house, Y: P.window, D: '#475569' }, 0, 15)
-const LAMP = sprite(['YYY', '.L.', '.L.', '.L.', '.L.', '.L.', '.L.', '.L.', '.L.', 'LLL'], { Y: P.lamp, L: '#64748b' }, 0, 14) +
-  '<g class="pb-night"><rect x="-1" y="15" width="5" height="2" fill="#fde68a" opacity="0.25"/></g>'
-const BUSH = sprite(['.GGG.', 'GGGGG', 'GGGGG'], { G: P.leaf }, 0, 21)
-const DECOR: Array<[string, number]> = [[TREE, 9], [HOUSE, 12], [LAMP, 3], [BUSH, 5], [TREE, 9], [LAMP, 3], [BUSH, 5]]
+// 七个地点沿用已确认的 256×27 像素草图；只在压缩工坊增加局部传送带运动。
+const colors = {
+  wall: 'var(--v-wall)', floor: 'var(--v-floor)', wood: 'var(--v-wood)', woodHi: 'var(--v-wood-light)',
+  ink: 'var(--v-ink)', blue: 'var(--v-blue)', glass: 'var(--v-glass)', paper: 'var(--v-paper)',
+  green: 'var(--v-green)', leaf: 'var(--v-leaf)', orange: 'var(--v-orange)', soft: 'var(--v-soft)',
+  metal: 'var(--v-metal)', roof: 'var(--v-roof)', cozy: 'var(--v-cozy)', pink: 'var(--v-pink)', dim: 'var(--v-dim)',
+}
+const r = rect
+const base = (color = colors.floor): string => r(0, 24, 256, 3, color) + r(0, 24, 256, 1, colors.woodHi)
 
-/** Content drawn at the origin, moved to (x, 0). */
-function at(x: number, content: string): string {
-  return `<g transform="translate(${x} 0)">${content}</g>`
+function pot(x: number, y = 17): string {
+  return r(x + 2, y + 5, 5, 3, colors.wood) + r(x + 3, y + 2, 1, 4, colors.leaf) +
+    r(x, y + 1, 4, 3, colors.leaf) + r(x + 4, y, 4, 3, colors.green)
 }
 
+function windowPane(x: number, y: number, w = 25, h = 14): string {
+  return r(x, y, w, h, colors.wood) + r(x + 1, y + 1, w - 2, h - 2, colors.glass) +
+    r(x + Math.floor(w / 2), y + 1, 1, h - 2, colors.woodHi) + r(x + 1, y + Math.floor(h / 2), w - 2, 1, colors.woodHi)
+}
 
-function skyline(x0: number, R: number): string {
-  const bld = P.building
-  const win = P.window
-  const dim = P.dimWindow
-  let s = ''
-  const cbd = Math.min(R, 30)
-  const blocks: Array<[number, number, number]> = [[0, 15, 3], [3, 18, 3], [10, 13, 3], [13, 17, 3]]
-  for (let dx = 16, k = 0; dx + 2 <= cbd; k += 1) {
-    const w = 2 + (k % 3)
-    blocks.push([dx, 12 + ((k * 5) % 8), Math.min(w, cbd - dx)])
-    dx += w + (k % 2)
+function bench(x: number, y: number, w = 25): string {
+  return r(x, y, w, 2, colors.woodHi) + r(x + 2, y + 3, w - 4, 2, colors.wood) +
+    r(x + 3, y + 5, 2, 4, colors.ink) + r(x + w - 5, y + 5, 2, 4, colors.ink)
+}
+
+function crate(x: number, y: number, color = colors.wood): string {
+  return r(x, y, 10, 8, color) + r(x + 1, y + 1, 8, 1, colors.woodHi) +
+    r(x + 1, y + 5, 8, 1, colors.woodHi) + r(x + 4, y, 2, 8, colors.woodHi)
+}
+
+function shelf(x: number): string {
+  let s = r(x, 3, 30, 21, colors.wood) + r(x + 2, 4, 26, 19, colors.soft)
+  for (let j = 0; j < 2; j += 1) {
+    for (let i = 0; i < 7; i += 1) s += r(x + 3 + i * 3, 5 + j * 9 + i % 3, 2, 7 - i % 3,
+      [colors.blue, colors.orange, colors.paper, colors.green][i % 4])
+    s += r(x + 1, 12 + j * 9, 28, 1, colors.woodHi)
   }
-  for (const [dx, top, w] of blocks) {
-    if (dx + w > R) continue
-    s += rect(x0 + dx, top, w, 24 - top, dx % 2 ? P.buildingSide : bld)
-    for (let y = top + 1; y < 23; y += 2) {
-      for (let x = 0; x < w; x += 2) {
-        const lit = (dx * 7 + y * 3 + x * 5) % 5
-        if (lit === 0) s += rect(x0 + dx + x, y, 1, 1, win)
-        else if (lit === 1) s += frames([rect(x0 + dx + x, y, 1, 1, win), rect(x0 + dx + x, y, 1, 1, dim)], 2 + (y % 5) * 0.7, x * 0.3)
-      }
-    }
-  }
-  if (R > cbd + 4) {
-    const hx = x0 + cbd
-    const hw = R - cbd
-    if (hw >= 26) {
-      // Rangitoto: a low, wide cone on the horizon
-      const rx = hx + hw - 24
-      for (let j = 0; j < 5; j += 1) s += rect(rx + 8 - 2 * j, 19 + j, 8 + 4 * j, 1, P.hill)
-      s += rect(rx + 10, 18, 4, 1, P.hill)
-    }
-    s += rect(hx, 24, hw, 4, P.sea)
-    for (let x = hx + 3; x < hx + hw - 3; x += 7) {
-      s += frames([rect(x, 25 + (x % 2), 3, 1, P.wave), rect(x + 1, 26 - (x % 2), 3, 1, P.wave)], 1.4 + (x % 3) * 0.3)
-    }
-    for (let x = hx + 6; x + 6 < hx + hw; x += 18) {
-      const boat = sprite(['..W...', '..WW..', '..WWW.', '..WWWW', 'HHHHHH', '.HHHH.'], { W: '#e5e7eb', H: '#7c4a2d' })
-      s += path(boat, [[x, 18], [x, 19], [x, 19], [x, 18]], 2.2 + (x % 4) * 0.2)
-    }
-  }
-  const t = x0 + Math.min(7, Math.max(2, R - 5))
-  s += rect(t - 1, 21, 4, 3, '#7c849c') + rect(t, 9, 2, 15, P.tower) + rect(t - 1, 6, 4, 1, P.tower)
-  s += rect(t - 2, 7, 6, 1, '#b8c0d4') + rect(t - 2, 8, 6, 1, win)
-  s += rect(t - 1, 9, 4, 1, P.tower)
-  s += rect(t, 3, 2, 3, P.tower) + rect(t + 1, 0, 1, 3, P.towerTop)
-  s += frames([rect(t + 1, 0, 1, 1, C.red), rect(t + 1, 0, 1, 1, '#7f1d1d')], 1.2)
   return s
 }
 
-function garden(width: number): string {
-  let s = ''
-  let x = 5
-  for (const [decoration, size] of DECOR) {
-    if (x + size > width - 4) break
-    s += at(x, decoration)
-    x += size + 7
+function locationBackdrop(mood: Mood): string {
+  let s='';
+  if(mood==='working'){
+    s=r(0,0,256,24,colors.wall)+base()+shelf(8)+shelf(209)+windowPane(48,4,30,15);
+    s+=r(41,21,40,2,colors.woodHi)+r(44,23,2,1,colors.wood)+pot(69,13);
+    s+=r(174,7,23,12,colors.paper)+r(177,10,8,1,colors.blue)+r(177,13,15,1,colors.green)+r(177,16,11,1,colors.orange);
+    s+=r(115,0,1,2,colors.ink)+r(111,2,9,1,colors.wood)+r(112,3,7,1,colors.paper);
+  }else if(mood==='waiting'){
+    s=r(0,0,256,24,colors.glass)+r(0,21,256,3,colors.soft)+base(colors.metal);
+    s+=r(7,2,241,2,colors.roof)+r(12,4,231,1,colors.ink);
+    for(const x of [12,76,179,242])s+=r(x,5,2,19,colors.roof);
+    s+=bench(31,15,33)+bench(191,15,33);
+    s+=r(86,6,23,3,colors.paper)+r(88,7,9,1,colors.ink)+r(100,7,6,1,colors.orange);
+    s+=sprite(['..CCC..','.CC.CC.','CC...CC','CC.C.CC','CC.CCCC','.CC.CC.','..CCC..'],{C:colors.ink},157,5);
+    for(let x=0;x<256;x+=8)s+=r(x,25,4,1,colors.paper);
+    s+=r(229,18,5,6,colors.wood)+r(230,16,3,1,colors.ink)+r(229,17,1,2,colors.ink)+r(233,17,1,2,colors.ink);
+  }else if(mood==='compact'){
+    s=r(0,0,256,24,colors.soft)+base(colors.metal);
+    for(const x of [10,79,176,245])s+=r(x,0,2,24,colors.metal);
+    s+=r(0,4,256,2,colors.ink)+r(0,6,256,1,colors.metal);
+    s+=r(4,22,78,2,colors.ink)+r(171,22,79,2,colors.ink);
+    // 两侧传送带共用一组两帧动画，减少同步运动的 SMIL 节点数。
+    const belt = ['', ''];
+    for(let x=8;x<250;x+=8)if(x<80||x>174){belt[0]+=r(x,22,3,1,colors.paper);belt[1]+=r(x+2,22,3,1,colors.paper)}
+    s+=frames(belt,1.6);
+    for(let i=0;i<4;i++)s+=r(18+i*12,16-(i%2)*2,9,5+(i%2)*2,colors.paper)+r(18+i*12,18,9,1,colors.metal);
+    s+=crate(188,14)+crate(199,14)+crate(194,6)+crate(222,14);
+    s+=r(223,7,9,4,colors.orange)+r(225,8,5,1,colors.paper);
+  }else if(mood==='done'){
+    s=r(0,0,256,24,colors.glass)+base(colors.soft);
+    for(let x=6;x<250;x+=15){const y=2+Math.floor(Math.abs(128-x)/50);s+=r(x,y,15,1,colors.wood);s+=sprite(['FFFFF','.FFF.','..F..'],{F:[colors.orange,colors.blue,colors.green,colors.pink][Math.floor(x/15)%4]},x+4,y+1)}
+    s+=r(87,23,81,1,colors.paper)+r(83,24,89,2,colors.woodHi)+r(78,26,99,1,colors.wood);
+    for(const x of [22,218]){s+=pot(x,16)+r(x+7,4,1,13,colors.wood);s+=sprite(['.BBBB.','BBBBBB','BBBBBB','.BBBB.','..BB..'],{B:x===22?colors.pink:colors.blue},x+5,1)}
+    for(const x of [48,186])s+=r(x,19,14,5,colors.wood)+r(x-1,17,16,3,colors.green)+r(x+3,15,8,2,colors.leaf);
+  }else if(mood==='relax'){
+    s=r(0,0,256,24,colors.cozy)+base(colors.woodHi);
+    s+=r(9,1,237,2,colors.wood);
+    for(let x=10;x<246;x+=8)s+=r(x,3,8,4,(Math.floor((x-10)/8)%2)?colors.paper:colors.green)+r(x,7,7,1,(Math.floor((x-10)/8)%2)?colors.paper:colors.green);
+    s+=r(13,8,2,16,colors.wood)+r(241,8,2,16,colors.wood)+windowPane(25,10,28,12);
+    s+=r(65,11,16,13,colors.wood)+r(67,13,12,8,colors.soft)+r(70,15,7,1,colors.paper)+r(70,18,5,1,colors.paper);
+    s+=r(180,18,22,2,colors.wood)+r(190,20,2,4,colors.wood)+r(185,14,5,4,colors.paper)+bench(207,16,21)+pot(224,16);
+    for(let x=0;x<256;x+=16)s+=r(x,26,7,1,colors.floor);
+  }else if(mood==='idle'){
+    s=r(0,0,256,24,colors.cozy)+base(colors.wood);
+    for(let x=0;x<256;x+=16)s+=r(x,0,1,24,colors.soft);
+    s+=r(0,0,256,2,colors.woodHi)+windowPane(28,5,32,15);
+    s+=r(25,4,3,19,colors.orange)+r(60,4,3,19,colors.orange)+r(20,23,50,1,colors.woodHi);
+    s+=r(179,19,23,2,colors.wood)+r(182,21,2,3,colors.wood)+r(197,21,2,3,colors.wood)+r(190,14,1,5,colors.ink)+r(185,11,11,3,colors.paper);
+    s+=r(216,10,20,14,colors.metal)+r(214,9,24,2,colors.ink)+r(221,15,10,8,colors.wood)+r(219,23,14,1,colors.ink);
+    s+=r(140,2,12,5,colors.wood)+r(141,3,10,3,colors.paper);
+  }else{
+    s=r(0,0,256,24,colors.soft)+base(colors.metal);
+    s+=r(20,7,37,15,colors.metal)+r(22,9,33,11,colors.paper)+r(26,12,10,1,colors.dim)+r(35,12,1,5,colors.dim)+r(35,16,13,1,colors.dim)+r(27,22,2,2,colors.metal)+r(49,22,2,2,colors.metal);
+    s+=r(88,4,78,2,colors.roof)+r(92,6,2,18,colors.metal)+r(161,6,2,18,colors.metal);
+    s+=r(191,10,32,2,colors.metal)+r(193,12,2,12,colors.metal)+r(219,12,2,12,colors.metal)+r(198,15,17,6,colors.paper)+r(201,17,11,1,colors.dim);
+    s+=pot(70,16)+pot(234,16);
   }
-  return s
+  return s;
 }
 
 // 每种状态只生成一次 SVG；分钟额度刷新复用同一 source，不重启动画。
@@ -366,7 +329,7 @@ export function sceneSvg(mood: Mood): string {
   const draw = mood === 'compact' ? scCompact : mood === 'waiting' ? scWaiting : mood === 'unknown' ? scUnknown : mood === 'working' ? scCode : mood === 'done' ? scParty : mood === 'relax' ? scIdle : scSleep
   const stage = `<defs><clipPath id="pb-stage"><rect width="${STAGE}" height="${H}"/></clipPath></defs>` +
     `<g transform="translate(${left} 0)"><g clip-path="url(#pb-stage)">${draw()}</g></g>`
-  const body = backdrop(W) + garden(left) + skyline(left + STAGE, left) + stage
+  const body = locationBackdrop(mood) + stage
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" class="pb-scene" viewBox="0 0 ${W} ${H}" width="${SCENE_WIDTH}" height="${SCENE_HEIGHT}"` +
     ` shape-rendering="crispEdges" style="background:transparent;color-scheme:light dark">${THEME}${body}</svg>`
   scenes[mood] = svg
