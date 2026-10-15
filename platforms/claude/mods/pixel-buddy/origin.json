@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plugin": "pixel-buddy-sam",
-  "version": "1.0.0-rc.17",
+  "version": "1.0.0-rc.18",
   "upstream": {
     "repo": "zhuoxingzhang/pixel-at-work",
     "commit": "3fc00b3ad2ef3a57ac043f8d28e7abcbd1679a6c",
@@ -11,7 +11,7 @@
     "notice": "hooks/scene-NOTICES.txt"
   },
   "source_sha256": {
-    ".claude-plugin/plugin.json": "81d8390041501f0949f641ade1ae14122595d6d866d73fc2ad46dd3f09102e7b",
+    ".claude-plugin/plugin.json": "df55a0edc3795926c9626237dbe2a97148990f8e5dd01c85eb15088f4a4fb84e",
     "LICENSE-local.txt": "6b341429fd5f6e5aeb330fe991b0a85a1184d7446aeb00b779def8cce209ccdf",
     "background.test.tsx": "d24609ef760e880782557b779db0c613bd76046947e5ebd1396763a67228dba3",
     "compact-animation.test.tsx": "921bd06439b78c3021148d4ecf498bddb33d86002431d91112c85723e42459a1",
@@ -25,7 +25,7 @@
     "hooks/quota-text.ts": "0fbf67852a7a351206733fa34a2779dadf4781b5d84e0eb5c01d56c8b9bfa72c",
     "hooks/register.tsx": "d39be3cc7f65509d98e6e27d5700235ce81c6a80e39b6a27ab70bd9094482ab1",
     "hooks/scene-NOTICES.txt": "cea7af311823b6e871d4d8e8c45262496b1557f68dce35ca4e4c6130c952e70e",
-    "hooks/scene.ts": "c8753347e1a02f45fb69d996b3ed56e3afe5904c70decae78abb92b9334f8fc6",
+    "hooks/scene.ts": "50023809826ec70d60613d3c353e7d2bb78dfbb819df7c26c375be8acfb44dc6",
     "quota.test.tsx": "235471d877a6eddc32e38338b1710374ac1f60287a3643009496012228d92ca4",
     "types/index.d.ts": "93a88a2040c1783a9fb2d33b2f5ed609bc64463174b9f3bc41eb8349ecc8fcd7"
   },
@@ -35,7 +35,7 @@
       "desktop",
       "terminal"
     ],
-    "app_visual_acceptance": "rc.17 seven-location preview approved; native new-session review pending",
+    "app_visual_acceptance": "rc.18 transparent scene canvas; native new-session review pending",
     "tested_cli": "2.1.294"
   },
   "assets": [

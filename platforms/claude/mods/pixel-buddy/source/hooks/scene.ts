@@ -260,15 +260,16 @@ function shelf(x: number): string {
   return s
 }
 
+// 大面积留白保持透明，直接透出宿主面板；不能按主题猜一个近似底色，否则会形成色差框。
 function locationBackdrop(mood: Mood): string {
   let s='';
   if(mood==='working'){
-    s=r(0,0,256,24,colors.wall)+base()+shelf(8)+shelf(209)+windowPane(48,4,30,15);
+    s=base()+shelf(8)+shelf(209)+windowPane(48,4,30,15);
     s+=r(41,21,40,2,colors.woodHi)+r(44,23,2,1,colors.wood)+pot(69,13);
     s+=r(174,7,23,12,colors.paper)+r(177,10,8,1,colors.blue)+r(177,13,15,1,colors.green)+r(177,16,11,1,colors.orange);
     s+=r(115,0,1,2,colors.ink)+r(111,2,9,1,colors.wood)+r(112,3,7,1,colors.paper);
   }else if(mood==='waiting'){
-    s=r(0,0,256,24,colors.glass)+r(0,21,256,3,colors.soft)+base(colors.metal);
+    s=r(0,21,256,3,colors.soft)+base(colors.metal);
     s+=r(7,2,241,2,colors.roof)+r(12,4,231,1,colors.ink);
     for(const x of [12,76,179,242])s+=r(x,5,2,19,colors.roof);
     s+=bench(31,15,33)+bench(191,15,33);
@@ -277,7 +278,7 @@ function locationBackdrop(mood: Mood): string {
     for(let x=0;x<256;x+=8)s+=r(x,25,4,1,colors.paper);
     s+=r(229,18,5,6,colors.wood)+r(230,16,3,1,colors.ink)+r(229,17,1,2,colors.ink)+r(233,17,1,2,colors.ink);
   }else if(mood==='compact'){
-    s=r(0,0,256,24,colors.soft)+base(colors.metal);
+    s=base(colors.metal);
     for(const x of [10,79,176,245])s+=r(x,0,2,24,colors.metal);
     s+=r(0,4,256,2,colors.ink)+r(0,6,256,1,colors.metal);
     s+=r(4,22,78,2,colors.ink)+r(171,22,79,2,colors.ink);
@@ -289,13 +290,13 @@ function locationBackdrop(mood: Mood): string {
     s+=crate(188,14)+crate(199,14)+crate(194,6)+crate(222,14);
     s+=r(223,7,9,4,colors.orange)+r(225,8,5,1,colors.paper);
   }else if(mood==='done'){
-    s=r(0,0,256,24,colors.glass)+base(colors.soft);
+    s=base(colors.soft);
     for(let x=6;x<250;x+=15){const y=2+Math.floor(Math.abs(128-x)/50);s+=r(x,y,15,1,colors.wood);s+=sprite(['FFFFF','.FFF.','..F..'],{F:[colors.orange,colors.blue,colors.green,colors.pink][Math.floor(x/15)%4]},x+4,y+1)}
     s+=r(87,23,81,1,colors.paper)+r(83,24,89,2,colors.woodHi)+r(78,26,99,1,colors.wood);
     for(const x of [22,218]){s+=pot(x,16)+r(x+7,4,1,13,colors.wood);s+=sprite(['.BBBB.','BBBBBB','BBBBBB','.BBBB.','..BB..'],{B:x===22?colors.pink:colors.blue},x+5,1)}
     for(const x of [48,186])s+=r(x,19,14,5,colors.wood)+r(x-1,17,16,3,colors.green)+r(x+3,15,8,2,colors.leaf);
   }else if(mood==='relax'){
-    s=r(0,0,256,24,colors.cozy)+base(colors.woodHi);
+    s=base(colors.woodHi);
     s+=r(9,1,237,2,colors.wood);
     for(let x=10;x<246;x+=8)s+=r(x,3,8,4,(Math.floor((x-10)/8)%2)?colors.paper:colors.green)+r(x,7,7,1,(Math.floor((x-10)/8)%2)?colors.paper:colors.green);
     s+=r(13,8,2,16,colors.wood)+r(241,8,2,16,colors.wood)+windowPane(25,10,28,12);
@@ -303,7 +304,7 @@ function locationBackdrop(mood: Mood): string {
     s+=r(180,18,22,2,colors.wood)+r(190,20,2,4,colors.wood)+r(185,14,5,4,colors.paper)+bench(207,16,21)+pot(224,16);
     for(let x=0;x<256;x+=16)s+=r(x,26,7,1,colors.floor);
   }else if(mood==='idle'){
-    s=r(0,0,256,24,colors.cozy)+base(colors.wood);
+    s=base(colors.wood);
     for(let x=0;x<256;x+=16)s+=r(x,0,1,24,colors.soft);
     s+=r(0,0,256,2,colors.woodHi)+windowPane(28,5,32,15);
     s+=r(25,4,3,19,colors.orange)+r(60,4,3,19,colors.orange)+r(20,23,50,1,colors.woodHi);
@@ -311,7 +312,7 @@ function locationBackdrop(mood: Mood): string {
     s+=r(216,10,20,14,colors.metal)+r(214,9,24,2,colors.ink)+r(221,15,10,8,colors.wood)+r(219,23,14,1,colors.ink);
     s+=r(140,2,12,5,colors.wood)+r(141,3,10,3,colors.paper);
   }else{
-    s=r(0,0,256,24,colors.soft)+base(colors.metal);
+    s=base(colors.metal);
     s+=r(20,7,37,15,colors.metal)+r(22,9,33,11,colors.paper)+r(26,12,10,1,colors.dim)+r(35,12,1,5,colors.dim)+r(35,16,13,1,colors.dim)+r(27,22,2,2,colors.metal)+r(49,22,2,2,colors.metal);
     s+=r(88,4,78,2,colors.roof)+r(92,6,2,18,colors.metal)+r(161,6,2,18,colors.metal);
     s+=r(191,10,32,2,colors.metal)+r(193,12,2,12,colors.metal)+r(219,12,2,12,colors.metal)+r(198,15,17,6,colors.paper)+r(201,17,11,1,colors.dim);
