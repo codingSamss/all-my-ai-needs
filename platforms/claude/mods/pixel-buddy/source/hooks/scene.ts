@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// 角色与基础动作摘自 pixel-at-work，版权及固定提交见 scene-NOTICES.txt；七景背景、睡床与沙漏为本地绘制。
+// 角色与基础动作摘自 pixel-at-work，版权及固定提交见 scene-NOTICES.txt；七景背景、睡床、邮箱与沙漏为本地绘制。
 // 仅移植绘图；不引入工具分类、结果猜测、节日、轮询或上游事件钩子。
 import type { Mood } from '../types'
 export const DONE_SECONDS = 6.5
@@ -205,14 +205,37 @@ function hourglass(phase: number, unknown = false): string {
 }
 
 function scWaiting(): string {
-  const steps = Array.from({ length: 24 }, (_, i) => {
-    const glass = hourglass(Math.min(3, Math.floor(i / 6)))
-    return i < 22 ? glass + rect(5, 8 + i % 3, 1, 1, '#d4a23b')
-      : `<g transform="rotate(${i === 22 ? 90 : 180} 6 8)">${glass}</g>`
-  })
-  const table = rect(44, 22, 17, 2, C.wood)
-  return table + `<g class="pb-wait-motion">${critter(22, 14, 'waiting')}<g transform="translate(47 6)">${frames(steps, 6)}</g></g>` +
-    `<g class="pb-wait-static">${critter(22, 14, 'still')}<g transform="translate(47 6)">${hourglass(1)}</g></g>`
+  // 邮箱始终为空；旗帜和信封图案是固定标识，不能用循环动画暗示收到结果或完成进度。
+  let mailbox = rect(54, 16, 3, 8, colors.wood) + rect(54, 16, 1, 8, colors.woodHi)
+  mailbox += rect(46, 5, 16, 1, colors.roof) + rect(44, 6, 20, 2, colors.roof) +
+    rect(43, 8, 22, 8, colors.roof) + rect(50, 8, 15, 8, colors.ink)
+  mailbox += rect(45, 7, 3, 1, colors.ink) + rect(44, 8, 5, 7, '#283e3e') +
+    rect(43, 15, 7, 1, colors.metal) + rect(39, 16, 6, 1, colors.roof) + rect(38, 17, 5, 1, colors.ink)
+  mailbox += rect(59, 1, 1, 5, '#c94f40') + rect(60, 1, 5, 3, '#c94f40')
+  mailbox += sprite(['IPPPPPPPI', 'PIPPPPPIP', 'PPIPPPIPP', 'PPPIPIPPP', 'PPPPIPPPP', 'PPPPPPPPP'],
+    { P: colors.paper, I: colors.wood }, 53, 9)
+
+  // 脚掌固定落地，身体只挪 1–2 个逻辑像素；整像素分帧保持轮廓清晰，不连续旋转或缩放。
+  const pose = (dx = 0, lift = 0, blink = false, look = 0) => {
+    const x = 28 + dx, y = 14 - lift
+    let s = sprite(BODY, BODY_PAL, x, y)
+    for (const foot of [29, 31, 36, 38]) {
+      s += rect(Math.min(foot, foot + dx), 22 - lift, 1 + Math.abs(dx), 1, C.o) +
+        rect(foot, 23 - lift, 1, 1 + lift, C.o)
+    }
+    s += blink ? rect(x + 2, y + 3, 2, 1, C.eye) + rect(x + 8, y + 3, 2, 1, C.eye)
+      : rect(x + 3 + look, y + 2, 1, 2, C.eye) + rect(x + 8 + look, y + 2, 1, 2, C.eye)
+    return s
+  }
+  const poses = [pose(), pose(1, 1, false, 1), pose(2, 2, false, 1), pose(0, 0, true), pose(-1), pose(1)]
+  // 8 秒内只做一轮小动作，尾段安静等候；用 SVG 自身时序，不增加插件计时器或状态更新。
+  const beats = [[0, 0], [1.2, 1], [1.45, 2], [2.05, 1], [2.3, 0], [2.55, 3], [2.75, 0],
+    [3.3, 4], [3.7, 0], [4.1, 5], [4.5, 0], [4.9, 4], [5.3, 0], [5.5, 3], [5.7, 0], [8, 0]]
+  const keyTimes = beats.map(([time]) => time / 8).join(';')
+  const motion = poses.map((drawing, i) => `<g opacity="${i === 0 ? 1 : 0}"><animate attributeName="opacity"` +
+    ` values="${beats.map(([, frame]) => frame === i ? 1 : 0).join(';')}" keyTimes="${keyTimes}"` +
+    ` dur="8s" calcMode="discrete" repeatCount="indefinite"/>${drawing}</g>`).join('')
+  return mailbox + `<g class="pb-wait-motion">${motion}</g><g class="pb-wait-static">${poses[0]}</g>`
 }
 
 function scUnknown(): string {
@@ -269,14 +292,11 @@ function locationBackdrop(mood: Mood): string {
     s+=r(174,7,23,12,colors.paper)+r(177,10,8,1,colors.blue)+r(177,13,15,1,colors.green)+r(177,16,11,1,colors.orange);
     s+=r(115,0,1,2,colors.ink)+r(111,2,9,1,colors.wood)+r(112,3,7,1,colors.paper);
   }else if(mood==='waiting'){
-    s=r(0,21,256,3,colors.soft)+base(colors.metal);
-    s+=r(7,2,241,2,colors.roof)+r(12,4,231,1,colors.ink);
-    for(const x of [12,76,179,242])s+=r(x,5,2,19,colors.roof);
-    s+=bench(31,15,33)+bench(191,15,33);
-    s+=r(86,6,23,3,colors.paper)+r(88,7,9,1,colors.ink)+r(100,7,6,1,colors.orange);
-    s+=sprite(['..CCC..','.CC.CC.','CC...CC','CC.C.CC','CC.CCCC','.CC.CC.','..CCC..'],{C:colors.ink},157,5);
-    for(let x=0;x<256;x+=8)s+=r(x,25,4,1,colors.paper);
-    s+=r(229,18,5,6,colors.wood)+r(230,16,3,1,colors.ink)+r(229,17,1,2,colors.ink)+r(233,17,1,2,colors.ink);
+    // 低矮石径与灌木留出透明背景，核心邮箱和角色均在居中舞台内，窄窗裁边仍可辨认。
+    for(let x=40;x<216;x+=9)s+=r(x,24,7,1,colors.woodHi)+r(x+1,25,5,1,colors.soft);
+    s+=sprite(['.....GGG.......','....GGGGG......','..GGGGGGLGG....','.GGGLGGGGGGG...',
+      'GGGGGGGGGGGGG..','GGGGGGLGGGGGGG.','.GGGGGGGGGGGG..'],{G:colors.leaf,L:colors.green},94,17);
+    for(const x of [133,154,175])s+=sprite(['..G....','.GG..G.','.GG.GG.','GGGGGGG'],{G:colors.green},x,20);
   }else if(mood==='compact'){
     s=base(colors.metal);
     for(const x of [10,79,176,245])s+=r(x,0,2,24,colors.metal);

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plugin": "pixel-buddy-sam",
-  "version": "1.0.0-rc.18",
+  "version": "1.0.0-rc.19",
   "upstream": {
     "repo": "zhuoxingzhang/pixel-at-work",
     "commit": "3fc00b3ad2ef3a57ac043f8d28e7abcbd1679a6c",
@@ -11,7 +11,7 @@
     "notice": "hooks/scene-NOTICES.txt"
   },
   "source_sha256": {
-    ".claude-plugin/plugin.json": "df55a0edc3795926c9626237dbe2a97148990f8e5dd01c85eb15088f4a4fb84e",
+    ".claude-plugin/plugin.json": "df5c42c165dff98fa3298f1a41ce34c6e5bae9158b5b8aae31865d8d2cdcbd48",
     "LICENSE-local.txt": "6b341429fd5f6e5aeb330fe991b0a85a1184d7446aeb00b779def8cce209ccdf",
     "background.test.tsx": "d24609ef760e880782557b779db0c613bd76046947e5ebd1396763a67228dba3",
     "compact-animation.test.tsx": "921bd06439b78c3021148d4ecf498bddb33d86002431d91112c85723e42459a1",
@@ -24,19 +24,19 @@
     "hooks/quota-text-OFL.txt": "f89f8fb79f82d57eb745e6cfc2d4401fd4527ae1a3aa350147bcb819de5494cb",
     "hooks/quota-text.ts": "0fbf67852a7a351206733fa34a2779dadf4781b5d84e0eb5c01d56c8b9bfa72c",
     "hooks/register.tsx": "d39be3cc7f65509d98e6e27d5700235ce81c6a80e39b6a27ab70bd9094482ab1",
-    "hooks/scene-NOTICES.txt": "cea7af311823b6e871d4d8e8c45262496b1557f68dce35ca4e4c6130c952e70e",
-    "hooks/scene.ts": "50023809826ec70d60613d3c353e7d2bb78dfbb819df7c26c375be8acfb44dc6",
+    "hooks/scene-NOTICES.txt": "52d6a36cf64f3859a9561f8250cd4fe4c5a5ff548b3539d529cad496f0b8740a",
+    "hooks/scene.ts": "a76448589e3f5ac2b74b3eca6c7960695fcb591ef0197f6a7bc480f031387ab2",
     "quota.test.tsx": "235471d877a6eddc32e38338b1710374ac1f60287a3643009496012228d92ca4",
     "types/index.d.ts": "93a88a2040c1783a9fb2d33b2f5ed609bc64463174b9f3bc41eb8349ecc8fcd7"
   },
   "compatibility": {
-    "tested_engine": "2.1.294",
+    "tested_engine": "2.1.299",
     "surfaces": [
       "desktop",
       "terminal"
     ],
-    "app_visual_acceptance": "rc.18 transparent scene canvas; native new-session review pending",
-    "tested_cli": "2.1.294"
+    "app_visual_acceptance": "rc.19 mailbox SVG checked in browser; native waiting-state review pending",
+    "tested_cli": "2.1.299"
   },
   "assets": [
     {
