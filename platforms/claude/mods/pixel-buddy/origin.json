@@ -39,7 +39,7 @@
       "desktop",
       "terminal"
     ],
-    "app_visual_acceptance": "rc.20 SVG scenes checked in browser (unchanged in rc.21 to rc.23); native new-session review pending",
+    "app_visual_acceptance": "rc.20 SVG scenes checked in browser (unchanged in rc.21 to rc.23); native new-session review not performed (rc.23 accepted by the owner on 2026-10-18 without it)",
     "tested_cli": "2.1.299"
   },
   "assets": [

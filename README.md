@@ -69,7 +69,7 @@ python3 platforms/claude/mods/pixel-buddy/install.py
 
 需要 Python 3.9+ 和 Claude Code CLI。安装器校验包内源码与许可的 SHA-256，离线组装，
 在设备私有缓存生成完整插件与本机 marketplace，用官方 CLI 安装到 user scope；不改项目、权限或现有会话。
-原版已启用或发现本地改动时停止，不自动替换。保留原生目录入口与提示槽；候选版现场验证需要新的 Desktop Code 本地会话。
+原版已启用或发现本地改动时停止，不自动替换。保留原生目录入口与提示槽；rc.23 由作者于 2026-10-18 放行，未做原生 App 新会话实测；现场验证仍需要新的 Desktop Code 本地会话。
 Mod 由 `mods.meta.yaml` 单独登记，默认不随 skills 同步；运行态、凭据、真实设置不入仓，未明确许可的上游源码不公开发布。
 
 ## 治理与约定

@@ -9,7 +9,7 @@ mods:
     origin: mods/pixel-buddy/origin.json
     install: python3 platforms/claude/mods/pixel-buddy/install.py
     scope: user
-    status: candidate
+    status: owner-accepted
     automatic_updates: false
     notes:
       - 缺失快照保留已确认的后台任务，快照里不认识的状态词只忽略单条；同会话重载接续追踪，启动/重新连接时补一次代理状态，未知范围不误报完成
@@ -25,4 +25,4 @@ mods:
       - 安装器生成本机 marketplace；根 marketplace 继续只提供现有 skills 插件
       - pixel-at-work 的 MIT 绘图子集随包分发，固定提交和 SHA-256；额度区收窄 80px，动画高 54px
       - 原版已启用、已有源码漂移或同插件正在安装时停止，不自动切换
-      - 新会话现场验收前保持 candidate；不重启 App 或重载现有会话
+      - 作者于 2026-10-18 放行 rc.23，未做原生 App 新会话实测（已做 SDK 测试、变异测试与真机无头采样）；不重启 App 或重载现有会话
