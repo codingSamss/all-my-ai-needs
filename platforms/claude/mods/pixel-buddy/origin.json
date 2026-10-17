@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "plugin": "pixel-buddy-sam",
-  "version": "1.0.0-rc.19",
+  "version": "1.0.0-rc.23",
   "upstream": {
     "repo": "zhuoxingzhang/pixel-at-work",
     "commit": "3fc00b3ad2ef3a57ac043f8d28e7abcbd1679a6c",
@@ -11,23 +11,27 @@
     "notice": "hooks/scene-NOTICES.txt"
   },
   "source_sha256": {
-    ".claude-plugin/plugin.json": "df5c42c165dff98fa3298f1a41ce34c6e5bae9158b5b8aae31865d8d2cdcbd48",
+    ".claude-plugin/plugin.json": "2ef152d15a3c6ccd88cb4337da979b2c252aad37f482718ea930f6282d57a6cc",
     "LICENSE-local.txt": "6b341429fd5f6e5aeb330fe991b0a85a1184d7446aeb00b779def8cce209ccdf",
-    "background.test.tsx": "d24609ef760e880782557b779db0c613bd76046947e5ebd1396763a67228dba3",
+    "background.test.tsx": "689e6ccef9f8c2b7abfc384239546075a043b0b7e420f82a817bd7eb729ec1b5",
     "compact-animation.test.tsx": "921bd06439b78c3021148d4ecf498bddb33d86002431d91112c85723e42459a1",
     "compaction.test.tsx": "e08bbc7fcdc2bb3d2e626889096bc575ec598507a819586e802b033eb6701182",
-    "hooks/background.ts": "f969c02438dc1577c513a98ca9343185084ae31f54a28b2a90563f3756d97159",
+    "hooks/background.ts": "1c6d867332f53c903b362670cd17e15020b4766a7edd013b13515f4df1802467",
     "hooks/context-progress.ts": "a618258ae4b707caac63455668c4823ab8bf01c7f54857a0a81291a066d91f37",
     "hooks/hooks.json": "d842d789476d67282d0f04b7e5fdc68a3d981ccec65dd79cfa2d11eed13fb828",
     "hooks/pixel-quota-NOTICES.txt": "4be291006902f7facf25e974030dc0d5e2e3199bd7b61b6facfdc0e8612404dc",
     "hooks/quota-pixels.ts": "edb1aa7b648cc67396fae4188747d078787e92ee3bc74f108c8fb36f56c09ef2",
     "hooks/quota-text-OFL.txt": "f89f8fb79f82d57eb745e6cfc2d4401fd4527ae1a3aa350147bcb819de5494cb",
     "hooks/quota-text.ts": "0fbf67852a7a351206733fa34a2779dadf4781b5d84e0eb5c01d56c8b9bfa72c",
-    "hooks/register.tsx": "d39be3cc7f65509d98e6e27d5700235ce81c6a80e39b6a27ab70bd9094482ab1",
-    "hooks/scene-NOTICES.txt": "52d6a36cf64f3859a9561f8250cd4fe4c5a5ff548b3539d529cad496f0b8740a",
-    "hooks/scene.ts": "a76448589e3f5ac2b74b3eca6c7960695fcb591ef0197f6a7bc480f031387ab2",
-    "quota.test.tsx": "235471d877a6eddc32e38338b1710374ac1f60287a3643009496012228d92ca4",
-    "types/index.d.ts": "93a88a2040c1783a9fb2d33b2f5ed609bc64463174b9f3bc41eb8349ecc8fcd7"
+    "hooks/register.tsx": "81ffd53206fbbb155c75c79983df7f6bd24214e3a01016dabaaf07d9bc0e89ff",
+    "hooks/scene-NOTICES.txt": "817029cf70a5d37567fab7e101b33038a588467b2a46ac4ac2cb06979b0b8dfe",
+    "hooks/scene.ts": "511e46baf1158455e43e0b34b2d4d4be2ea1ba81896bf2811db33c043fb0c8a8",
+    "hooks/status.ts": "be95d230100979503708dd6e4204bc5d8bbe5ba5be2d43c3728e99b12dabe05e",
+    "quiet.test.tsx": "8d574849bb94ce74e966cb3ef248d7f3449989f56921edf3ffe09c16561f6072",
+    "quota.test.tsx": "e3162bdcd11ec77b30decae6e0de03fafb0428d1a1e3b976729898cd8d490fc8",
+    "states.test.tsx": "b9f38d8e9277188cfa3414f1069c03a708d984d07d4fa39a96c3d165cfb6c6e8",
+    "status.test.tsx": "9acbd23e572164875b307f2a549360768e55f53a443c476e5daae1642d38c33d",
+    "types/index.d.ts": "3f9fa1e033728be7da1f1ffddeab3a2070bd007950330585a65ed2c11c7a1c21"
   },
   "compatibility": {
     "tested_engine": "2.1.299",
@@ -35,7 +39,7 @@
       "desktop",
       "terminal"
     ],
-    "app_visual_acceptance": "rc.19 mailbox SVG checked in browser; native waiting-state review pending",
+    "app_visual_acceptance": "rc.20 SVG scenes checked in browser (unchanged in rc.21 to rc.23); native new-session review pending",
     "tested_cli": "2.1.299"
   },
   "assets": [

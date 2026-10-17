@@ -3,7 +3,7 @@ https://github.com/zhuoxingzhang/pixel-at-work
 Commit: 3fc00b3ad2ef3a57ac043f8d28e7abcbd1679a6c
 Source: hooks/register.tsx (drawing functions only)
 Changes: lifecycle and real-compaction scene selection, compact fixed-height canvas, no holiday effects or success badges, cached SVG; adapted paper-press compaction scene and sleeping character.
-The waiting mailbox and its small character motions, unknown-task hourglass, bed and seven location backgrounds (study, mailbox path, workshop, square, cafe, cabin and information kiosk) are original local additions, with light/dark theme palettes.
+The fixed room (bookshelf, curtained window, plants, floor lamp, pinboard, picture, cabinet, rug), the eyes-only character poses, the per-state props (thinking, speech and notice bubbles, monitor, mailbox, coffee table, error and pause marks), the unknown-task question mark and the bed are original local additions, with light/dark theme palettes.
 
 MIT License
 

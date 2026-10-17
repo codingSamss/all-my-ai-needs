@@ -1,11 +1,12 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, SessionUsage } from 'claude-code'
-import type { Mood, PanelState, FooterState, WorkState } from '../types'
+import type { CacheStage, Mood, PanelState, FooterState, StepMood, WorkState } from '../types'
 import { pixelIconSvg, pixelMeterSvg, pixelPercentSvg } from './quota-pixels'
 import { pixelLabelSvg, pixelQuotaCardSvg } from './quota-text'
-import { DONE_SECONDS, SCENE_HEIGHT, SCENE_WIDTH, sceneSvg } from './scene'
+import { DONE_SECONDS, FLASH_SECONDS, SCENE_HEIGHT, SCENE_WIDTH, sceneSvg } from './scene'
 import { compactionState, contextProgress } from './context-progress'
-import { emptyWork, finished, hasWork, reconcile, workStamp, started, notificationTask, panelWork, resumeWork, restoreAgents } from './background'
+import { dropCalls, emptyWork, finished, hasWork, reconcile, workStamp, started, notificationTask, panelWork, resumeWork, restoreAgents } from './background'
+import { declareStatus, describeStatus } from './status'
 
 // 本文件按显示需求独立实现；动画绘图使用包内 MIT 授权素材。
 // 面板与秒级倒计时分开订阅，cache 更新不能让宠物 SVG 被反复替换。
@@ -18,6 +19,20 @@ const footer = atom({ plugin: 'pixel-buddy-sam', key: 'footer' } as const, {
 const GREEN = '#4cc35a', AMBER = '#e5a33a', RED = '#e5534b', NEUTRAL = '#9a9a9a'
 
 const usedColor = (used: number) => used >= 90 ? RED : used >= 70 ? AMBER : GREEN
+
+const ALT: Record<Mood, string> = {
+  idle: 'Claude is idle', working: 'Claude is working', thinking: 'Claude is thinking', replying: 'Claude is replying',
+  asking: 'Claude is waiting for your answer', waiting: 'Claude is waiting for scripts or subagents',
+  compact: 'Claude is compacting', done: 'Claude is celebrating', relax: 'Claude is relaxing',
+  unknown: 'Claude task status is unknown', error: 'Claude hit an error', aborted: 'Claude was interrupted',
+}
+
+// 咖啡的温度对应提示缓存的剩余寿命：过半前是热的，过半后变温，过期即凉；还没有读数时按热处理。
+function cacheStage(cacheAt: number | null, now: number, ttl: number): CacheStage {
+  if (cacheAt === null) return 'hot'
+  const left = ttl - (now - cacheAt)
+  return left <= 0 ? 'cold' : left <= ttl / 2 ? 'warm' : 'hot'
+}
 
 async function readUsage($: EngineInterface): Promise<SessionUsage | null> {
   try {
@@ -60,7 +75,34 @@ function scenePhase(phase: Mood, elapsed: number): [Mood, number] {
     if (elapsed < DONE_SECONDS) return ['done', elapsed]
     return scenePhase('relax', elapsed - DONE_SECONDS)
   }
+  // 出错、中断只闪现一小会儿，之后交还给未知、等待或空闲的判断。
+  if (phase === 'error' || phase === 'aborted') {
+    return elapsed < FLASH_SECONDS ? [phase, elapsed] : ['idle', elapsed - FLASH_SECONDS]
+  }
   return phase === 'relax' && elapsed >= 240 ? ['idle', elapsed - 240] : [phase, elapsed]
+}
+
+// 提问和计划确认的 tool.call 本身就是等你回答的弹窗，返回即已作答；计数方式与压缩相同，并发或失败都能收回。
+// 其他工具的权限确认与执行同在一次 tool.call 内，无法区分，所以不计入。
+async function whileAsking<T>($: EngineInterface, run: () => Promise<T>): Promise<T> {
+  let shown = false
+  let epoch: number | undefined
+  try {
+    epoch = panelWork(await read($, panel)).epoch
+    await update($, panel, state => panelWork(state).epoch !== epoch ? state
+      : ({ ...state, asking: (state.asking ?? 0) + 1 }))
+    shown = true
+  } catch { /* 装饰层读取/绘制失败不能阻断真实提问。 */ }
+  try {
+    return await run()
+  } finally {
+    if (shown) {
+      try {
+        await update($, panel, state => panelWork(state).epoch !== epoch ? state
+          : ({ ...state, asking: Math.max(0, (state.asking ?? 0) - 1) }))
+      } catch { /* 不用 UI 故障掩盖宿主原始结果或异常。 */ }
+    }
+  }
 }
 
 async function changeWork($: EngineInterface, epoch: number, apply: (work: WorkState) => WorkState) {
@@ -98,6 +140,9 @@ export const register: Register = (on, options) => {
   const ttl = options.cacheTtl === '5m' ? 300000 : 3600000
   let usageRequest = 0
 
+  on('command.run', { command: 'buddy-status' }, async $ => ({
+    text: describeStatus(await read($, panel), await $.agent.list().catch(() => undefined)),
+  }))
   on('tool.call', async ($, event, next) => {
     if (event.tool !== 'Bash' && event.tool !== 'Agent') return next(event)
     const at = workStamp(), work = panelWork(await read($, panel))
@@ -165,8 +210,6 @@ export const register: Register = (on, options) => {
     return next(event)
   })
 
-
-
   on('session.start', async ($, event, next) => {
     const previous = await read($, panel), previousWork = panelWork(previous)
     // 模块重载会重置本地序号；从旧状态之后开始，避免新事件被当作迟到。
@@ -184,13 +227,14 @@ export const register: Register = (on, options) => {
       epoch = workStamp()
       // 读取用量期间可能已收到完成通知；在原子更新中接续最新任务，避免复活旧任务。
       const work = sessionId && sessionId === state.sessionId ? resumeWork(latest, epoch) : emptyWork(epoch)
-      return { phase: 'idle', phaseAt: now, clockAt: now, limits: usage?.rateLimits ?? [], compacting: 0, work, sessionId }
+      return { phase: 'idle', phaseAt: now, clockAt: now, limits: usage?.rateLimits ?? [], compacting: 0, asking: 0, cache: 'hot', work, sessionId }
     })
     await update($, footer, () => ({ clockAt: now, cacheAt: null,
       context: usage ? contextOnly(usage.context) : null,
       compaction: compactionState(usage?.context.breakdown),
     }))
     await refreshAgents($, epoch)
+    await declareStatus($)
     // 动画交给 SVG 内的 SMIL；这里只按分钟刷新额度文案，并补偿重载后丢失的阶段回调。
     $.clock.every(60000, async () => {
       const tick = await $.clock.now()
@@ -202,6 +246,11 @@ export const register: Register = (on, options) => {
       const warm = previous.cacheAt !== null && tick - previous.cacheAt < ttl + 2000
       if (warm) {
         await update($, footer, state => ({ ...state, clockAt: tick }))
+      }
+      // 咖啡温度只在跨过半寿命和过期两个点时才写面板，其余秒级刷新不会重绘上方宠物。
+      const stage = cacheStage(previous.cacheAt, tick, ttl)
+      if (((await read($, panel)).cache ?? 'hot') !== stage) {
+        await update($, panel, state => ({ ...state, cache: stage }))
       }
     })
     return next(event)
@@ -282,10 +331,36 @@ export const register: Register = (on, options) => {
     const at = workStamp()
     const tick = await $.clock.now()
     await update($, panel, state => at < panelWork(state).epoch ? state : ({ ...state, phase: 'working', phaseAt: tick, clockAt: tick,
-      work: { ...panelWork(state), turnAt: at },
+      step: undefined, work: { ...panelWork(state), turnAt: at },
     }))
     return next(event)
   })
+
+  // 模型响应按块到达：思考块、文本块、工具块分别对应思考、回复和干活，只在块种类变化时写状态。
+  // 只看块的种类，不读文本内容，也不理会子代理的请求。
+  on('turn.step', async function* ($, event, next) {
+    if (event.agentId) return yield* next(event)
+    let shown: StepMood | undefined
+    const show = async (step: StepMood) => {
+      if (shown === step) return
+      shown = step
+      try {
+        if ((await read($, panel)).step !== step) await update($, panel, state => ({ ...state, step }))
+      } catch { /* 装饰层失败不能打断模型响应。 */ }
+    }
+    await show('working')
+    const stream = next(event)
+    for await (const chunk of stream) {
+      if (chunk.kind === 'thinking') await show('thinking')
+      else if (chunk.kind === 'text') await show('replying')
+      else if (chunk.kind === 'tool') await show('working')
+      yield chunk
+    }
+    return await stream.result
+  })
+
+  on('tool.call', { tool: 'AskUserQuestion' }, ($, event, next) => whileAsking($, () => next(event)))
+  on('tool.call', { tool: 'ExitPlanMode' }, ($, event, next) => whileAsking($, () => next(event)))
   on('turn.complete', async ($, event, next) => {
     const at = workStamp()
     if (event.agentId) {
@@ -302,23 +377,26 @@ export const register: Register = (on, options) => {
       await update($, panel, state => {
         const previous = panelWork(state)
         if (at < previous.epoch) return state
-        const failed = event.isAborted || event.reason === 'error' || event.reason === 'refusal'
+        const aborted = event.isAborted || event.reason === 'aborted'
+        const failed = aborted || event.reason === 'error' || event.reason === 'refusal'
         // 没有这一轮的完整 Stop 快照时不能宣告全局完成；中断也不等于后台任务终止。
-        const work = failed || !previous.snapshot || previous.snapshot < previous.turnAt
-          ? reconcile(previous, undefined, at) : previous
-        const phase = !failed && work.known && !hasWork(work) ? 'done' : 'idle'
-        return { ...state, work, phase, phaseAt: tick, clockAt: tick }
+        // 回合已经结束，还没返回的前台调用不会再返回，一并清掉，免得等待一直亮着。
+        const work = dropCalls(failed || !previous.snapshot || previous.snapshot < previous.turnAt
+          ? reconcile(previous, undefined, at) : previous, at)
+        const phase: Mood = failed ? (aborted ? 'aborted' : 'error') : work.known && !hasWork(work) ? 'done' : 'idle'
+        return { ...state, work, phase, phaseAt: tick, clockAt: tick, step: undefined }
       })
-      if ((await read($, panel)).phase === 'done') {
-        for (const delay of [DONE_SECONDS * 1000, (DONE_SECONDS + 240) * 1000]) {
-          $.clock.after(delay, async () => {
-            const current = await read($, panel)
-            // 已开始新一轮任务时，旧庆祝计时器不能重绘或覆盖新阶段。
-            if (current.phase !== 'done' || current.phaseAt !== tick) return
-            const now = await $.clock.now()
-            await update($, panel, state => ({ ...state, clockAt: now }))
-          })
-        }
+      const settled = (await read($, panel)).phase
+      const delays = settled === 'done' ? [DONE_SECONDS, DONE_SECONDS + 240]
+        : settled === 'error' || settled === 'aborted' ? [FLASH_SECONDS] : []
+      for (const delay of delays) {
+        $.clock.after(delay * 1000, async () => {
+          const current = await read($, panel)
+          // 已开始新一轮任务时，旧的庆祝或出错计时器不能重绘或覆盖新阶段。
+          if (current.phase !== settled || current.phaseAt !== tick) return
+          const now = await $.clock.now()
+          await update($, panel, state => ({ ...state, clockAt: now }))
+        })
       }
     }
     return next(event)
@@ -326,7 +404,7 @@ export const register: Register = (on, options) => {
   on('session.end', async ($, event, next) => {
     const epoch = workStamp()
     usageRequest++
-    await update($, panel, state => ({ ...state, compacting: 0, work: emptyWork(epoch) }))
+    await update($, panel, state => ({ ...state, compacting: 0, asking: 0, step: undefined, work: emptyWork(epoch) }))
     return next(event)
   })
 
@@ -353,11 +431,14 @@ export const register: Register = (on, options) => {
         : <Text dimColor wrap="truncate-end">{text}</Text>
     }
     const work = panelWork(state)
-    // 主会话真实压缩和工作优先；后台记录继续保留，仅在主会话不工作时显示等待。
-    const phase: Mood = (state.compacting ?? 0) > 0 ? 'compact'
-      : event.props.isWorking ? 'working' : hasWork(work) ? 'waiting'
-      : !work.known ? 'unknown' : state.phase === 'working' ? 'idle' : state.phase
-    const [shown] = scenePhase(phase, Math.max(0, (state.clockAt - state.phaseAt) / 1000))
+    const [settled] = scenePhase(state.phase, Math.max(0, (state.clockAt - state.phaseAt) / 1000))
+    // 优先级：真实压缩 > 等你回答 > 主会话工作（按响应块细分）> 等待后台 > 刚出错或中断 > 未知 > 完成、休息、睡觉。
+    // 后台记录继续保留，仅在主会话不工作时显示等待。
+    const shown: Mood = (state.compacting ?? 0) > 0 ? 'compact'
+      : (state.asking ?? 0) > 0 ? 'asking'
+      : event.props.isWorking ? (state.step ?? 'working') : hasWork(work) ? 'waiting'
+      : settled === 'error' || settled === 'aborted' ? settled
+      : !work.known ? 'unknown' : settled === 'working' ? 'idle' : settled
     return <Box flexDirection="row" alignItems="center" justifyContent="space-between" flexWrap="nowrap" columnGap={2} paddingX={1} overflow="hidden">
       <Box flexDirection="row" alignItems="center" flexShrink={0} columnGap={2}>
         {items.map(item => {
@@ -378,10 +459,7 @@ export const register: Register = (on, options) => {
       </Box>
       <Box flexGrow={1} flexShrink={1} width={0} minWidth={0} overflow="hidden" alignItems="center">
         <Box flexShrink={0}>
-          <Svg source={sceneSvg(shown)} isInteractive width={SCENE_WIDTH} height={SCENE_HEIGHT}
-            alt={shown === 'waiting' ? 'Claude is waiting for scripts or subagents'
-              : shown === 'unknown' ? 'Claude task status is unknown'
-              : `Claude is ${shown === 'done' ? 'celebrating' : shown === 'relax' ? 'relaxing' : shown === 'compact' ? 'compacting' : shown}`} />
+          <Svg source={sceneSvg(shown, state.cache)} isInteractive width={SCENE_WIDTH} height={SCENE_HEIGHT} alt={ALT[shown]} />
         </Box>
       </Box>
     </Box>

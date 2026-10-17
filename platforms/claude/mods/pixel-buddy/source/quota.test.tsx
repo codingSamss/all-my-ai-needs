@@ -215,15 +215,18 @@ test('庆祝切换到休息和空闲，旧回调不能打断新任务', async ($
 })
 
 test('各状态使用稳定的浏览器动画源，不引入执行结果文案', () => {
-  for (const mood of ['idle', 'working', 'done', 'relax', 'compact', 'waiting', 'unknown'] as const) {
-    const svg = sceneSvg(mood)
+  const scenes = [['idle'], ['working'], ['thinking'], ['replying'], ['asking'], ['done'], ['relax', 'hot'], ['relax', 'warm'],
+    ['relax', 'cold'], ['compact'], ['waiting'], ['unknown'], ['error'], ['aborted']] as const
+  for (const [mood, cache] of scenes) {
+    const svg = sceneSvg(mood, cache)
     // 未知状态必须保持静止，不能借背景运动暗示任务仍在执行。
     if (mood === 'unknown') expect(svg).not.toContain('<animate')
     else expect(svg).toContain('<animate')
     expect(svg).toContain('width="512" height="54"')
+    expect(svg).toContain('viewBox="0 0 256 27"')
     expect(svg).toContain('@media(prefers-color-scheme:light)')
     expect(svg).not.toContain('{{')
-    expect(sceneSvg(mood)).toBe(svg)
+    expect(sceneSvg(mood, cache)).toBe(svg)
     expect(svg).not.toContain('undefined')
     expect(svg).not.toContain('NaN')
     expect(svg).not.toContain('<script')
