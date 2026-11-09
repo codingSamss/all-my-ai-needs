@@ -4,9 +4,9 @@ platform: claude
 
 origin:
   repo: https://github.com/tw93/Mole
-  path: .claude/skills/mole
-  ref: fe32f9915787c5420f1836dbdf726566956157c1
-  version: V1.59.1
+  path: skills/mole
+  ref: 7ec1af8335c8768e27b2e1c3ffbfe664f71fb51a
+  version: V1.70.0
   license: GPL-3.0-or-later
   local_adaptations:
     - 保留 mole-mac-cleanup 名称与更宽的用户触发描述，正文以 upstream agent skill 的命令语义与 machine-readable surfaces 为基线。
@@ -25,6 +25,8 @@ origin:
       内容探测不确定时保留候选并报告运行不完整。
     - 2026-10-13 核对 V1.58.0→V1.59.1：仅回流 history 的 run_id、attribution 与结构化删除记录语义；
       旧日志归属 ambiguous 时不得将计数归入单次运行，ended_at 为空不视为已完成；保留本地清理二次确认边界。
+    - 2026-11-09 跟进 V1.70.0 的 skills/mole 入口与 macOS 参考：补齐默认清空废纸篓、缓存 sudo 会话、
+      purge 全量授权及近期活动保护、异常保护配置停止、uninstall dry-run 版本差异与部分扫描语义；保留本地二次确认边界。
 
 sync_paths:
   - SKILL.md
@@ -38,7 +40,7 @@ dependencies:
 manual_steps:
   - 推荐通过 Homebrew 安装或升级 Mole：brew install mole / brew upgrade mole
   - 同步后新开 Claude Code 会话，确保运行时重新加载最新版 skill 正文
-  - 清理类命令必须先 dry-run 并汇总候选；非 dry-run 的 clean、uninstall、purge、installer、optimize 需要当前轮二次确认
+  - 清理类命令必须先 dry-run 并汇总候选；非 dry-run 的 clean、uninstall、purge、installer、slim、optimize 需要当前轮二次确认
   - 使用 mo analyze --json、mo status --json 与 mo history --json 等 agent-facing surface，避免解析 TUI 帧
   - update、remove、nightly、sudo、关闭应用及项目/容器数据清理必须单独获得明确授权
 

@@ -29,6 +29,7 @@ notes:
   - This skill is read-only.
   - HTTP/API and Chrome Cookie DB extraction are intentionally not supported.
   - Do not use opencli doctor for routine checks because it may start the daemon.
-  - Reviewed combination is OpenCLI 1.8.8 with actual undici 7.29.1 and js-yaml 4.3.2; Node.js >=20.18.1 is required. Recheck dependencies after any reinstall or update.
+  - Reviewed combination is OpenCLI 2.0.3 with actual undici 7.30.1 and js-yaml 4.3.2; Node.js >=20.18.1 and Chrome extension >=1.0.27 are required. Recheck dependencies after any reinstall or update.
   - Stop the whole batch on SECURITY_BLOCK, AUTH_REQUIRED, captcha, or account warnings.
   - Trace capture is off by default; signed URLs and diagnostics must remain local.
+  - OpenCLI 2.x default and explicit JSON output use an ok/data envelope; YAML retains the raw data shape.

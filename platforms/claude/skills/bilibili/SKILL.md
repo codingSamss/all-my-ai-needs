@@ -50,11 +50,13 @@ Audio for transcription:
 bili audio "<BV_ID>"
 ```
 
-Subtitles through OpenCLI:
+Subtitles through OpenCLI (install or upgrade only after the shared [dependency review](../xiaohongshu/references/opencli-upgrade.md)):
 
 ```bash
 opencli bilibili subtitle "<BV_ID>"
 ```
+
+OpenCLI 2.x default output and explicit `-f json` use `{ "ok": true, "data": ... }`. Check the exit status and `ok` before reading `data`; errors are not empty subtitles. `-f yaml` retains the raw data shape. This rule applies to OpenCLI, not the separate `bili` CLI.
 
 No-install search fallback:
 

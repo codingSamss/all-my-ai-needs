@@ -11,7 +11,7 @@ Write a concise Markdown handoff so a fresh agent can continue the work without 
 
 根据用户意图选择落点:
 
-- 临时交接: 默认保存到 OS 临时目录，不写入当前 workspace；文件名为 `handoff-YYYYMMDD-HHMMSS-<short-topic>.md`
+- 临时交接: 默认保存到 OS 临时目录（Unix 使用 `$TMPDIR`，未设置时回退 `/tmp`；Windows 使用 `%TEMP%`），不写入当前 workspace；文件名为 `handoff-YYYYMMDD-HHMMSS-<short-topic>.md`
 - 项目制品: 只有当用户明确要求把 handoff 落到当前 workspace 时，才写入当前 workspace
 - 多机器长期接力: 当用户提到不同机器、家里机器、远程 Codex/Claude Code、Obsidian、知识库交接台、接着在另一台机器做时，默认写入 Obsidian Vault 的 `07_交接台`
 

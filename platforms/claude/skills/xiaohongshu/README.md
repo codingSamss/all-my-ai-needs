@@ -14,12 +14,12 @@ OpenCLI 使用本地 daemon + Chrome 扩展复用真实浏览器登录态。数�
 
 ## 前置条件
 
-- Node.js / npm；OpenCLI 1.8.8 要求 Node.js >=20.18.1
+- Node.js / npm；OpenCLI 2.0.3 要求 Node.js >=20.18.1
 - 已评估版本的 `@jackwener/opencli`
-- Chrome OpenCLI extension
+- Chrome OpenCLI extension 1.0.27 或更新版本
 - Chrome 已登录小红书
 
-安装或升级前阅读 [版本与安全评估](references/opencli-upgrade.md)。已验证组合为 OpenCLI 1.8.8 + `undici 7.29.1` + `js-yaml 4.3.2`，验证时未命中已知依赖公告；原版 1.8.8 仍固定受影响的 `undici 7.29.0`。重装或更新可能覆盖本地依赖修补，需检查实际安装版本并重新审计。依赖安装按用户授权执行，本仓库不自动安装扩展或写入 Cookie。
+安装或升级前阅读 [版本与安全评估](references/opencli-upgrade.md)。已验证组合为 OpenCLI 2.0.3 + `undici 7.30.1` + `js-yaml 4.3.2`，验证时官方 npm 审计为 0 条已知漏洞；旧的 1.8.8 / 7.29.1 组合已命中新公告，不再作为安装基线。升级需固定版本、禁用安装脚本并保留回退副本；本仓库不自动安装扩展或写入 Cookie。
 
 ## 验证命令
 
@@ -42,12 +42,14 @@ opencli xiaohongshu feed -f yaml
 opencli xiaohongshu user "<user_id>" -f yaml
 ```
 
-经单独评估且支持 1.8.8 筛选参数的安装，可使用：
+经评估且支持当前筛选参数的安装，可使用：
 
 ```bash
 opencli xiaohongshu search --help
 opencli xiaohongshu search "咖啡机" --sort latest --note-type image --publish-time week --limit 5 -f yaml
 ```
+
+OpenCLI 2.x 的默认输出和显式 `-f json` 都使用 `ok/data` 包装；先确认退出码和 `ok`，再读 `data`，错误不能当空结果。`-f yaml` 保持原数据结构。
 
 旧版本不要直接套用新增参数。笔记与评论必须使用搜索、feed 或主页返回的完整签名链接。
 

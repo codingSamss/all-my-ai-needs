@@ -10,7 +10,7 @@ sync_paths:
 origin:
   repo: https://github.com/KKKKhazix/khazix-skills
   path: aihot
-  ref: 1e6adab5ecfbc36156071295a0d3e7757d50c53e
+  ref: cfa3436d4d31db9b1340af3082a914adf92f023f
   version: 2.0.0
   license: MIT
   local_adaptations:

@@ -18,9 +18,9 @@ Triggered by:
 
 ## Prerequisites
 
-1. Node.js and npm are installed. OpenCLI 1.8.8 requires Node.js >=20.18.1.
-2. OpenCLI is installed. Before installing or upgrading, read [the upgrade review](references/opencli-upgrade.md). The reviewed combination is OpenCLI 1.8.8 with actual runtime dependencies `undici 7.29.1` and `js-yaml 4.3.2`; an ordinary 1.8.8 installation does not include this dependency correction. Reinstalling or updating can overwrite the local correction, so recheck the actual dependencies and current advisories.
-3. The OpenCLI Chrome extension is installed manually from the Chrome Web Store.
+1. Node.js and npm are installed. OpenCLI 2.0.3 requires Node.js >=20.18.1.
+2. OpenCLI is installed. Before installing or upgrading, read [the upgrade review](references/opencli-upgrade.md). The reviewed combination is OpenCLI 2.0.3 with actual runtime dependencies `undici 7.30.1` and `js-yaml 4.3.2`. This release includes the required dependency update; the previous 1.8.8 / 7.29.1 combination is no longer the reviewed baseline. Recheck actual dependencies and current advisories after any reinstall or update.
+3. The OpenCLI Chrome extension is installed manually from the Chrome Web Store. OpenCLI 2.0.3 requires extension 1.0.27 or newer; confirm the connected version with `opencli daemon status` before changing anything.
 4. Chrome is open and logged into Xiaohongshu.
 
 Check status without starting or changing the daemon:
@@ -41,7 +41,7 @@ Search notes:
 opencli xiaohongshu search "<query>" -f yaml
 ```
 
-On a separately reviewed installation that supports the OpenCLI 1.8.8 search options, filter recent image notes:
+On a separately reviewed installation that supports the reviewed search options, filter recent image notes:
 
 ```bash
 opencli xiaohongshu search "<query>" --sort latest --note-type image --publish-time week --limit 5 -f yaml
@@ -103,7 +103,7 @@ If OpenCLI returns `BROWSER_CONNECT` or cannot bind `127.0.0.1:19825`, the daemo
 
 ### Risk Controls and Local Evidence
 
-- OpenCLI 1.8.8 internally retries `note`, `comments`, and `download` at most once after an 8-18 second cooldown on a detected soft block. Older versions may fail immediately. This is not a cross-command rate limiter or a guarantee against account restrictions.
+- OpenCLI 2.0.3 internally retries `note`, `comments`, and `download` at most once after an 8-18 second cooldown on a detected soft block. Older versions may fail immediately. This is not a cross-command rate limiter or a guarantee against account restrictions.
 - If a command returns `SECURITY_BLOCK`, or a captcha/account warning appears, stop the whole batch. Do not wrap it in an outer retry loop or switch accounts, sessions, IPs, or tools to continue through the restriction. Leave verification to the user.
 - Run batch commands serially with a deliberate pause between notes. Start with a small probe and expand only to the requested scope; no particular delay guarantees safety.
 - Keep trace capture off by default. Enable `--trace retain-on-failure` only for a bounded diagnostic run. Signed URLs, manifests, traces, screenshots, and account data stay local; redact tokens and identity details from shared reports and never commit them.
@@ -144,7 +144,7 @@ For bulk image download from a profile, use a staged flow:
 opencli xiaohongshu user "<canonical_profile_url>" --limit "<requested_limit>" -f json --window background --site-session persistent --trace off > notes-manifest.json
 ```
 
-4. Download from manifest URLs, not note ids alone. The manifest URLs usually include the required `xsec_token`.
+4. In OpenCLI 2.x, both default output and explicit `-f json` wrap success as `{ "ok": true, "data": ... }`. Check the exit status and `ok` before reading manifest rows from `data`; `{ "ok": false, "error": ... }` is a failure, not an empty result. `-f yaml` retains the unwrapped data shape. Download from the manifest URLs, not note ids alone; they usually include the required `xsec_token`.
 5. Write a token-redacted status log per note. A confirmed deleted note or missing media may be skipped; `SECURITY_BLOCK`, login loss, captcha, or account warnings stop the entire batch. Do not continue past these as ordinary per-note failures.
 6. Preserve the raw download directory. If the user wants clean names, copy into a separate `named/` directory instead of destructively renaming raw files.
 

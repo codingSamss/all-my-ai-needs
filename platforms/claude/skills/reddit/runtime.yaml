@@ -12,7 +12,7 @@ dependencies:
     - opencli
 
 manual_steps:
-  - npm install -g @jackwener/opencli
+  - Review ../xiaohongshu/references/opencli-upgrade.md before an authorized, version-pinned OpenCLI installation or upgrade.
   - Install the OpenCLI Chrome extension manually from the Chrome Web Store.
   - Log into reddit.com in Chrome.
 

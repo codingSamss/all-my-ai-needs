@@ -2,7 +2,7 @@
 
 > 本仓库采用 `platform-first` 人工同步：下方安装器说明仅用于 upstream 独立分发。本仓库不会执行安装器、生成 Actor 标识或创建跨平台 symlink；Claude 只下发 `SKILL.md` 与 `LICENSE`，Codex 另保留 `agents/openai.yaml`，实际范围以本目录 `runtime.yaml: sync_paths` 为准。
 
-让支持 Agent Skills（`SKILL.md`）的工具直接用中文查询 [AIHOT](https://aihot.news)：最新精选、关键词动态、当前热点和事件来龙去脉、AI 日报、Codex 额度重置。
+让支持 Agent Skills（`SKILL.md`）的工具直接用中文查询 [AIHOT](https://aihot.news)：最新精选、关键词动态、当前热点和事件来龙去脉、AI 日报、周报和月报、Codex 额度重置。
 
 **装一次就好，以后不用再更新。** 这个 Skill 只负责把问题交给 AIHOT、把结果讲给你；查什么、怎么整理都在 AIHOT 服务器上完成，并持续改进。AIHOT 以后新增的能力，已经装好的 Skill 会自动用上。
 
@@ -111,10 +111,10 @@ AIHOT 目前能查的全部内容，以 [给 Agent 的使用说明](https://aiho
 - 过去 24 小时或最近 7 天的精选与全部公开动态，可按模型、产品、行业、论文、教程与观点分类。
 - 公司、产品、模型、人物和话题关键词（最近 7 天）。
 - 现在最热的多源事件，以及每个事件的最新进展、报道时间线和 AI 综述。
-- 最新或指定日期的 AI 日报。
+- 最新或指定日期的 AI 日报，最新或指定一期的周报、月报。
 - Codex 额度重置与 Tibo 发重置卡的预告和确认。
 
-超过 7 天的历史搜索暂不保证；周报、月报和模型榜目前只有网页。
+超过 7 天的历史搜索暂不保证；模型榜目前只有网页。
 
 ## 不装 Skill 也能用
 
@@ -127,7 +127,7 @@ AIHOT 目前能查的全部内容，以 [给 Agent 的使用说明](https://aiho
 - AIHOT 服务与数据输出适用 [AIHOT 公开使用规则](https://aihot.news/terms)。匿名、无需 API Key 只说明技术访问方式，不代表所有用途均获许可。
 - 第三方原文及全文版权仍归原作者，不因经过 AIHOT 而改变。
 - 个人非商业、公益非商业和组织内部使用免费。面向外部的商业产品、收费服务、客户交付、代理接口、数据转售、公开镜像、批量公开再分发或对外模型产品须先取得书面授权；仅标注「数据来源：AIHOT」不代表已取得授权。
-- 授权联系 `wzglyay@virxact.com`。attribution 与 canonical 继续用于机器识别和追溯；重要引用回第三方原文核对。
+- 授权联系 `agent@virxact.com`。attribution 与 canonical 继续用于机器识别和追溯；重要引用回第三方原文核对。
 
 详细接入文档：[aihot.news/agent](https://aihot.news/agent)
 

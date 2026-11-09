@@ -12,7 +12,7 @@ dependencies:
 
 manual_steps:
   - pipx install bilibili-cli
-  - npm install -g @jackwener/opencli
+  - Review ../xiaohongshu/references/opencli-upgrade.md before an authorized, version-pinned OpenCLI installation or upgrade.
   - Install the OpenCLI Chrome extension manually for subtitle support.
 
 verify:

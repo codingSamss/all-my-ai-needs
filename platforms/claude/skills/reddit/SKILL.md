@@ -19,7 +19,7 @@ Triggered by:
 ## Prerequisites
 
 1. Node.js and npm are installed.
-2. OpenCLI is installed: `npm install -g @jackwener/opencli`
+2. OpenCLI is installed. Follow the shared [version and dependency review](../xiaohongshu/references/opencli-upgrade.md) before an authorized upgrade; do not use an unpinned global install.
 3. The OpenCLI Chrome extension is installed manually from the Chrome Web Store.
 4. Chrome is open and logged into `reddit.com`.
 5. If Reddit is blocked by the current network, use the local proxy configured for this machine.
@@ -31,6 +31,8 @@ opencli daemon status
 ```
 
 Do not run `opencli doctor` for routine checks; it can start the daemon.
+
+For OpenCLI 2.x, default output and explicit `-f json` return `{ "ok": true, "data": ... }` on success. Check the exit status and `ok` before reading `data`; an error envelope is not an empty result. `-f yaml` keeps the raw data shape.
 
 ## Commands
 
