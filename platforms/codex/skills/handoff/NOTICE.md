@@ -4,7 +4,7 @@
 
 - Source repository: <https://github.com/mattpocock/skills>
 - Source path: `skills/productivity/handoff`
-- Pinned commit: `bddb833cbaa322ff89d07e490530860aa73a4293`
+- Pinned commit: `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d`
 - License: MIT
 
 The upstream skill is a compact instruction for writing a handoff document into the OS temporary directory. This Codex version keeps that behavior, removes upstream-only frontmatter fields, and expands the body with Codex-compatible workflow, redaction, output-location, and template guidance.

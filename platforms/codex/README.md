@@ -35,7 +35,7 @@
 | `handoff` | 为下一位 agent、新线程或跨机器任务生成临时/持久交接文档 | 纯指令型 skill；临时落点兼容 Unix/Windows；长期接力写入 Obsidian `07_交接台`，建议技能明确通过 Skill tool 调用 |
 | `ian-xiaohei-illustrations` | 为中文内容生成小黑 2.0 实物场景正文图与长卷故事图 | 依赖 Codex `image_gen` 能力 |
 | `linuxdo` | 只读访问 LINUX DO 论坛 | 依赖 Chrome Cookie |
-| `mole-mac-cleanup` | 基于 Mole 官方 agent skill 安全检查状态、分析磁盘、审计历史并预览/执行 macOS 清理 | 1.70.0 基线；补齐废纸篓、系统权限、部分扫描与 `purge` 全量授权边界 |
+| `mole-mac-cleanup` | 基于 Mole 官方 agent skill 检查状态、分析磁盘、审计历史并预览清理与应用瘦身 | 1.71.0 基线，旧版按 help 降级；保留个人数据与白名单默认项；卸载/瘦身实跑交用户终端 |
 | `mono-color` | 从主题、句子、物件或参考照片生成单色/受控双色的编辑印刷图，覆盖海报、zine、社媒封面与包装 | 依赖 Codex `image_gen` 能力 |
 | `official-article-ingest` | 官方文章收录到 Obsidian，区分原文 1:1 与英文中文对照 1:1，并保持源站排版美感 | 依赖目标 Vault、源站页面与本地媒体校验 |
 | `online-doc-html` | Markdown 导出为适合在线文档粘贴的 HTML | 依赖 `pandoc` / `rsvg-convert` |

@@ -7,4 +7,4 @@
 - Pinned commit: `4ae2317ddb22b046e26455e4f9c9b3aaaf62212d`
 - License: MIT
 
-The skill body and bundled format files are kept from the upstream pinned version, including the reusable lesson `assets/` workflow. The only intentional compatibility change is in `SKILL.md` frontmatter: upstream fields `disable-model-invocation` and `argument-hint` are omitted because this repository's local skill validator accepts only the supported Codex/Claude metadata fields.
+The skill body and bundled format files follow the upstream pinned version, including the reusable lesson `assets/` workflow, workspace-relative learning files, skill-relative format templates, and varied correct-answer positions. Local compatibility changes omit the upstream `disable-model-invocation` and `argument-hint` frontmatter fields and describe the invocation directory without requiring the platform-specific `/teach` command.
