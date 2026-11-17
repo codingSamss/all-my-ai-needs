@@ -1,0 +1,9 @@
+{
+  "name": "teach",
+  "targets": [
+    "antigravity",
+    "claude",
+    "codex"
+  ],
+  "entry": "SKILL.md"
+}

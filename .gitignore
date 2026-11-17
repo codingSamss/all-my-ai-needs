@@ -22,6 +22,10 @@ platforms/codex/rules/
 # 仓库收 skill、可公开的可选 Mod 源码及治理元数据；设备全局同步脚本和运行件仍本地自管
 /setup.sh
 /scripts/
+platforms/antigravity/agents/
+platforms/antigravity/hooks/
+platforms/antigravity/scripts/
+platforms/antigravity/setup/
 platforms/claude/agents/
 platforms/claude/hooks/
 platforms/claude/scripts/

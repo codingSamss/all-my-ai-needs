@@ -1,0 +1,56 @@
+runtime_version: 1
+skill: mole-mac-cleanup
+platform: antigravity
+
+origin:
+  repo: https://github.com/tw93/Mole
+  path: skills/mole
+  ref: 49a861b85d1bc19fa96e4dc4a8e8a7b43000193f
+  version: V1.71.0
+  license: GPL-3.0-or-later
+  local_adaptations:
+    - 保留 mole-mac-cleanup 名称与更宽的用户触发描述，正文以 upstream agent skill 的命令语义与 machine-readable surfaces 为基线。
+    - 增加当前轮二次确认、默认无 sudo、不自动关闭应用、项目与运行态数据独立审批等本地安全边界。
+    - Homebrew 管理状态以 brew list / brew info 为准，避免只依赖 mo --version 的 Install 字段。
+    - analyze 的路径参数采用 `mo analyze --json <path>` flag-first 顺序，兼容 V1.43.1 等旧版并继续适用于当前 upstream。
+    - V1.51.0 起 purge 同时覆盖本地构建产物与需联网恢复的依赖目录；确认前必须按恢复类型分类候选项。
+    - 2026-09-04 核对 b5c6eccb→2c0f11aa 区间：upstream 改为规则式结构，安全语义弱于本地重写版，正文不整体回流。
+      只补齐本地此前漏写的两个命令面——`mo uninstall --list`（非 TTY 时输出 JSON 应用清单，用于免 TUI 取 uninstall_name）
+      与 `mo purge --include-empty`；字段与行为已在本机 mo 1.53.0 实测复核，含 upstream 未列出的 source 字段。
+    - purge 的 `--paths` 是交互式扫描目录编辑器，按本地「不进入 TUI」原则标注为人类面，只提示用户自行编辑，不由 agent 进入。
+    - 2026-09-16 回流 2c0f11aa→2ddb0b73：upstream 推翻了「dry-run 就是撤销手段」的旧表述，本地正文同步纠正为
+      dry-run 不提供备份也不提供撤销，且 clean-list.txt 只是预览快照——之后的 mo clean 会重新扫描并重新校验候选，
+      两次的目标集可能不同，不得向用户承诺实跑会精确删除该清单。
+    - 同轮补入 purge 的授权语义：非交互实跑需要显式 --yes（dry-run 不需要），有作者内容的产物受保护，
+      内容探测不确定时保留候选并报告运行不完整。
+    - 2026-10-13 核对 V1.58.0→V1.59.1：仅回流 history 的 run_id、attribution 与结构化删除记录语义；
+      旧日志归属 ambiguous 时不得将计数归入单次运行，ended_at 为空不视为已完成；保留本地清理二次确认边界。
+    - 2026-11-09 跟进 V1.70.0 的 skills/mole 入口与 macOS 参考：补齐默认清空废纸篓、缓存 sudo 会话、
+      purge 全量授权及近期活动保护、异常保护配置停止、uninstall dry-run 版本差异与部分扫描语义；保留本地二次确认边界。
+    - 2026-11-12 核对 V1.71.0：macOS 参考仍标注 1.70.0，以正式发布说明、源码和对应测试复核。
+      正文补齐 purge 的在用目录与 Swift 依赖保护、空扫描根配置的回退，及卸载的模型、虚拟机和容器保护。
+
+sync_paths:
+  - SKILL.md
+  - LICENSE
+
+dependencies:
+  commands:
+    - mo
+    - brew
+
+manual_steps:
+  - 通过 Homebrew 安装 Mole；升级前核对公式版本，并保留旧 keg 以便回退
+  - 同步后新开 Antigravity 会话，确保运行时重新加载最新版 skill 正文
+  - 清理类命令必须先 dry-run 并汇总候选；非 dry-run 的 clean、uninstall、purge、installer、slim、optimize 需要当前轮二次确认
+  - uninstall、installer、slim 的实际执行与交互选择交给用户自己的终端，不通过伪终端代答确认
+  - 使用 mo analyze --json、mo status --json 与 mo history --json 等 agent-facing surface，避免解析 TUI 帧
+  - update、remove、nightly、关闭应用及项目/容器数据清理必须单独获得明确授权；管理员授权步骤交给用户终端
+
+verify:
+  - test -f SKILL.md
+  - test -f LICENSE
+  - rg -q 'mo analyze --json' SKILL.md
+  - rg -q 'mo history --json --limit' SKILL.md
+  - command -v mo
+  - mo --version

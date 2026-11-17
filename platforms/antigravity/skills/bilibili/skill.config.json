@@ -1,0 +1,8 @@
+{
+  "name": "bilibili",
+  "targets": [
+    "antigravity",
+    "claude"
+  ],
+  "entry": "SKILL.md"
+}

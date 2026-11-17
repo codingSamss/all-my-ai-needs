@@ -1,0 +1,8 @@
+{
+  "name": "video-transcribe",
+  "targets": [
+    "antigravity",
+    "claude"
+  ],
+  "entry": "SKILL.md"
+}

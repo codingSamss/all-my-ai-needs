@@ -1,0 +1,9 @@
+{
+  "name": "bird-twitter",
+  "targets": [
+    "antigravity",
+    "claude",
+    "codex"
+  ],
+  "entry": "SKILL.md"
+}

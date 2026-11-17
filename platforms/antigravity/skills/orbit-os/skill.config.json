@@ -1,0 +1,8 @@
+{
+  "name": "orbit-os",
+  "targets": [
+    "antigravity",
+    "claude"
+  ],
+  "entry": "SKILL.md"
+}

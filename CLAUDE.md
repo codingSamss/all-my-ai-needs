@@ -7,7 +7,7 @@
 这是一个 `platform-first` 的多平台技能仓库：
 
 - 不再以 `shared/skills/` 作为主要组织方式
-- `platforms/claude`、`platforms/codex` 各自维护各自的平台真源
+- `platforms/antigravity`、`platforms/claude`、`platforms/codex` 各自维护各自的平台真源
 - 同名 skill 允许在不同平台目录重复存在
 
 目录结构与平台入口见 [README.md](README.md#仓库结构)。
@@ -24,7 +24,7 @@
 
 本项目按平台同步生效。GitHub 仓库、本地工作区与相关本地运行目录必须保持一致。
 
-同步方式：仓库不再提供同步脚本；由 AI agent 拉取仓库后，读取各平台 `runtime.yaml` / `skills.meta.yaml`，将 skill 真源手工 diff 后同步到对应运行目录（`~/.claude/skills`、`~/.codex/skills`），只落最小文件集。
+同步方式：仓库不再提供同步脚本；由 AI agent 拉取仓库后，读取各平台 `runtime.yaml` / `skills.meta.yaml`，将 skill 真源手工 diff 后同步到对应运行目录（`~/.claude/skills`、`~/.gemini/config/skills`、`~/.codex/skills`），只落最小文件集。
 
 运行目录规则：
 

@@ -2,11 +2,12 @@
 
 ## 项目结构与模块组织
 
-本仓库采用 `platform-first` 模型：`platforms/claude/`、`platforms/codex/` 各自维护各自的平台真源；允许同名 skill 在不同平台目录并存，不强行去重。`shared/` 不再作为主要组织方式。
+本仓库采用 `platform-first` 模型：`platforms/antigravity/`、`platforms/claude/`、`platforms/codex/` 各自维护各自的平台真源；允许同名 skill 在不同平台目录并存，不强行去重。`shared/` 不再作为主要组织方式。
 
+- `platforms/antigravity/`：Antigravity 的精选 `skills/` 与平台平铺运行约定（对应 `~/.gemini/config`）。
 - `platforms/claude/`：Claude 的 `skills/`、`.claude-plugin/`、点名安装的 `mods/` 与平台运行约定。
-- `platforms/codex/`：Codex 的 `skills/`、`config.toml` 参考。
-- 治理元数据：`platforms/{claude,codex}/runtime.yaml`、`skills.meta.yaml`、根 `PROFILES.md`。
+- `platforms/codex/`：Codex 的 `skills/`、`config.toml` 参考（归档留存）。
+- 治理元数据：`platforms/{antigravity,claude,codex}/runtime.yaml`、`skills.meta.yaml`、根 `PROFILES.md`。
 - `runtime.yaml` 的字段约定以各平台 `skill_runtime_contract` 为准；平台固定为各自目录对应平台，不再使用 `platform: shared`。
 
 每个技能目录建议包含 `SKILL.md`、`runtime.yaml`；如有确定性脚本或检查，再补 `README.md`。其中 Codex 技能必须有 `SKILL.md`。
@@ -16,8 +17,8 @@
 - 日常同步默认采用“AI 人工同步 + 差异审阅”，不是直接跑脚本做目录镜像。
 - 差异核对前必须先明确口径并在输出中标注：默认使用“日常最小同步口径”（按 runtime.yaml / skills.meta.yaml 规则过滤 repo-only 文件）；仅在用户明确要求“严格镜像/包含删除”时才使用镜像口径。
 - 同步由 AI agent 执行：拉仓库后读 `runtime.yaml` / `skills.meta.yaml`，将 skill 真源 diff 后落到运行目录；仓库不提供全局目录镜像脚本。可选 Mod 允许在自身目录提供经过审查的点名安装器，不改变 skill 同步方式。
-- `runtime.yaml` 必须留在 repo，**不得**下发到 `~/.claude/skills`、`~/.codex/skills`。
-- `agents/openai.yaml` 仅在 Codex / OpenAI 风格运行目录确有必要时才下发；Claude 默认不带。
+- `runtime.yaml` 必须留在 repo，**不得**下发到 `~/.claude/skills`、`~/.gemini/config/skills`、`~/.codex/skills`。
+- `agents/openai.yaml` 仅在 Codex / OpenAI 风格运行目录确有必要时才下发；Claude 与 Antigravity 默认不带。
 - 内部路由与映射数据不得入仓：本地内部配置（`*.local.*`）、内部系统到集群/索引的映射明细、真实服务路由与端点、集群别名、实例 ID、region/zone 组合、容量类内部表都只能留在本地 ignored 文件中；repo 只允许提交占位符模板（如 `env-config.example.yaml`）。
 - 当用户要求“同步某个 skill”时，先比较该平台目录与对应本地运行目录的差异，再执行最小同步并回报结果；不要顺手同步无关 skill。
 - 跨平台统一审批约束（Claude/Codex）：当用户提出“同步/提交/推送”或类似“看下本地跟仓库有什么内容需要同步的”但未明确授权执行写入动作时，默认只执行 `check` 与差异汇总；必须等待用户明确批准后，才可继续 `apply` / `commit` / `push`。
@@ -25,7 +26,7 @@
 ## README 维护约定
 
 - 根 `README.md` 负责仓库级能力总览：平台模型、技能概览、平台摘要、同步入口。
-- `platforms/{claude,codex}/README.md` 负责对应平台的完整 skill 清单、平台能力资产与同步说明。
+- `platforms/{antigravity,claude,codex}/README.md` 负责对应平台的完整 skill 清单、平台能力资产与同步说明。
 - skill 简介默认以对应 `SKILL.md` frontmatter 的 `description` 为准；README 只做压缩，不另写脱离源文案。
 - 当新增、删除、重命名 skill，修改 `SKILL.md` 的 `description` 或平台归属，调整平台能力资产、同步入口、用户可见行为时，提交或推送前必须检查并同步更新相关 README。
 
@@ -34,7 +35,7 @@
 仓库不提供同步脚本；下列动作由 AI agent 拉仓库后执行：
 
 - 列出可同步技能：读 `platforms/<platform>/skills.meta.yaml` 与 `skills/` 目录。
-- 同步指定技能：将 `platforms/<platform>/skills/<skill>` 的最小文件集 diff 后落到 `~/.claude/skills` 或 `~/.codex/skills`，不下发 `runtime.yaml` 等治理元数据。
+- 同步指定技能：将 `platforms/<platform>/skills/<skill>` 的最小文件集 diff 后落到 `~/.claude/skills`、`~/.gemini/config/skills` 或 `~/.codex/skills`，不下发 `runtime.yaml` 等治理元数据。
 - 新机初始化 / 灾备：AI 按 `runtime.yaml` 把全部 skill 真源铺到对应运行目录；MCP 配置由各设备本地自管，不从仓库恢复。
 - 日常优先增量 diff，不做整目录镜像；删除类同步必须用户明确确认。
 
@@ -123,7 +124,8 @@
 - 以下几处必须保持一致：
   - GitHub 仓库状态
   - 本地项目目录（仓库工作区）
-  - 本地 CLI 根目录（`~/.claude`、`~/.codex`）
+  - 本地运行目录（`~/.claude`、`~/.gemini/config`、`~/.codex`）
+- Antigravity 平台 skill 日常同步链路：`platforms/antigravity/skills/<skill>` -> AI 手工 diff -> `~/.gemini/config/skills/<skill>`（最小文件集）。
 - Claude 平台 skill 日常同步链路：`platforms/claude/skills/<skill>` -> AI 手工 diff -> `~/.claude/skills/<skill>`（最小文件集）。
 - Codex 平台 skill 日常同步链路：`platforms/codex/skills/<skill>` -> AI 手工 diff -> `~/.codex/skills/<skill>`（最小文件集）。
 - 设备全局 `agents`/`hooks`/`scripts`/`bin`、`config.toml` 等运行件由各设备本地自管，不入仓也不由仓库回写。例外仅为 `platforms/claude/mods/<mod>/` 下明确登记的原创或已获授权源码及点名安装器；包内 hooks 不等于全局 hooks 同步。Mod 按 `mods.meta.yaml` / `origin.json` 管理，默认 manual-only、user scope，不重启或重载当前会话。

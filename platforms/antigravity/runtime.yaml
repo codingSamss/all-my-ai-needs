@@ -1,0 +1,48 @@
+platform: antigravity
+runtime_version: 1
+
+official_layout:
+  skills_root: platforms/antigravity/skills
+  runtime_root: ~/.gemini/config
+  notes:
+    - 平台专属 skill 平铺放到 platforms/antigravity/skills/<skill-name> 并包含 SKILL.md
+    - repo 中保留 runtime.yaml 供 AI 迁移与同步时读取，但运行目录 ~/.gemini/config/skills 不下发
+    - 平台级 runtime.yaml 仅供仓库内 AI 理解迁移规则，不同步到 ~/.gemini/config 根目录
+
+skill_runtime_contract:
+  required_fields:
+    - runtime_version
+    - skill
+    - platform
+    - sync_paths
+    - dependencies
+    - manual_steps
+    - verify
+  optional_fields:
+    - origin
+    - notes
+    - services
+    - antigravity_capabilities
+  notes:
+    - 平台 skill 以 platforms/antigravity/skills 为准，按 platform-first 独立演进
+    - sync_paths 仅声明真正需要进入 ~/.gemini/config/skills/<skill> 的文件或目录，保持最小同步面
+    - platform 必须固定为 antigravity，不混入 Codex 的 agents/openai.yaml
+    - skill 级 runtime.yaml 只保留在 repo，不进入 ~/.gemini/config/skills/<skill>/ 或 ~/.gemini/config 根目录
+
+# 仓库只管 skill；全局 AGENTS.md、config.json、plugins/vibe-island 等运行件与 MCP 配置由各设备本地自管，不入仓
+managed_root_paths: []
+
+dependencies:
+  commands:
+    - python3
+    - rsync
+  notes:
+    - MCP 配置与全局 AGENTS.md 由各设备本地自管，不从仓库恢复；真实 token、headers、登录态仅保留在本机
+    - 直接成图类技能（ian-xiaohei-illustrations、mono-color）由 Antigravity 内置 image-generator 子代理承接
+
+manual_steps:
+  - 提交、推送前，由读取仓库的 AI 比较 ~/.gemini/config/skills 与仓库 skill 真源的差异
+  - 若本地有值得保留的新内容，先同步回仓库再继续；忽略 secrets、占位符和运行态噪音
+
+verify:
+  - 由 AI 比对 platforms/antigravity/skills 与 ~/.gemini/config/skills 差异，确认最小文件集一致

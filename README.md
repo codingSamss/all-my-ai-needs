@@ -1,20 +1,24 @@
 # all-my-ai-needs
 
-> 跨 Claude Code 与 Codex 两套 agent 的 skill 真源，以及点名安装的 Claude Mods 来源与迁移约定。写入由 agent 执行，人只审校与决策。
+> 跨 Claude Code、Antigravity 与 Codex 的多平台 skill 真源，以及点名安装的 Claude Mods 来源与迁移约定。写入由 agent 执行，人只审校与决策。
 
-把 Claude Code 与 Codex 的可复用能力收敛到一个仓库，按 `platform-first` 维护：每个平台独立持有自己的 `skills/` 与运行约定，同名 skill 允许在两端并存，不强行抽象去重。
+把 Claude Code、Antigravity 与 Codex（归档留存）的可复用能力收敛到一个仓库，按 `platform-first` 维护：每个平台独立持有自己的 `skills/` 与运行约定，同名 skill 允许在各端并存，不强行抽象去重。
 
-仓库要解决的是多端 AI 配置的漂移——GitHub 仓库、本地工作区、本地 CLI 运行目录（`~/.claude`、`~/.codex`）三者保持一致。所有写入（同步、提交、推送）由 agent 执行：agent 拉仓库后读 `runtime.yaml` / `skills.meta.yaml`，把 skill 真源 diff 后落到运行目录，人负责审校差异与最终决策。
+仓库要解决的是多端 AI 配置的漂移——GitHub 仓库、本地工作区、本地运行目录（`~/.claude`、`~/.gemini/config`、`~/.codex`）保持一致。所有写入（同步、提交、推送）由 agent 执行：agent 拉仓库后读 `runtime.yaml` / `skills.meta.yaml`，把 skill 真源 diff 后落到运行目录，人负责审校差异与最终决策。
 
 ## 仓库结构
 
 ```text
 all-my-ai-needs/
 ├── README.md                       # 仓库总览(本文件)
-├── CLAUDE.md / AGENTS.md           # Claude / Codex 协作规范
+├── CLAUDE.md / AGENTS.md           # 多平台 agent 协作规范
 ├── PROFILES.md                     # skill 同步分层(scope / profile)
 ├── .claude-plugin/marketplace.json
 └── platforms/
+    ├── antigravity/                # Antigravity 平台真源 → ~/.gemini/config
+    │   ├── README.md  runtime.yaml
+    │   ├── skills.meta.yaml         # repo-only 同步分层真源
+    │   └── skills/ (15)
     ├── claude/                     # Claude 平台真源 → ~/.claude
     │   ├── README.md  runtime.yaml
     │   ├── skills.meta.yaml         # repo-only 同步分层真源
@@ -22,7 +26,7 @@ all-my-ai-needs/
     │   ├── mods.meta.yaml           # 可选 Mod 清单，默认 manual-only
     │   ├── mods/pixel-buddy/        # 原创/授权源码、来源哈希和点名安装器
     │   └── .claude-plugin/plugin.json
-    └── codex/                      # Codex 平台真源 → ~/.codex
+    └── codex/                      # Codex 平台真源(归档留存) → ~/.codex
         ├── README.md  runtime.yaml  config.toml
         ├── skills.meta.yaml         # repo-only 同步分层真源
         └── skills/ (21)
@@ -30,7 +34,7 @@ all-my-ai-needs/
 
 ## 核心模型
 
-1. **platform-first** —— `platforms/claude/`、`platforms/codex/` 各为真源，互不依赖；不设跨平台共享 skill 目录，同名 skill 按各自平台约定演化。
+1. **platform-first** —— `platforms/antigravity/`、`platforms/claude/`、`platforms/codex/` 各为真源，互不依赖；不设跨平台共享 skill 目录，同名 skill 按各自平台约定演化。
 2. **agent 写入 · 人审校** —— 仓库内容默认由 agent 维护。涉及写入的操作先产出差异清单交人审批再执行；仓库不提供全局镜像脚本；skills 同步由 agent 读元数据完成，可选 Mod 使用自身经过审查的点名安装器。
 3. **scope / profile 分层** —— 每个 skill 标注 `scope`（core / project / manual-only）与项目类型 `profile`，决定何时下发到运行目录。机读真源是各平台 `skills.meta.yaml`，人读视图与同步剧本见 [PROFILES.md](PROFILES.md)。
 
@@ -50,11 +54,11 @@ all-my-ai-needs/
 
 ## 同步模型
 
-日常同步由 agent 驱动：agent 拉仓库后，读各平台 `skills.meta.yaml` 与 `skills/` 真源，与对应运行目录（`~/.claude/skills`、`~/.codex/skills`）做最小差异 diff，人审通过后再落盘。仓库不再提供同步脚本；新机初始化 / 灾备同样由 agent 按 `runtime.yaml` 把全部 skill 铺到运行目录。
+日常同步由 agent 驱动：agent 拉仓库后，读各平台 `skills.meta.yaml` 与 `skills/` 真源，与对应运行目录（`~/.claude/skills`、`~/.gemini/config/skills`、`~/.codex/skills`）做最小差异 diff，人审通过后再落盘。仓库不再提供同步脚本；新机初始化 / 灾备同样由 agent 按 `runtime.yaml` 把全部 skill 铺到运行目录。
 
 下发禁区（任何方向都遵守）：
 
-- `runtime.yaml`、`skills.meta.yaml`、`PROFILES.md` 等治理元数据只留在仓库，不进入 `~/.claude`、`~/.codex`。
+- `runtime.yaml`、`skills.meta.yaml`、`PROFILES.md` 等治理元数据只留在仓库，不进入 `~/.claude`、`~/.gemini/config`、`~/.codex`。
 - 本地 repo 之外的私有 skill（带私有前缀，不公开）与含内网信息的配置不回流仓库，也不被同步删除。
 
 ## 可选 Claude Mods
@@ -80,5 +84,6 @@ Mod 由 `mods.meta.yaml` 单独登记，默认不随 skills 同步；运行态�
 
 ## 平台文档
 
+- Antigravity 完整 skill 清单与同步说明：[platforms/antigravity/README.md](platforms/antigravity/README.md)
 - Claude 完整 skill 清单与同步说明：[platforms/claude/README.md](platforms/claude/README.md)
 - Codex 完整 skill 清单与同步说明：[platforms/codex/README.md](platforms/codex/README.md)

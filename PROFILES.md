@@ -8,7 +8,7 @@
 
 1. **只做正向选择（additive）。** scope / profile 只回答"这次带哪些下发"，绝不用于"不在清单里就删本地 skill"。
 2. **保护本地私有 skill。** 本地可能存在 repo 之外的私有 skill（带私有前缀，不公开），它们**永不删除、永不回流仓库**。
-3. **治理元数据不下发。** `skills.meta.yaml`、`PROFILES.md`、`runtime.yaml` 只留在仓库，**永不进入** `~/.claude`、`~/.codex`。
+3. **治理元数据不下发。** `skills.meta.yaml`、`PROFILES.md`、`runtime.yaml` 只留在仓库，**永不进入** `~/.claude`、`~/.gemini/config`、`~/.codex`。
 4. **分类不含敏感信息。** scope / profile 只用通用分类名，不含任何内网地址、端点、token、集群 / 索引信息。
 
 ## scope：是否默认下发
@@ -37,17 +37,17 @@ macos-local       macOS 本地维护
 
 派生自 `skills.meta.yaml`，改动以 manifest 为准。`core` / `manual-only` 是 scope，其余 5 行是 profile。
 
-| 分类 | 类型 | Codex 成员 | Claude 成员 |
-| --- | --- | --- | --- |
-| `core` | scope·常驻 | git-ops · handoff · teach | cc-codex-review · git-ops · handoff · skill-creator · teach |
-| `obsidian-kb` | profile | official-article-ingest · online-doc-html · orbit-os · video-transcribe | official-article-ingest · online-doc-html · orbit-os · video-transcribe |
-| `frontend-design` | profile | fireworks-tech-graph · gsap · ian-xiaohei-illustrations · mono-color | fireworks-tech-graph · gsap · ian-xiaohei-illustrations · mono-color |
-| `api-testing` | profile | apifox-cli · apifox-test-case | apifox-cli · apifox-test-case |
-| `social-reading` | profile | bilibili · bird-bookmark-folders · bird-twitter · linuxdo · reddit · xiaohongshu | bilibili · bird-bookmark-folders · bird-twitter · linuxdo · reddit · xiaohongshu |
-| `macos-local` | profile | mole-mac-cleanup | mole-mac-cleanup |
-| `manual-only` | scope·点名 | aihot | aihot |
+| 分类 | 类型 | Antigravity 成员 | Codex 成员 | Claude 成员 |
+| --- | --- | --- | --- | --- |
+| `core` | scope·常驻 | git-ops · handoff · teach | git-ops · handoff · teach | cc-codex-review · git-ops · handoff · skill-creator · teach |
+| `obsidian-kb` | profile | official-article-ingest · online-doc-html · orbit-os · video-transcribe | official-article-ingest · online-doc-html · orbit-os · video-transcribe | official-article-ingest · online-doc-html · orbit-os · video-transcribe |
+| `frontend-design` | profile | fireworks-tech-graph · ian-xiaohei-illustrations · mono-color | fireworks-tech-graph · gsap · ian-xiaohei-illustrations · mono-color | fireworks-tech-graph · gsap · ian-xiaohei-illustrations · mono-color |
+| `api-testing` | profile | — | apifox-cli · apifox-test-case | apifox-cli · apifox-test-case |
+| `social-reading` | profile | bilibili · bird-bookmark-folders · bird-twitter · xiaohongshu | bilibili · bird-bookmark-folders · bird-twitter · linuxdo · reddit · xiaohongshu | bilibili · bird-bookmark-folders · bird-twitter · linuxdo · reddit · xiaohongshu |
+| `macos-local` | profile | mole-mac-cleanup | mole-mac-cleanup | mole-mac-cleanup |
+| `manual-only` | scope·点名 | — | aihot | aihot |
 
-平台差异是预期的：`cc-codex-review`、`skill-creator` 仅 Claude。
+平台差异是预期的：`cc-codex-review`、`skill-creator` 仅 Claude；Antigravity 采用本地平铺目录，仅收录 15 个高频不可替代的精选成员。
 
 ## Agent 同步剧本
 
@@ -75,7 +75,7 @@ macos-local       macOS 本地维护
 真源     platforms/<platform>/skills.meta.yaml(机读，唯一权威)
 派生      PROFILES.md 成员表(冲突以 manifest 为准)
 校验      由 agent 核对：目录<->manifest 一一对应、scope 合法、profile 已定义
-边界      上述文件均 repo-only，永不进入 ~/.claude、~/.codex
+边界      上述文件均 repo-only，永不进入 ~/.claude、~/.gemini/config、~/.codex
 ```
 
 新增 / 删除 / 重命名 skill 时，先改对应平台的 `skills.meta.yaml`，再由 agent 核对无漂移，最后同步本文件成员表。
